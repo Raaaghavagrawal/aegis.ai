@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Activity,
@@ -24,9 +24,6 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
-  Line,
-  LineChart,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -57,6 +54,8 @@ function DashboardPage() {
   const [analysis, setAnalysis] = useState(null);
   const [wallet, setWallet] = useState(null);
   const [error, setError] = useState("");
+  const [systemData, setSystemData] = useState(null);
+  const [systemLogs, setSystemLogs] = useState([]);
 
   const chartData = useMemo(() => {
     if (!analysis) return chartTemplate;
@@ -72,12 +71,20 @@ function DashboardPage() {
   );
 
   const loadWallet = async () => {
+    if (!user?.id) return;
     try {
-      const res = await api.get("/api/payouts/wallet", {
+      const balanceRes = await api.get(`/wallet/${user.id}`, {
         headers: getAuthHeaders(),
       });
-      setWallet(res.data);
-    } catch {
+      const payoutsRes = await api.get(`/payouts/${user.id}`, {
+        headers: getAuthHeaders(),
+      });
+      setWallet({
+        wallet_balance: balanceRes.data.balance,
+        payouts: payoutsRes.data
+      });
+    } catch (e) {
+      console.error("Wallet Fetch Error:", e);
       setWallet(null);
     }
   };
@@ -106,46 +113,85 @@ function DashboardPage() {
     fetchStats();
   }, []);
 
-  const barData = [
-    { name: "01", val: 400 },
-    { name: "02", val: 300 },
-    { name: "03", val: 500 },
-    { name: "04", val: 200 },
-    { name: "05", val: 600 },
-    { name: "06", val: 700 },
-    { name: "07", val: 450 },
-    { name: "08", val: 320 },
-    { name: "09", val: 800 },
-    { name: "10", val: 560 },
-  ];
+  const [envData, setEnvData] = useState(null);
 
-  const pieData = [
-    { name: "Afternoon", value: 40, color: "#6366f1" },
-    { name: "Evening", value: 32, color: "#a78bfa" },
-    { name: "Morning", value: 28, color: "#c4b5fd" },
-  ];
+  const fetchEnvData = async (targetCity) => {
+    try {
+      const res = await api.get(`/api/environment/${targetCity}`, {
+        headers: getAuthHeaders(),
+      });
+      setEnvData(res.data);
+      setAnalysis({
+         weather: {
+           rainfall: res.data.rainfall,
+           aqi: res.data.aqi,
+           condition: res.data.condition,
+         },
+         risk: {
+           risk_level: res.data.risk_level,
+           risk_score: res.data.risk_score,
+           suggested_payout: (Number(income) * (res.data.risk_level === 'High' ? 0.3 : 0.05)),
+           auto_payout: res.data.risk_level === 'High'
+         }
+      });
+    } catch (e) {
+      console.error("Fetch Data Error:", e);
+    }
+  };
 
-  const lineData = [
-    { name: "01", val: 100 },
-    { name: "02", val: 340 },
-    { name: "03", val: 210 },
-    { name: "04", val: 560 },
-    { name: "05", val: 320 },
-    { name: "06", val: 740 },
-  ];
+  const fetchSystemData = async () => {
+    try {
+      const statusRes = await api.get("/api/system/status", { headers: getAuthHeaders() });
+      setSystemData(statusRes.data);
+      const logsRes = await api.get("/api/system/logs", { headers: getAuthHeaders() });
+      setSystemLogs(logsRes.data);
+    } catch (e) {
+      console.error("System Fetch Error:", e);
+    }
+  };
+
+  useEffect(() => {
+    fetchSystemData();
+    const interval = setInterval(fetchSystemData, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const barData = useMemo(() => {
+    const base = envData?.rainfall || 10;
+    return Array.from({ length: 10 }, (_, i) => ({
+      name: `T-${i}`,
+      val: Math.max(10, base + (Math.random() * 20 - 10))
+    }));
+  }, [envData]);
+
+  const pieData = useMemo(() => [
+    { name: "Atmospheric", value: envData?.aqi || 50, color: "#6366f1" },
+    { name: "Precipitation", value: (envData?.rainfall || 0) * 2, color: "#a78bfa" },
+    { name: "Baseline", value: 40, color: "#c4b5fd" },
+  ], [envData]);
+
+  const lineData = useMemo(() => {
+    const base = stats?.totalPayouts || 1000;
+    return Array.from({ length: 6 }, (_, i) => ({
+      name: `P-${i}`,
+      val: base + (i * 200) + (Math.random() * 100)
+    }));
+  }, [stats]);
+
+  useEffect(() => {
+    fetchEnvData(city);
+    const interval = setInterval(() => fetchEnvData(city), 60000);
+    return () => clearInterval(interval);
+  }, [city]);
 
   const handleAnalyze = async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await api.post("/api/analyze", {
-        city,
-        weekly_income: Number(income),
-      });
-      setAnalysis(res.data);
+      await fetchEnvData(city);
       await loadWallet();
     } catch (err) {
-      setError(err?.response?.data?.message || "Risk analysis failed");
+      setError("Environmental update failed");
     } finally {
       setLoading(false);
     }
@@ -274,16 +320,17 @@ function DashboardPage() {
                   <div className="flex justify-between items-start mb-8">
                     <div>
                       <p className="text-sm text-gray-400 font-medium tracking-wide">Net Protected Forecast</p>
-                      <h3 className="text-2xl font-bold mt-1 text-white tracking-tighter">₹ {((stats && stats.protectedIncome) || 0).toLocaleString()}</h3>
-                      <p className="flex items-center gap-1.5 text-[11px] text-indigo-400 font-black mt-2 bg-indigo-500/10 w-fit px-2 py-0.5 rounded border border-indigo-500/20">
-                        <TrendingUp size={10} /> +2.1% PERIOD GAIN
+                      <h3 className="text-2xl font-bold mt-1 text-white tracking-tighter">₹ {(stats?.protectedIncome || 0).toLocaleString()}</h3>
+                      <p className={`flex items-center gap-1.5 text-[11px] font-black mt-2 w-fit px-2 py-0.5 rounded border ${envData?.risk_level === 'High' ? 'text-red-400 bg-red-500/10 border-red-500/20' : 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20'}`}>
+                        {envData?.risk_level === 'High' ? <Zap size={10} /> : <TrendingUp size={10} />}
+                        {envData?.risk_level === 'High' ? "CRITICAL RISK DETECTED" : "STABLE OPERATIONS"}
                       </p>
                     </div>
                     <button className="px-4 py-1.5 bg-gray-900 border border-gray-800 rounded-lg text-[10px] font-black text-gray-300 hover:text-white hover:bg-indigo-600/20 hover:border-indigo-600 transition-all uppercase tracking-widest">
                       Analytics Pack
                     </button>
                   </div>
-                  <div className="h-64 w-full">
+                  <div className="h-64 w-full min-h-[256px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={barData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#111827" vertical={false} />
@@ -301,7 +348,7 @@ function DashboardPage() {
 
                 <div className="bg-[#111827] rounded-xl p-5 border border-gray-800 shadow-sm hover:border-gray-700 transition-all duration-300 h-full">
                   <h4 className="text-sm font-semibold mb-8 tracking-wide">Risk Allocation</h4>
-                  <div className="h-48 w-full relative">
+                  <div className="h-48 w-full relative min-h-[192px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -311,11 +358,8 @@ function DashboardPage() {
                           paddingAngle={10}
                           dataKey="value"
                           stroke="none"
-                        >
-                          {pieData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
+                          nameKey="name"
+                        />
                         <Tooltip
                           contentStyle={{ backgroundColor: '#111827', border: '1px solid #1f2937', borderRadius: '12px' }}
                         />
@@ -354,9 +398,9 @@ function DashboardPage() {
                   <h4 className="text-sm font-semibold mb-6 tracking-wide">Signal Log</h4>
                   <div className="space-y-3.5 flex-1 overflow-y-auto pr-1">
                     {[
+                      { name: `${envData?.condition || 'Analyzing'} Current`, city: city, triggered: envData?.risk_level === 'High', time: "Live" },
                       { name: "Heavy Rainfall", city: "Mumbai", triggered: true, time: "2h ago" },
                       { name: "AQI Critical", city: "Delhi", triggered: true, time: "5h ago" },
-                      { name: "Heat Intensity", city: "Chennai", triggered: false, time: "1d ago" },
                     ].map((ev, i) => (
                       <div key={i} className="flex items-center gap-4 p-3.5 rounded-xl bg-gray-950/40 border border-gray-800/40 hover:bg-gray-900/40 transition-colors">
                         <div className={`p-2.5 rounded-xl ${ev.triggered ? 'text-indigo-400 bg-indigo-500/10 border border-indigo-500/15 shadow-[0_0_15px_rgba(79,70,229,0.1)]' : 'text-gray-500 bg-gray-500/5'}`}>
@@ -378,7 +422,7 @@ function DashboardPage() {
                   <div className="mt-4">
                     <p className="text-3xl font-bold tracking-tight text-white leading-none">₹ {((stats && stats.totalPayouts) || 0).toLocaleString()}</p>
                     <p className="text-[10px] font-bold text-gray-500 mt-2 uppercase tracking-widest">Total Disbursed</p>
-                    <div className="h-24 w-full mt-6">
+                    <div className="h-24 w-full mt-6 min-h-[96px]">
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={lineData}>
                           <defs>
@@ -455,7 +499,7 @@ function DashboardPage() {
                       </div>
                     )}
                   </div>
-                  <div className="h-72 w-full">
+                  <div className="h-72 w-full min-h-[288px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={chartData}>
                         <defs>
@@ -476,10 +520,10 @@ function DashboardPage() {
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8 pt-8 border-t border-gray-800/80">
-                    <MetricMini label="Rainfall" value={`${analysis?.weather?.rainfall ?? "--"}mm`} sub={analysis?.weather?.condition || "Waiting..."} icon={<CloudRain size={12} className="text-indigo-400" />} />
-                    <MetricMini label="AQI INDEX" value={analysis?.weather?.aqi ?? "--"} sub="Atmo Pressure" icon={<Wind size={12} className="text-indigo-400" />} />
-                    <MetricMini label="Threat" value={analysis?.risk?.risk_level || "--"} sub={`VAL: ${analysis?.risk?.risk_score ?? "--"}`} icon={<Activity size={12} className="text-indigo-400" />} />
-                    <MetricMini label="Net Credit" value={`₹${analysis?.risk?.suggested_payout?.toLocaleString?.() ?? "--"}`} sub="Auto-Calculated" icon={<IndianRupee size={12} className="text-indigo-400" />} />
+                    <MetricMini label="Rainfall" value={`${analysis?.weather?.rainfall ?? 0}mm`} sub={analysis?.weather?.condition || "Unknown"} icon={<CloudRain size={12} className="text-indigo-400" />} />
+                    <MetricMini label="AQI INDEX" value={analysis?.weather?.aqi ?? 0} sub={envData?.pollution_level || "Unknown"} icon={<Wind size={12} className="text-indigo-400" />} />
+                    <MetricMini label="Threat" value={analysis?.risk?.risk_level || "Low"} sub={`VAL: ${analysis?.risk?.risk_score ?? 0}`} icon={<Activity size={12} className="text-indigo-400" />} />
+                    <MetricMini label="Net Credit" value={`₹${Math.round(analysis?.risk?.suggested_payout ?? 0).toLocaleString()}`} sub="Current Calculation" icon={<IndianRupee size={12} className="text-indigo-400" />} />
                   </div>
                 </div>
 
@@ -522,7 +566,7 @@ function DashboardPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-800/40 font-medium">
-                    {(wallet?.payouts || []).map((p) => (
+                    {Array.isArray(wallet?.payouts) && wallet.payouts.map((p) => (
                       <tr key={p.id} className="text-[12px] hover:bg-indigo-600/[0.03] transition-all group">
                         <td className="px-8 py-5 font-bold text-gray-300 group-hover:text-indigo-400">{String(p.event_date || "").slice(0, 10)}</td>
                         <td className="px-8 py-5 text-gray-500 group-hover:text-gray-300">{p.city}</td>
@@ -536,7 +580,7 @@ function DashboardPage() {
                     ))}
                   </tbody>
                 </table>
-                {(!wallet?.payouts || wallet.payouts.length === 0) && (
+                {(!Array.isArray(wallet?.payouts) || wallet.payouts.length === 0) && (
                   <div className="py-24 text-center text-gray-500 text-sm font-medium italic opacity-60">No financial events detected in this cycle.</div>
                 )}
               </div>
@@ -544,17 +588,83 @@ function DashboardPage() {
           )}
 
           {activeTab === "news" && (
-            <div className="bg-[#111827] rounded-3xl p-12 border border-gray-800 text-center max-w-2xl mx-auto mt-16 group hover:border-indigo-600/30 transition-all duration-500">
-              <div className="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-400 mx-auto mb-8 border border-indigo-500/20 shadow-2xl shadow-indigo-500/20 group-hover:scale-110 transition-transform duration-500">
-                <Newspaper size={28} />
+            <div className="max-w-4xl mx-auto space-y-8 mt-6">
+              <div className="bg-[#111827] rounded-3xl p-8 border border-gray-800 shadow-2xl relative overflow-hidden group hover:border-indigo-600/30 transition-all duration-500">
+                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                  <Activity size={120} className="text-indigo-400" />
+                </div>
+                
+                <div className="flex items-center gap-6 mb-8 relative">
+                  <div className="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-400 border border-indigo-500/20 shadow-xl group-hover:scale-105 transition-transform">
+                    <Shield size={28} />
+                  </div>
+                  <div>
+                    <h4 className="text-2xl font-bold text-white tracking-tight">System Status</h4>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">{systemData?.data_flow || 'CONNECTING'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-8 relative">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Uptime</p>
+                    <p className="text-xl font-black text-white">{systemData?.uptime || '--'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Active Nodes</p>
+                    <p className="text-xl font-black text-white">{systemData?.active_nodes || '--'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Events (24h)</p>
+                    <p className="text-xl font-black text-white">{systemData?.events_today || '0'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Disbursed (24h)</p>
+                    <p className="text-xl font-black text-white">{systemData?.payouts_today || '0'}</p>
+                  </div>
+                </div>
+
+                <div className="mt-8 pt-8 border-t border-gray-800/80">
+                  <p className="text-sm text-gray-400 leading-relaxed font-medium">
+                    Cluster is monitoring <span className="text-white font-bold">{systemData?.active_cities?.join(", ") || 'primary zones'}</span>. External integrations for Weather (OpenWeather) and Air Quality (AQICN) are currently <span className="text-emerald-400 uppercase font-black text-[10px] px-2 py-0.5 bg-emerald-500/10 rounded-lg border border-emerald-500/20 shadow-sm ml-1">Operational</span>.
+                  </p>
+                </div>
               </div>
-              <h4 className="text-2xl font-bold mb-3 text-white tracking-tight">Node Updates</h4>
-              <p className="text-sm text-gray-400 mb-10 leading-relaxed font-medium">
-                Environmental extraction clusters are running with 99.9% uptime. Regional Swiggy/Zomato partner nodes are currently receiving data in Mumbai, Delhi, and Bangalore zones.
-              </p>
-              <div className="bg-gray-950/60 rounded-2xl p-5 text-[11px] text-gray-500 border border-gray-800/80 text-left hover:border-indigo-600/40 transition-colors shadow-inner">
-                <span className="text-indigo-400 font-black mr-2 uppercase tracking-widest text-xs">Node Intel:</span> 
-                Trigger simulation via the Risk Matrix tab is recommended for audit trials.
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between px-2">
+                  <h5 className="text-xs font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                    <Newspaper size={14} className="text-indigo-400" /> Real-Time Activity Feed
+                  </h5>
+                  <span className="text-[9px] font-bold text-gray-600 uppercase tracking-tighter">Live Updates • 30s Polling</span>
+                </div>
+                
+                <div className="space-y-3">
+                  {systemLogs.length > 0 ? systemLogs.map((log) => (
+                    <div key={log.id} className="bg-[#111827] rounded-2xl p-4 border border-gray-800/60 hover:bg-gray-900/40 transition-colors group flex items-start gap-4">
+                      <div className={`mt-1 p-1.5 rounded-lg border ${
+                        log.level === 'success' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 
+                        log.level === 'warning' ? 'bg-amber-500/10 text-amber-500 border-amber-600/20' : 
+                        'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+                      }`}>
+                        <Zap size={12} />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-300 font-medium leading-relaxed group-hover:text-white transition-colors">{log.message}</p>
+                        <div className="flex items-center gap-3 mt-1.5">
+                          <span className="text-[9px] font-black text-gray-600 uppercase tracking-widest">{log.event_type.replace('_', ' ')}</span>
+                          <span className="text-[9px] font-medium text-gray-700">{new Date(log.created_at).toLocaleTimeString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )) : (
+                    <div className="py-12 border-2 border-dashed border-gray-800/50 rounded-3xl text-center">
+                      <p className="text-xs text-gray-600 font-bold uppercase tracking-widest font-sans italic">Awaiting System Broadcast...</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}

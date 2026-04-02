@@ -68,94 +68,93 @@ function AuthPage() {
   };
 
   return (
-    <div className="auth-shell auth-shell--split" style={{ position: 'relative', overflow: 'hidden' }}>
+    <div className="h-screen flex overflow-hidden bg-[#020617] text-slate-50 relative">
       <LiveBackground />
-      <aside className="auth-left" style={{ position: 'relative', zIndex: 1 }}>
-        <div className="auth-left-top">
-          <Link to="/" className="auth-left-brand" aria-label="Back to home">
-            <span className="auth-left-mark">
-              <Shield size={18} />
+      
+      {/* LEFT SECTION */}
+      <aside className="hidden lg:flex flex-1 flex-col relative z-10 p-6 bg-slate-900/40 backdrop-blur-md border-r border-white/10">
+        <div className="flex-none">
+          <Link to="/" className="inline-flex items-center gap-2 text-white">
+            <span className="w-8 h-8 rounded-lg flex items-center justify-center bg-indigo-500/10 border border-indigo-500/20 text-indigo-300">
+              <Shield size={16} />
             </span>
-            <span className="auth-left-name">GigShield AI</span>
+            <span className="font-black tracking-tight text-lg">GigShield AI</span>
           </Link>
         </div>
 
-        <div className="auth-left-hero">
-          <div className="auth-left-kicker">WELCOME</div>
-          <h1 className="auth-left-title">back</h1>
-          <p className="auth-left-desc">
+        <div className="flex-1 flex flex-col justify-center max-w-lg mx-auto w-full">
+          <div className="text-lg font-black tracking-[0.2em] text-indigo-400/80 uppercase mb-0">WELCOME</div>
+          <h1 className="text-7xl font-black text-white leading-[0.8] mb-5 uppercase tracking-tighter">back</h1>
+          <p className="text-sm text-slate-300 mb-8 font-medium max-w-sm leading-relaxed">
             Secure access to your personal dashboard for parametric protection insights.
           </p>
-        </div>
 
-        <div className="auth-left-options">
-          <div className="auth-left-option">
-            <span className="auth-left-option-icon">
-              <Shield size={18} />
-            </span>
-            <div>
-              <div className="auth-left-option-title">Dashboard Access</div>
-              <div className="auth-left-option-sub">
-                View risk signals, events, and wallet payouts.
+          <div className="space-y-3">
+            <div className="flex gap-4 items-center p-4 rounded-2xl border border-white/10 bg-black/20 backdrop-blur-sm">
+              <span className="w-8 h-8 rounded-lg flex items-center justify-center bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 shrink-0">
+                <Shield size={16} />
+              </span>
+              <div>
+                <div className="font-bold text-sm text-white">Dashboard Access</div>
+                <div className="text-xs text-slate-400 mt-0.5">View risk signals, events, and wallet payouts.</div>
               </div>
             </div>
-          </div>
 
-          <div className="auth-left-option">
-            <span className="auth-left-option-icon">
-              <Monitor size={18} />
-            </span>
-            <div>
-              <div className="auth-left-option-title">Demo Terminal</div>
-              <div className="auth-left-option-sub">
-                Simulate event triggers for pitch-ready demos.
+            <div className="flex gap-4 items-center p-4 rounded-2xl border border-white/10 bg-black/20 backdrop-blur-sm">
+              <span className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 shrink-0">
+                <Shield size={16} />
+              </span>
+              <div>
+                <div className="font-bold text-sm text-white">Parametric Protection</div>
+                <div className="text-xs text-slate-400 mt-0.5">Automated payouts based on real-time data triggers.</div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="auth-left-footer">
-          <span className="auth-left-help">Need help? Contact support</span>
+        <div className="flex-none text-xs text-slate-400 mt-auto text-center">
+          Need help? Contact support
         </div>
       </aside>
 
-      <main className="auth-right" style={{ position: 'relative', zIndex: 1, background: 'transparent' }}>
-        <div className="auth-right-header">
-          <div className="auth-right-kicker">SECURE ACCESS</div>
-          <h2 className="auth-right-title">
-            {mode === "login" ? "Log in to GigShield" : "Create your GigShield account"}
-          </h2>
-          <p className="auth-right-sub">
-            Choose your access method below to continue.
-          </p>
-        </div>
+      {/* RIGHT SECTION */}
+      <main className="flex-1 flex items-center justify-center relative z-10 px-4 h-full">
+        <div className="w-full max-w-md space-y-4">
+          <div className="text-center space-y-1">
+            <div className="text-xs font-extrabold tracking-widest text-slate-400 uppercase">SECURE ACCESS</div>
+            <h2 className="text-3xl font-bold text-white">
+              {mode === "login" ? "Log in to GigShield" : "Create account"}
+            </h2>
+            <p className="text-sm text-slate-400">
+              Choose your access method below to continue.
+            </p>
+          </div>
 
-        <section className="auth-right-stack">
-          <div className="auth-access-card">
-            <div className="auth-access-card-head">
-              <span className="auth-access-icon">
-                <Shield size={18} />
+          <div className="bg-slate-900/70 backdrop-blur-xl border border-white/10 p-4 rounded-xl space-y-3 w-full">
+            <div className="flex gap-3 items-start mb-1">
+              <span className="w-9 h-9 rounded-lg flex items-center justify-center bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 shrink-0">
+                <Shield size={16} />
               </span>
               <div>
-                <div className="auth-access-title">
+                <div className="font-bold text-sm text-white">
                   {mode === "login" ? "Gig Worker Login" : "Gig Worker Signup"}
                 </div>
-                <div className="auth-access-sub">
+                <div className="text-xs text-slate-400">
                   Access your dashboard, policies, and payout wallet.
                 </div>
               </div>
             </div>
 
-            <div className="auth-toggle auth-toggle--dark">
+            <div className="grid grid-cols-2 gap-2 p-1 rounded-lg border border-white/10 bg-black/20">
               <button
-                className={mode === "login" ? "active" : ""}
+                className={`py-1.5 text-xs font-semibold rounded-md transition-colors ${mode === "login" ? "bg-indigo-500/20 border border-indigo-500/30 text-white shadow-sm" : "text-slate-400 hover:text-white"}`}
                 onClick={() => setMode("login")}
                 type="button"
               >
                 Login
               </button>
               <button
-                className={mode === "signup" ? "active" : ""}
+                className={`py-1.5 text-xs font-semibold rounded-md transition-colors ${mode === "signup" ? "bg-indigo-500/20 border border-indigo-500/30 text-white shadow-sm" : "text-slate-400 hover:text-white"}`}
                 onClick={() => setMode("signup")}
                 type="button"
               >
@@ -163,70 +162,71 @@ function AuthPage() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="auth-form auth-form--tight">
+            <form onSubmit={handleSubmit} className="space-y-3">
               {mode === "signup" && (
-                <div className="auth-grid">
-                  <div className="auth-field">
-                    <span className="auth-input-icon" aria-hidden="true">
-                      <User size={16} />
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                      <User size={14} />
                     </span>
                     <input
                       name="name"
                       placeholder="Full name"
                       value={form.name}
                       onChange={onChange}
-                      autoComplete="name"
                       required
+                      className="w-full h-10 text-sm px-3 pl-9 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
                     />
                   </div>
-                  <div className="auth-field">
-                    <span className="auth-input-icon" aria-hidden="true">
-                      <MapPin size={16} />
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                      <MapPin size={14} />
                     </span>
                     <input
                       name="city"
-                      placeholder="City (e.g. Delhi)"
+                      placeholder="City"
                       value={form.city}
                       onChange={onChange}
-                      autoComplete="address-level2"
                       required
+                      className="w-full h-10 text-sm px-3 pl-9 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
                     />
                   </div>
-                  <div className="auth-field">
-                    <span className="auth-input-icon" aria-hidden="true">
-                      <Briefcase size={16} />
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                      <Briefcase size={14} />
                     </span>
                     <select
                       name="platform"
                       value={form.platform}
                       onChange={onChange}
+                      className="w-full h-10 text-sm px-3 pl-9 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all appearance-none"
                     >
-                      <option>Swiggy</option>
-                      <option>Zomato</option>
-                      <option>Rapido</option>
-                      <option>Uber</option>
+                      <option className="bg-slate-900">Swiggy</option>
+                      <option className="bg-slate-900">Zomato</option>
+                      <option className="bg-slate-900">Rapido</option>
+                      <option className="bg-slate-900">Uber</option>
                     </select>
                   </div>
-                  <div className="auth-field">
-                    <span className="auth-input-icon" aria-hidden="true">
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">
                       ₹
                     </span>
                     <input
                       name="weekly_income"
                       type="number"
-                      inputMode="numeric"
-                      placeholder="Weekly income (INR)"
+                      placeholder="Weekly income"
                       value={form.weekly_income}
                       onChange={onChange}
                       required
+                      className="w-full h-10 text-sm px-3 pl-8 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
                     />
                   </div>
                 </div>
               )}
 
-              <div className="auth-field">
-                <span className="auth-input-icon" aria-hidden="true">
-                  <Mail size={16} />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                  <Mail size={14} />
                 </span>
                 <input
                   name="email"
@@ -234,14 +234,14 @@ function AuthPage() {
                   placeholder="Email address"
                   value={form.email}
                   onChange={onChange}
-                  autoComplete="email"
                   required
+                  className="w-full h-10 text-sm px-3 pl-9 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
                 />
               </div>
 
-              <div className="auth-field">
-                <span className="auth-input-icon" aria-hidden="true">
-                  <Lock size={16} />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                  <Lock size={14} />
                 </span>
                 <input
                   name="password"
@@ -249,63 +249,52 @@ function AuthPage() {
                   placeholder="Password"
                   value={form.password}
                   onChange={onChange}
-                  autoComplete={
-                    mode === "login" ? "current-password" : "new-password"
-                  }
                   required
+                  className="w-full h-10 text-sm px-3 pl-9 pr-10 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
                 />
                 <button
-                  className="auth-icon-button"
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-200 hover:bg-white/5 rounded-md transition-colors"
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                 </button>
               </div>
 
-              <div className="auth-row">
-                <span className="auth-mini">
-                  {mode === "login" ? "" : "You can edit details later in dashboard."}
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-xs text-slate-400">
+                  {mode === "login" ? "" : "Details can be edited later."}
                 </span>
-                <button className="auth-link" type="button" disabled>
+                <button type="button" className="text-xs font-semibold text-indigo-400 hover:text-indigo-300" disabled>
                   Forgot password?
                 </button>
               </div>
 
-              {error && <p className="auth-error">{error}</p>}
+              {error && <p className="text-red-400 text-xs">{error}</p>}
 
-              <button disabled={loading} type="submit" className="auth-submit auth-submit--solid">
-                {loading
-                  ? "Please wait..."
-                  : mode === "signup"
-                    ? "Create account"
-                    : "Login"}
+              <button
+                disabled={loading}
+                type="submit"
+                className="w-full h-10 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg shadow-lg shadow-indigo-500/20 transition-all disabled:opacity-70 disabled:cursor-not-allowed mt-1"
+              >
+                {loading ? "Please wait..." : mode === "signup" ? "Create account" : "Login"}
               </button>
             </form>
           </div>
 
           {mode === "login" && (
-            <div className="auth-access-card auth-access-card--secondary">
-              <div className="auth-access-card-head">
-                <span className="auth-access-icon auth-access-icon--dim">
-                  <Monitor size={18} />
+            <div className="bg-emerald-500/5 border border-emerald-500/10 p-3 rounded-xl mx-auto max-w-sm">
+              <div className="flex gap-3 items-center">
+                <span className="w-6 h-6 rounded-full flex items-center justify-center bg-emerald-500/10 text-emerald-400 shrink-0">
+                  <Shield size={12} />
                 </span>
-                <div>
-                  <div className="auth-access-title">Demo Terminal</div>
-                  <div className="auth-access-sub">
-                    Use simulated events to demonstrate triggered payouts.
-                  </div>
+                <div className="text-[11px] text-slate-400 font-medium">
+                  Enterprise-grade encryption protecting your payouts.
                 </div>
-              </div>
-              <div className="auth-secondary-actions">
-                <span className="auth-footnote">
-                  By continuing, you agree to the demo terms. No real insurance is issued.
-                </span>
               </div>
             </div>
           )}
-        </section>
+        </div>
       </main>
     </div>
   );

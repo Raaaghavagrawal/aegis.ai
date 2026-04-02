@@ -39,6 +39,9 @@ async function fetchWeatherByCity(city) {
   const temperature = Number(payload?.main?.temp || 0);
   const weatherCondition = mapWeatherCondition(payload?.weather?.[0]?.main);
 
+  const { addSystemLog } = require("../models/systemLogModel");
+  await addSystemLog("weather_fetch", `Extracted weather data for ${city}: ${rainfall}mm rain, ${temperature}°C`, "success");
+
   return {
     rainfall,
     temperature,

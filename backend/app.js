@@ -5,6 +5,7 @@ const { testDbConnection } = require("./config/db");
 const { syncEventTableSchema } = require("./models/eventModel");
 const { syncPayoutTableSchema } = require("./models/payoutModel");
 const { syncWalletTableSchema } = require("./models/walletModel");
+const { syncSystemLogTableSchema } = require("./models/systemLogModel");
 const { startCronJobs } = require("./jobs/cronJob");
 
 const authRoutes = require("./routes/authRoutes");
@@ -13,8 +14,10 @@ const eventRoutes = require("./routes/eventRoutes");
 const payoutRoutes = require("./routes/payoutRoutes");
 const riskRoutes = require("./routes/riskRoutes");
 const analyzeRoutes = require("./routes/analyzeRoutes");
+const environmentRoutes = require("./routes/environmentRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const statsRoutes = require("./routes/statsRoutes");
+const systemRoutes = require("./routes/systemRoutes");
 
 const app = express();
 
@@ -28,6 +31,8 @@ app.get("/health", (_req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/policies", policyRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/environment", environmentRoutes); // Added integrated environment route
+app.use("/api/system", systemRoutes); // Added system monitoring route
 app.use("/payout", payoutRoutes);
 app.use("/wallet", payoutRoutes);
 app.use("/payouts", payoutRoutes);
@@ -57,6 +62,7 @@ async function startServer() {
     await syncEventTableSchema();
     await syncPayoutTableSchema();
     await syncWalletTableSchema();
+    await syncSystemLogTableSchema();
     app.listen(PORT, () => {
       console.log(`Server running at http://localhost:${PORT}`);
       startCronJobs();

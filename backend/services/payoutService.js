@@ -50,6 +50,9 @@ async function processPayoutsForCity(city) {
     processedCount++;
   }
 
+  const { addSystemLog } = require("../models/systemLogModel");
+  await addSystemLog("payout_process", `Disbursed ₹${totalPayout} to ${processedCount} users in ${city}`, "success");
+
   return {
     message: "Payouts processed",
     total_users: processedCount,

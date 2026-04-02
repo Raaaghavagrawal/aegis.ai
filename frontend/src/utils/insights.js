@@ -13,16 +13,16 @@ export function buildExplainableInsights(analysis) {
   if (!analysis) return [];
 
   const city = analysis.city || "your city";
-  const rainfall = safeNumber(analysis?.weather?.rainfall);
-  const aqi = safeNumber(analysis?.weather?.aqi);
-  const condition = analysis?.weather?.condition || "current conditions";
+  const rainfall = safeNumber(analysis?.weather?.rainfall ?? analysis.rainfall);
+  const aqi = safeNumber(analysis?.weather?.aqi ?? analysis.aqi);
+  const condition = (analysis?.weather?.condition ?? analysis.condition) || "current conditions";
 
-  const riskLevel = analysis?.risk?.risk_level || "—";
-  const riskScore = safeNumber(analysis?.risk?.risk_score);
-  const payoutPct = safeNumber(analysis?.risk?.payout_percentage);
+  const riskLevel = (analysis?.risk?.risk_level ?? analysis.risk_level) || "—";
+  const riskScore = safeNumber(analysis?.risk?.risk_score ?? analysis.risk_score);
+  const payoutPct = safeNumber(analysis?.risk?.payout_percentage ?? (riskLevel === 'High' ? 30 : 5));
   const payout = safeNumber(analysis?.risk?.suggested_payout);
   const weeklyIncome = safeNumber(analysis?.weekly_income);
-  const trigger = Boolean(analysis?.risk?.trigger_met);
+  const trigger = Boolean(analysis?.risk?.trigger_met ?? (rainfall > 50 || aqi > 300));
 
   const fraudFlagged = Boolean(analysis?.fraud?.fraud_flagged);
   const fraudReason = analysis?.fraud?.fraud_reason;

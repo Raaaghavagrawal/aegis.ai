@@ -39,6 +39,9 @@ async function fetchAqiByCity(city) {
   const aqi = Number(payload?.data?.aqi || 0);
   const pollutionLevel = mapPollutionLevel(aqi);
 
+  const { addSystemLog } = require("../models/systemLogModel");
+  await addSystemLog("aqi_fetch", `Extracted AQI for ${city}: ${aqi} index (${pollutionLevel})`, "success");
+
   return {
     aqi,
     pollutionLevel,
