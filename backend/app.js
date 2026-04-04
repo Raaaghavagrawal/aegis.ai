@@ -28,11 +28,16 @@ const app = express();
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   const { FRONTEND_URL } = process.env;
+  const allowedProductionOrigins = [
+    "https://gigshield-o25b.vercel.app", // Your current Vercel frontend
+    FRONTEND_URL,
+  ].filter(Boolean);
+
   if (
     origin &&
     (/^http:\/\/localhost(:\d+)?$/i.test(origin) ||
       /^http:\/\/127\.0\.0\.1(:\d+)?$/i.test(origin) ||
-      (FRONTEND_URL && origin === FRONTEND_URL))
+      allowedProductionOrigins.includes(origin))
   ) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Access-Control-Allow-Credentials", "true");
