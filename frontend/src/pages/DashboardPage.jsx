@@ -98,12 +98,36 @@ function DashboardPage() {
     };
   }, []);
 
+  const [forecast, setForecast] = useState(null);
+
+  const fetchForecast = useCallback(() => {
+    if (!user?.id) return;
+    fetch(`/api/ai/forecast/${user.id}`)
+      .then(res => res.json())
+      .then(data => {
+        console.log("ML FORECAST:", data);
+        setForecast(data);
+      })
+      .catch(err => console.error("Forecast Error:", err));
+  }, [user?.id]);
+
+  useEffect(() => {
+    fetchForecast();
+    const intervalId = setInterval(fetchForecast, 10000);
+    return () => clearInterval(intervalId);
+  }, [fetchForecast]);
+
   const chartData = useMemo(() => {
     return buildTenMinuteSlotSeries(envData, envSnapshot, ENV_CHART_SLOTS, {
       varianceTick: chartVarianceTick,
       slotMinutes: SLOT_INTERVAL_MINUTES,
-    }).map(({ bucketKey, risk, loss }) => ({ bucketKey, risk, loss }));
-  }, [envData, envSnapshot, chartVarianceTick]);
+    }).map(({ bucketKey, risk, loss }) => ({ 
+      bucketKey, 
+      risk, 
+      loss,
+      predicted_loss: forecast ? forecast.loss_percentage : loss
+    }));
+  }, [envData, envSnapshot, chartVarianceTick, forecast]);
 
   const explainableInsights = useMemo(
     () => buildExplainableInsights(analysis),
@@ -550,19 +574,38 @@ function DashboardPage() {
             <>
               {/* Top Section - 2:1 */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-[#111827] rounded-xl p-5 border border-gray-800 shadow-sm hover:border-gray-700 hover:shadow-xl transition-all duration-300 group h-full">
-                  <div className="flex justify-between items-start mb-8">
-                    <div>
+                <div className="lg:col-span-2 bg-[#111827] rounded-xl p-5 border border-gray-800 shadow-sm hover:border-gray-700 hover:shadow-xl transition-all duration-300 group h-full flex flex-col items-center justify-center text-center">
+                  <div className="flex flex-col items-center mb-8 w-full">
+                    <div className="text-center">
                       <p className="text-sm text-gray-400 font-medium tracking-wide">Net Protected Forecast</p>
-                    <h3 className="text-2xl font-bold mt-1 text-white tracking-tighter">₹ {(stats?.protectedIncome || 0).toLocaleString()}</h3>
-                      <p className={`flex items-center gap-1.5 text-[11px] font-black mt-2 w-fit px-2 py-0.5 rounded border ${(analysis?.risk?.risk_level ?? envSnapshot?.risk_level) === 'High' ? 'text-red-400 bg-red-500/10 border-red-500/20' : 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20'}`}>
-                        {(analysis?.risk?.risk_level ?? envSnapshot?.risk_level) === 'High' ? <Zap size={10} /> : <TrendingUp size={10} />}
-                        {(analysis?.risk?.risk_level ?? envSnapshot?.risk_level) === 'High' ? "CRITICAL RISK DETECTED" : "STABLE OPERATIONS"}
-                      </p>
+                      <h3 className="text-4xl font-bold mt-2 text-white tracking-tighter">
+                        {forecast?.net_protected_forecast ? `₹${forecast.net_protected_forecast}` : "Forecast unavailable"}
+                      </h3>
+                      {forecast && (
+                        <div className="mt-4 flex flex-wrap justify-center items-center gap-6 text-sm">
+                          <div className="flex flex-col items-center">
+                            <span className="text-gray-500 text-[10px] uppercase tracking-widest font-bold">Weekly Income</span>
+                            <span className="text-white font-bold">₹{forecast.weekly_income}</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <span className="text-gray-500 text-[10px] uppercase tracking-widest font-bold">Estimated Loss</span>
+                            <span className="text-rose-400 font-bold drop-shadow-[0_0_8px_rgba(251,113,133,0.4)]">₹{forecast.estimated_loss}</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <span className="text-gray-500 text-[10px] uppercase tracking-widest font-bold">AI Confidence</span>
+                            <span className="text-cyan-400 font-bold drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]">{Math.round((forecast.confidence || 0) * 100)}%</span>
+                          </div>
+                        </div>
+                      )}
+                      {!forecast && (
+                        <div className="flex justify-center mt-3">
+                          <p className={`flex items-center gap-1.5 text-[11px] font-black w-fit px-3 py-1 rounded border ${(analysis?.risk?.risk_level ?? envSnapshot?.risk_level) === 'High' ? 'text-red-400 bg-red-500/10 border-red-500/20' : 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20'}`}>
+                            {(analysis?.risk?.risk_level ?? envSnapshot?.risk_level) === 'High' ? <Zap size={10} /> : <TrendingUp size={10} />}
+                            {(analysis?.risk?.risk_level ?? envSnapshot?.risk_level) === 'High' ? "CRITICAL RISK DETECTED" : "STABLE OPERATIONS"}
+                          </p>
+                        </div>
+                      )}
                     </div>
-                    <button className="px-4 py-1.5 bg-gray-900 border border-gray-800 rounded-lg text-[10px] font-black text-gray-300 hover:text-white hover:bg-indigo-600/20 hover:border-indigo-600 transition-all uppercase tracking-widest">
-                      Analytics Pack
-                    </button>
                   </div>
                   <div className="h-64 w-full min-h-[256px]">
                     {barData.length === 0 ? (
@@ -1150,7 +1193,7 @@ function DashboardPage() {
                             cursor={{ stroke: '#6366f1', strokeWidth: 1 }}
                           />
                           <Area type="monotone" dataKey="risk" name="Risk score" stroke="#10b981" strokeWidth={3} fill="url(#riskCyan)" />
-                          <Line type="monotone" dataKey="loss" name="Loss % (est.)" stroke="#a78bfa" strokeWidth={2} dot={false} />
+                          <Line type="monotone" dataKey="predicted_loss" name="Predicted Loss" stroke="#f59e0b" strokeWidth={2} dot={false} />
                         </ComposedChart>
                       </ResponsiveContainer>
                     ) : (
@@ -1273,6 +1316,7 @@ function DashboardPage() {
           )}
 
           {activeTab === "wallet" && (
+            <div className="space-y-6">
             <div className="bg-[#111827] rounded-xl border border-gray-800 overflow-hidden shadow-xl hover:border-gray-700 transition-all duration-300">
                <div className="p-8 border-b border-gray-800 flex flex-wrap gap-6 justify-between items-center">
                 <div>
@@ -1310,9 +1354,13 @@ function DashboardPage() {
                   </tbody>
                 </table>
                 {(!Array.isArray(wallet?.payouts) || wallet.payouts.length === 0) && (
-                  <div className="py-24 text-center text-gray-500 text-sm font-medium italic opacity-60">No financial events detected in this cycle.</div>
+                  <div className="py-24 text-center px-4 text-gray-400 text-sm font-medium">
+                    No payouts yet. The system is actively monitoring environmental conditions. Once disruption is detected, payouts will be triggered automatically.
+                  </div>
                 )}
               </div>
+            </div>
+              <InsuranceInfo />
             </div>
           )}
 
@@ -1587,6 +1635,67 @@ function MetricMini({ label, value, sub, icon }) {
       </div>
       <p className="text-2xl font-black text-white tracking-tighter transition-transform group-hover:translate-x-1 duration-300">{value}</p>
       <p className="text-[10px] text-gray-500 font-medium leading-none truncate opacity-80">{sub}</p>
+    </div>
+  );
+}
+
+function InsuranceInfo() {
+  return (
+    <div className="bg-[#111827] rounded-xl border border-gray-800 p-6 shadow-xl relative overflow-hidden group hover:border-indigo-500/30 transition-all duration-300">
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none" />
+
+      <div className="relative z-10">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <h4 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+             <Shield size={18} className="text-indigo-400" /> How Insurance Payouts Work
+          </h4>
+          <span className="w-fit text-[9px] font-black uppercase tracking-widest text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/20 shadow-sm">
+            AI VERIFIED PAYOUT SYSTEM
+          </span>
+        </div>
+        
+        <p className="text-sm text-gray-400 mb-8 leading-relaxed max-w-3xl">
+          Your earnings are protected through our <strong className="text-indigo-300 font-semibold">AI-powered</strong> parametric insurance system. Payouts are <strong className="text-indigo-300 font-semibold">automatically</strong> triggered based on <strong className="text-indigo-300 font-semibold">real-time</strong> environmental conditions—no claims required.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-gray-950/40 border border-gray-800/60 rounded-xl p-4 hover:border-indigo-500/30 transition-colors">
+            <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-3 border border-indigo-500/20 shadow-inner">
+              <Activity size={16} />
+            </div>
+            <h5 className="text-xs font-bold text-gray-200 uppercase tracking-widest mb-1.5">1. Live Monitoring</h5>
+            <p className="text-[11px] text-gray-500 leading-relaxed">We track rainfall, AQI, and temperature in your city</p>
+          </div>
+          
+          <div className="bg-gray-950/40 border border-gray-800/60 rounded-xl p-4 hover:border-indigo-500/30 transition-colors">
+            <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-3 border border-indigo-500/20 shadow-inner">
+              <Gauge size={16} />
+            </div>
+            <h5 className="text-xs font-bold text-gray-200 uppercase tracking-widest mb-1.5">2. AI Risk Analysis</h5>
+            <p className="text-[11px] text-gray-500 leading-relaxed">Our AI predicts how these conditions impact your delivery earnings</p>
+          </div>
+          
+          <div className="bg-gray-950/40 border border-gray-800/60 rounded-xl p-4 hover:border-indigo-500/30 transition-colors">
+            <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-3 border border-indigo-500/20 shadow-inner">
+              <Zap size={16} />
+            </div>
+            <h5 className="text-xs font-bold text-gray-200 uppercase tracking-widest mb-1.5">3. Automatic Trigger</h5>
+            <p className="text-[11px] text-gray-500 leading-relaxed">If disruption crosses threshold, payout is triggered instantly</p>
+          </div>
+          
+          <div className="bg-gray-950/40 border border-gray-800/60 rounded-xl p-4 hover:border-indigo-500/30 transition-colors">
+            <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-3 border border-indigo-500/20 shadow-inner">
+              <WalletIcon size={16} />
+            </div>
+            <h5 className="text-xs font-bold text-gray-200 uppercase tracking-widest mb-1.5">4. Direct Credit</h5>
+            <p className="text-[11px] text-gray-500 leading-relaxed">Money is credited directly to your wallet</p>
+          </div>
+        </div>
+
+        <div className="inline-flex items-center gap-2 text-[11px] font-bold text-emerald-400/90 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20">
+          ⚡ Fully automated system — no claims, no paperwork required
+        </div>
+      </div>
     </div>
   );
 }

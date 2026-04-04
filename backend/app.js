@@ -53,6 +53,7 @@ app.use("/payouts", payoutRoutes);
 app.use("/api/risk-score", riskRoutes);
 app.use("/api/analyze", analyzeRoutes);
 app.use("/ai", aiRoutes);
+app.use("/api/ai", aiRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/users", userRoutes);
 app.use("/dashboard", statsRoutes); // Exact requirement from latest prompt

@@ -27,13 +27,50 @@ function AuthPage() {
     password: "",
     city: "",
     platform: "Swiggy",
-    weekly_income: "",
     avg_daily_deliveries: "20",
     earnings_per_delivery: "40",
   });
 
+  const [apiSuggestions, setApiSuggestions] = useState([]);
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+  const [fetchingCity, setFetchingCity] = useState(false);
+
+  // Debounced City Fetching
+  React.useEffect(() => {
+    if (!form.city || form.city.length < 3) {
+      setApiSuggestions([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setFetchingCity(true);
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(form.city)}&addressdetails=1&limit=5&featuretype=city`);
+        const data = await res.json();
+        const cities = data.map(item => ({
+          display_name: item.display_name,
+          city: item.address.city || item.address.town || item.address.village || item.address.state || item.name
+        })).filter(c => c.city);
+        
+        // Remove duplicates and keep unique city names
+        const unique = Array.from(new Map(cities.map(c => [c.city.toLowerCase(), c])).values());
+        setApiSuggestions(unique);
+      } catch (e) {
+        console.error("City Fetch Error:", e);
+      } finally {
+        setFetchingCity(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [form.city]);
+
   const onChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (name === "city") {
+      setShowCitySuggestions(value.length >= 3);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -45,9 +82,9 @@ function AuthPage() {
       if (mode === "signup") {
         const signupRes = await api.post("/api/auth/signup", {
           ...form,
-          weekly_income: Number(form.weekly_income),
           avg_daily_deliveries: Number(form.avg_daily_deliveries),
           earnings_per_delivery: Number(form.earnings_per_delivery),
+          weekly_income: Number(form.avg_daily_deliveries) * Number(form.earnings_per_delivery) * 7,
         });
         localStorage.setItem("gigshield_token", signupRes.data.token);
         localStorage.setItem("gigshield_user", JSON.stringify(signupRes.data.user));
@@ -182,20 +219,46 @@ function AuthPage() {
                       className="w-full h-10 text-sm px-3 pl-9 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
                     />
                   </div>
-                  <div className="relative">
+                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
                       <MapPin size={14} />
                     </span>
                     <input
                       name="city"
                       placeholder="City"
-                      value={form.city}
+                      value={form.city || ""}
                       onChange={onChange}
+                      onFocus={() => form.city?.length >= 3 && setShowCitySuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowCitySuggestions(false), 200)}
+                      autoComplete="off"
                       required
                       className="w-full h-10 text-sm px-3 pl-9 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
                     />
+                    {fetchingCity && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <div className="w-3 h-3 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
+                      </div>
+                    )}
+                    {showCitySuggestions && apiSuggestions.length > 0 && (
+                      <div className="absolute left-0 right-0 top-11 bg-[#0f172a] border border-white/10 rounded-xl overflow-hidden z-20 shadow-2xl backdrop-blur-xl">
+                        {apiSuggestions.map((item, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            className="w-full px-4 py-2 text-left text-[11px] font-semibold text-slate-300 hover:bg-indigo-500/10 hover:text-white transition-colors border-b border-white/5 last:border-0"
+                            onClick={() => {
+                              setForm(f => ({ ...f, city: item.city }));
+                              setShowCitySuggestions(false);
+                            }}
+                          >
+                            <span className="block truncate">{item.city}</span>
+                            <span className="block text-[9px] text-slate-500 truncate">{item.display_name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <div className="relative">
+                  <div className="relative col-span-2">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
                       <Briefcase size={14} />
                     </span>
@@ -215,20 +278,7 @@ function AuthPage() {
                       <option className="bg-slate-900">Blinkit</option>
                     </select>
                   </div>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">
-                      ₹
-                    </span>
-                    <input
-                      name="weekly_income"
-                      type="number"
-                      placeholder="Weekly income"
-                      value={form.weekly_income}
-                      onChange={onChange}
-                      required
-                      className="w-full h-10 text-sm px-3 pl-8 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
-                    />
-                  </div>
+
                   <div className="relative">
                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
                       <Monitor size={14} />
