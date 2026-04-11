@@ -39,7 +39,7 @@ const Navbar = () => {
             <Shield size={22} color="#fff" />
           </motion.div>
           <span className="nav-logo-text">
-            GigShield <span className="nav-logo-highlight">AI</span>
+            Aegis <span className="nav-logo-highlight">AI</span>
           </span>
         </div>
         

@@ -1,4 +1,4 @@
-USE gigshield_insurance;
+USE aegis_insurance;
 
 -- Password hash for all sample users is bcrypt("password")
 INSERT INTO users (name, email, password, city, platform, weekly_income) VALUES

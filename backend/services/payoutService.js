@@ -41,8 +41,20 @@ async function processPayoutsForCity(city) {
     });
 
     // Update wallet if not under review
+    const { createNotification } = require("../models/notificationModel");
     if (status === "credited") {
       await addBalance(user.user_id, payoutAmount);
+      await createNotification({ 
+        userId: user.user_id, 
+        type: 'payout', 
+        message: `✅ Payout Credited: ₹${payoutAmount.toFixed(2)} added to your wallet for the ${event.city} environmental event.` 
+      }).catch(e => console.error("Notification failed:", e.message));
+    } else {
+      await createNotification({ 
+        userId: user.user_id, 
+        type: 'fraud_alert', 
+        message: `⚠️ Payout Audit: Your disbursement for ${event.city} node is under manual review for potential record drift.` 
+      }).catch(e => console.error("Notification failed:", e.message));
     }
 
     console.log("💰 Payout processed for user:", user.user_id);

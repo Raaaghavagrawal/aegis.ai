@@ -1,5 +1,5 @@
 /**
- * GigShield Feature Engineering
+ * Aegis Feature Engineering
  * Converts preprocessed raw data into enriched ML feature vectors.
  *
  * Features produced:

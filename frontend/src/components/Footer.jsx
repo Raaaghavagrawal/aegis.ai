@@ -5,7 +5,7 @@ const Footer = () => {
     <footer className="site-footer">
       <div className="site-footer-inner">
         <div className="site-footer-brand">
-          <div className="site-footer-logo">GigShield AI</div>
+          <div className="site-footer-logo">Aegis AI</div>
           <p className="site-footer-tagline">
             Parametric income protection for gig workers — powered by real-time
             environmental signals.
@@ -37,7 +37,7 @@ const Footer = () => {
 
         <div className="site-footer-bottom">
           <div className="site-footer-legal">
-            <div>&copy; 2026 GigShield AI</div>
+            <div>&copy; 2026 Aegis AI</div>
             <div className="site-footer-disclaimer">
               Demo build. Not a real insurance product.
             </div>

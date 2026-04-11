@@ -1,5 +1,5 @@
 {
-  "name": "gigshield-backend",
+  "name": "aegis-backend",
   "version": "1.0.0",
   "description": "AI-powered parametric insurance backend for gig workers",
   "main": "app.js",

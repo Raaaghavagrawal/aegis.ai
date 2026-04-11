@@ -1,28 +1,35 @@
 import axios from "axios";
+
 const ENV_BASE = (import.meta.env.VITE_API_BASE_URL || "").trim();
-const DEV_DIRECT_BACKEND = "";
 
 export const api = axios.create({
   baseURL: ENV_BASE,
 });
 
+// Automatically attach JWT token to every request
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("aegis_token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
-    const cfg = error.config;
-    if (!cfg || cfg.__directFallback) return Promise.reject(error);
-    if (error.response) return Promise.reject(error);
-    const noBase = !(cfg.baseURL || "").trim();
-    if (import.meta.env.DEV && noBase) {
-      cfg.__directFallback = true;
-      cfg.baseURL = DEV_DIRECT_BACKEND;
-      return api.request(cfg);
+    // Global error handling can be expanded here
+    if (error.response?.status === 401) {
+      // Clear auth on 401 if needed
+      // localStorage.removeItem("aegis_token");
     }
     return Promise.reject(error);
   }
 );
 
 export function getAuthHeaders() {
-  const token = localStorage.getItem("gigshield_token");
+  const token = localStorage.getItem("aegis_token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 }

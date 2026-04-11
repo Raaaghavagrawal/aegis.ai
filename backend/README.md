@@ -1,4 +1,4 @@
-# GigShield Backend (Node + Express + MySQL)
+# Aegis Backend (Node + Express + MySQL)
 
 ## Folder Structure
 

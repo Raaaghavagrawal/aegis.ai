@@ -6,7 +6,7 @@ import DashboardPage from "./pages/DashboardPage";
 import PlansPage from "./pages/PlansPage";
 
 function ProtectedRoute({ children }) {
-  const token = localStorage.getItem("gigshield_token");
+  const token = localStorage.getItem("aegis_token");
   if (!token) return <Navigate to="/auth" replace />;
   return children;
 }

@@ -33,4 +33,14 @@ router.get("/me", protect, (req, res) => {
   res.json({ user: req.user });
 });
 
+router.post("/update-profile", protect, async (req, res) => {
+  try {
+    const { updateUserProfile } = require("../models/userModel");
+    const updatedUser = await updateUserProfile(req.user.id, req.body);
+    res.json({ message: "Profile updated successfully", user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ message: "Update failed", error: error.message });
+  }
+});
+
 module.exports = { router, protect };

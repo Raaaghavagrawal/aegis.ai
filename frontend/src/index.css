@@ -52,6 +52,7 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   line-height: 1.6;
+  font-family: 'Poppins', sans-serif !important;
 }
 
 ::placeholder {
@@ -60,10 +61,11 @@ body {
 
 html {
   scroll-behavior: smooth;
+  font-family: 'Poppins', sans-serif !important;
 }
 
 h1, h2, h3, h4, .font-heading {
-  font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-family: 'Poppins', sans-serif !important;
 }
 
 /* Base scrollbar */

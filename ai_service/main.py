@@ -33,7 +33,7 @@ class FeaturesInput(BaseModel):
 
 @app.get("/")
 def home():
-    return {"status": "GigShield AI Service Online - Enhanced ML"}
+    return {"status": "Aegis AI Service Online - Enhanced ML"}
 
 @app.post("/predict")
 def predict_integrated(data: FeaturesInput):

@@ -86,15 +86,15 @@ function AuthPage() {
           earnings_per_delivery: Number(form.earnings_per_delivery),
           weekly_income: Number(form.avg_daily_deliveries) * Number(form.earnings_per_delivery) * 7,
         });
-        localStorage.setItem("gigshield_token", signupRes.data.token);
-        localStorage.setItem("gigshield_user", JSON.stringify(signupRes.data.user));
+        localStorage.setItem("aegis_token", signupRes.data.token);
+        localStorage.setItem("aegis_user", JSON.stringify(signupRes.data.user));
       } else {
         const loginRes = await api.post("/api/auth/login", {
           email: form.email,
           password: form.password,
         });
-        localStorage.setItem("gigshield_token", loginRes.data.token);
-        localStorage.setItem("gigshield_user", JSON.stringify(loginRes.data.user));
+        localStorage.setItem("aegis_token", loginRes.data.token);
+        localStorage.setItem("aegis_user", JSON.stringify(loginRes.data.user));
       }
 
       navigate("/dashboard");
@@ -119,7 +119,7 @@ function AuthPage() {
             <span className="w-8 h-8 rounded-lg flex items-center justify-center bg-indigo-500/10 border border-indigo-500/20 text-indigo-300">
               <Shield size={16} />
             </span>
-            <span className="font-black tracking-tight text-lg">GigShield AI</span>
+            <span className="font-black tracking-tight text-lg">Aegis AI</span>
           </Link>
         </div>
 
@@ -164,7 +164,7 @@ function AuthPage() {
           <div className="text-center space-y-1">
             <div className="text-xs font-extrabold tracking-widest text-slate-400 uppercase">SECURE ACCESS</div>
             <h2 className="text-3xl font-bold text-white">
-              {mode === "login" ? "Log in to GigShield" : "Create account"}
+              {mode === "login" ? "Log in to Aegis" : "Create account"}
             </h2>
             <p className="text-sm text-slate-400">
               Choose your access method below to continue.

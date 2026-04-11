@@ -101,11 +101,13 @@ async function fetchWeatherByCity(city) {
       payload?.rain?.["1h"] || payload?.rain?.["3h"] || 0
     );
     const temperature = Number(payload?.main?.temp || 0);
+    const humidity = Number(payload?.main?.humidity || 0);
+    const windSpeed = Number(payload?.wind?.speed || 0);
     const weatherCondition = mapWeatherCondition(
       payload?.weather?.[0]?.main
     );
 
-    const result = { rainfall, temperature, weatherCondition, source: "api" };
+    const result = { rainfall, temperature, humidity, windSpeed, weatherCondition, source: "api" };
 
     // Update in-memory cache
     weatherCache[city] = { data: result, cachedAt: Date.now() };

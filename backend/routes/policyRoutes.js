@@ -1,13 +1,15 @@
 const express = require("express");
-const auth = require("../middleware/auth");
+const { protect } = require("./userRoutes");
 const {
   createPolicyForUser,
   getMyPolicies,
+  scalePolicy,
 } = require("../controllers/policyController");
 
 const router = express.Router();
 
-router.post("/", auth, createPolicyForUser);
-router.get("/me", auth, getMyPolicies);
+router.post("/", protect, createPolicyForUser);
+router.post("/scale", protect, scalePolicy);
+router.get("/me", protect, getMyPolicies);
 
 module.exports = router;
