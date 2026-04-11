@@ -1,8 +1,9 @@
-const path = require("path");
-require("dotenv").config({ path: path.join(__dirname, ".env") });
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
+
+// Database & Model Initializations
 const { testDbConnection } = require("./config/db");
 const { syncUserTableSchema } = require("./models/userModel");
 const { syncEventTableSchema } = require("./models/eventModel");
@@ -10,69 +11,84 @@ const { syncPolicyTableSchema } = require("./models/policyModel");
 const { syncPayoutTableSchema } = require("./models/payoutModel");
 const { syncWalletTableSchema } = require("./models/walletModel");
 const { syncSystemLogTableSchema } = require("./models/systemLogModel");
+const { syncFraudTableSchema } = require("./models/fraudModel");
+const { syncNotificationTableSchema } = require("./models/notificationModel");
 const { startCronJobs } = require("./jobs/cronJob");
 
+// Route Management
 const authRoutes = require("./routes/authRoutes");
 const policyRoutes = require("./routes/policyRoutes");
-const eventRoutes = require("./routes/eventRoutes");
 const payoutRoutes = require("./routes/payoutRoutes");
 const riskRoutes = require("./routes/riskRoutes");
-const analyzeRoutes = require("./routes/analyzeRoutes");
 const environmentRoutes = require("./routes/environmentRoutes");
-const aiRoutes = require("./routes/aiRoutes");
 const statsRoutes = require("./routes/statsRoutes");
 const systemRoutes = require("./routes/systemRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 const { router: userRoutes, protect: protectMiddleware } = require("./routes/userRoutes");
 
 const app = express();
 
-// Enable global CORS for production connectivity between Vercel, Render, and Railway
+// Global Middleware
 app.use(cors({ origin: "*" }));
-
 app.use(express.json());
 app.use(morgan("dev"));
 
-app.use(express.json());
-app.use(morgan("dev"));
+// System & Health Endpoints
+app.get("/", (req, res) => res.send("Aegis Intelligence API Running"));
+app.get("/health", (req, res) => res.json({ status: "active", engine: "v1.4.2" }));
 
-app.get("/", (req, res) => {
-  res.send("API running");
-});
-
-app.get("/health", (_req, res) => {
-  res.json({ status: "ok" });
-});
-
-app.use("/api/auth", authRoutes);
-app.use("/api/policies", policyRoutes);
-app.use("/api/events", eventRoutes);
-app.use("/api/environment", environmentRoutes); // Added integrated environment route
-app.use("/api/system", systemRoutes); // Added system monitoring route
-app.use("/payout", payoutRoutes);
-app.use("/wallet", payoutRoutes);
-app.use("/payouts", payoutRoutes);
-app.use("/api/risk-score", riskRoutes);
-app.use("/api/analyze", analyzeRoutes);
-app.use("/ai", aiRoutes);
-app.use("/api/ai", aiRoutes);
-app.use("/api/stats", statsRoutes);
-app.use("/api/users", userRoutes);
-app.use("/dashboard", statsRoutes); // Exact requirement from latest prompt
-
-
-app.use((req, res) => {
-  res.status(404).json({ message: "Route not found" });
-});
-
-app.use((err, _req, res, _next) => {
-  console.error("[ERROR]", err);
-  res.status(err.status || 500).json({
-    message: err.message || "Internal server error",
+// User Context Context
+app.get("/api/me", protectMiddleware, (req, res) => {
+  res.json({
+    status: "authenticated",
+    user: {
+      id: req.user.id,
+      name: req.user.name,
+      email: req.user.email,
+      city: req.user.city,
+      platform: req.user.platform,
+      weekly_income: req.user.weekly_income,
+      coverage_percentage: req.user.coverage_percentage
+    }
   });
 });
 
+// Feature Routing
+app.use("/api/auth", authRoutes);
+app.use("/api/policies", policyRoutes);
+app.use("/api/environment", environmentRoutes);
+app.use("/api/system", systemRoutes);
+app.use("/api/stats", statsRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/users", userRoutes);
+
+// Insurance & Financial Processing
+app.use("/api/payouts", payoutRoutes);
+app.use("/api/claims", payoutRoutes); // Alias
+app.use("/api/wallet", payoutRoutes); // Alias
+
+// AI Intelligence & Risk Engineering
+app.use("/api/risk", riskRoutes);
+app.use("/api/fraud", riskRoutes);    // Consolidated into riskRoutes
+app.use("/api/ai", riskRoutes);       // Consolidated into riskRoutes
+app.use("/api/analyze", riskRoutes);  // Consolidated into riskRoutes
+
+// UI/UX Aliases
+app.use("/api/dashboard/overview", statsRoutes);
+app.use("/api/user/profile", userRoutes);
+app.use("/dashboard", statsRoutes);
+
+// Error Handling
+app.use((req, res) => res.status(404).json({ message: "Node route not found" }));
+app.use((err, req, res, next) => {
+  console.error("[CRITICAL_SYSTEM_ERROR]", err);
+  res.status(err.status || 500).json({
+    message: err.message || "Primary intelligence engine failure",
+  });
+});
+
+// Server Initialization
 const PORT = Number(process.env.PORT || 5001);
-console.log("ENV PORT:", process.env.PORT);
 
 async function startServer() {
   try {
@@ -83,20 +99,15 @@ async function startServer() {
     await syncWalletTableSchema();
     await syncPayoutTableSchema();
     await syncSystemLogTableSchema();
+    await syncFraudTableSchema();
+    await syncNotificationTableSchema();
+    
     app.listen(PORT, () => {
-      console.log(
-        `[gigshield-api] Express listening on http://localhost:${PORT} (PORT=${PORT})`
-      );
-      console.log(`[gigshield-api] Health: http://localhost:${PORT}/health`);
-      console.log(
-        `[gigshield-api] Example: http://localhost:${PORT}/api/system/status`
-      );
+      console.log(`[aegis-api] Synchronized on http://localhost:${PORT}`);
       startCronJobs();
     });
   } catch (error) {
-    console.error("Failed to start server:", error.message || error);
-    if (error.code) console.error("DB error code:", error.code);
-    if (error.stack) console.error(error.stack);
+    console.error("[STARTUP_FAILURE]", error.message);
     process.exit(1);
   }
 }

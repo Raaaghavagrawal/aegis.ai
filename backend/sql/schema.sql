@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS gigshield_insurance;
-USE gigshield_insurance;
+CREATE DATABASE IF NOT EXISTS aegis_insurance;
+USE aegis_insurance;
 
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -80,4 +80,3 @@ CREATE TABLE IF NOT EXISTS model_logs (
   actual_outcome VARCHAR(255) NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-

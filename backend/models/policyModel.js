@@ -50,9 +50,20 @@ async function syncPolicyTableSchema() {
   `);
 }
 
+async function updatePolicyCoverage(id, userId, newCoverage, newPremium) {
+  const [result] = await pool.execute(
+    `UPDATE policies 
+     SET coverage_percentage = ?, premium = ? 
+     WHERE id = ? AND user_id = ? AND status = 'active'`,
+    [newCoverage, newPremium, id, userId]
+  );
+  return result.affectedRows > 0;
+}
+
 module.exports = {
   syncPolicyTableSchema,
   createPolicy,
   getPoliciesByUserId,
   hasActivePolicy,
+  updatePolicyCoverage,
 };

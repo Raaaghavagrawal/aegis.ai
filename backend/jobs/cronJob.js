@@ -1,5 +1,5 @@
 const cron = require("node-cron");
-const { ingestEnvironmentForCity } = require("../controllers/eventController");
+const { ingestEnvironmentForCity } = require("../controllers/environmentController");
 
 function getPredefinedCities() {
   const raw = process.env.PREDEFINED_CITIES || "Delhi,Mumbai,Bangalore";

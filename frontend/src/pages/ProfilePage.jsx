@@ -56,11 +56,11 @@ function requestPosition() {
   });
 }
 
-export default function ProfilePage() {
+export default function ProfilePage({ isDashboard = false }) {
   const navigate = useNavigate();
   const cached = useMemo(() => {
     try {
-      return JSON.parse(localStorage.getItem("gigshield_user") || "{}");
+      return JSON.parse(localStorage.getItem("aegis_user") || "{}");
     } catch {
       return {};
     }
@@ -82,7 +82,7 @@ export default function ProfilePage() {
 
   const [soundOn, setSoundOn] = useState(() => {
     try {
-      return localStorage.getItem("gigshield_profile_sound") !== "0";
+      return localStorage.getItem("aegis_profile_sound") !== "0";
     } catch {
       return true;
     }
@@ -93,7 +93,7 @@ export default function ProfilePage() {
     setSoundOn((v) => {
       const next = !v;
       try {
-        localStorage.setItem("gigshield_profile_sound", next ? "1" : "0");
+        localStorage.setItem("aegis_profile_sound", next ? "1" : "0");
       } catch {
         /* ignore */
       }
@@ -117,7 +117,7 @@ export default function ProfilePage() {
       if (normalized) {
         setUser(normalized);
         try {
-          localStorage.setItem("gigshield_user", JSON.stringify(normalized));
+          localStorage.setItem("aegis_user", JSON.stringify(normalized));
         } catch {
           /* ignore */
         }
@@ -135,7 +135,7 @@ export default function ProfilePage() {
     const uid = user?.id ?? cached?.id;
     if (!uid) return;
     try {
-      const balanceRes = await api.get(`/wallet/${uid}`, { headers: getAuthHeaders() });
+      const balanceRes = await api.get(`/api/payouts/wallet/${uid}`, { headers: getAuthHeaders() });
       setWalletBalance(balanceRes.data?.balance);
     } catch {
       setWalletBalance(null);
@@ -203,8 +203,8 @@ export default function ProfilePage() {
   }, [refreshLocation]);
 
   const handleLogout = () => {
-    localStorage.removeItem("gigshield_token");
-    localStorage.removeItem("gigshield_user");
+    localStorage.removeItem("aegis_token");
+    localStorage.removeItem("aegis_user");
     navigate("/auth");
   };
 
@@ -249,12 +249,9 @@ export default function ProfilePage() {
   const deliveriesLive = workerScores.totalDeliveries;
   const weekEarningsLive = (user.weekly_income || 0) + weekPulse;
 
-  return (
-    <div className="min-h-screen bg-[#020617] text-slate-100 font-sans selection:bg-indigo-500/30 relative overflow-x-hidden">
-      <LiveBackground />
-      <ProfileAmbientLayer />
-
-      <div className="relative z-10 min-h-screen flex flex-col">
+  const content = (
+    <div className="relative z-10 min-h-screen flex flex-col">
+      {!isDashboard && (
         <header className="sticky top-0 z-30 border-b border-white/[0.06] bg-[#020617]/80 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-[#020617]/65">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3.5 sm:px-8">
             <div className="flex min-w-0 items-center gap-3 sm:gap-4">
@@ -266,7 +263,7 @@ export default function ProfilePage() {
                 <ArrowLeft size={18} className="transition group-hover:-translate-x-0.5" />
               </Link>
               <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400/95">GigShield Logistics</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400/95">Aegis Logistics</p>
                 <h1 className="truncate text-lg font-extrabold tracking-tight text-white sm:text-xl">Worker command center</h1>
               </div>
             </div>
@@ -298,87 +295,97 @@ export default function ProfilePage() {
             </div>
           </div>
         </header>
+      )}
 
-        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-8 sm:py-10">
-          <motion.div initial="hidden" animate="show" variants={staggerWrap} className="space-y-8">
-            <ProfileIdentityHero
-              motionCustom={0}
-              fadeUpVariants={fadeUp}
-              userLoading={userLoading}
-              initial={initial}
-              user={user}
-              greeting={greeting}
-              onSync={fetchProfile}
-              rating={workerScores.rating}
-              trustScore={workerScores.trust}
-            />
+      <main className={`mx-auto w-full max-w-7xl flex-1 ${isDashboard ? 'px-0 py-0' : 'px-4 py-6 sm:px-8 sm:py-10'}`}>
+        <motion.div initial="hidden" animate="show" variants={staggerWrap} className="space-y-8">
+          <ProfileIdentityHero
+            motionCustom={0}
+            fadeUpVariants={fadeUp}
+            userLoading={userLoading}
+            initial={initial}
+            user={user}
+            greeting={greeting}
+            onSync={fetchProfile}
+            rating={workerScores.rating}
+            trustScore={workerScores.trust}
+          />
 
-            {userError && (
-              <motion.div
-                custom={1}
-                variants={fadeUp}
-                className="flex items-start gap-3 rounded-2xl border border-amber-500/25 bg-gradient-to-r from-amber-500/[0.08] to-transparent px-4 py-3.5 text-sm text-amber-100/95"
-              >
-                <AlertCircle size={18} className="shrink-0 text-amber-400 mt-0.5" />
-                <p className="leading-relaxed">{userError}</p>
-              </motion.div>
-            )}
-
-            <ProfileKpiGrid
-              motionCustom={2}
-              fadeUpVariants={fadeUp}
-              totalDeliveries={deliveriesLive}
-              weekEarnings={weekEarningsLive}
-              successRate={workerScores.successRate}
-              walletBalance={walletBalance}
-              liveOrderCount={0}
-            />
-
-            <ProfileDemandAndAI
-              motionCustom={3}
-              fadeUpVariants={fadeUp}
-              hourlyDemand={hourlyDemand}
-              city={user.city}
-              platform={user.platform}
-              scores={workerScores}
-            />
-
-            <ProfileLocationCard
-              motionCustom={4}
-              fadeUpVariants={fadeUp}
-              locStatus={locStatus}
-              locError={locError}
-              coords={coords}
-              accuracyM={accuracyM}
-              locatedAt={locatedAt}
-              address={address}
-              addressLoading={addressLoading}
-              cityMismatch={cityMismatch}
-              userCity={user.city}
-              embedBbox={embedBbox}
-              mapsHref={mapsHref}
-              coordsCopied={coordsCopied}
-              onCopyCoords={copyCoordinates}
-              onRefresh={refreshLocation}
-              cityLabel={user.city}
-            />
-
-            <motion.footer
-              custom={5}
+          {userError && (
+            <motion.div
+              custom={1}
               variants={fadeUp}
-              className="flex flex-col items-center gap-3 rounded-2xl border border-white/[0.06] bg-slate-950/50 px-4 py-5 text-center sm:flex-row sm:justify-between sm:text-left"
+              className="flex items-start gap-3 rounded-2xl border border-amber-500/25 bg-gradient-to-r from-amber-500/[0.08] to-transparent px-4 py-3.5 text-sm text-amber-100/95"
             >
-              <p className="max-w-xl text-xs leading-relaxed text-slate-500">
-                <span className="font-semibold text-slate-400">Privacy:</span> GPS is in-browser. KPI pulses and AI rotation are{" "}
-                <span className="text-slate-400">simulated</span> for a live-ops feel — swap with real streams when ready.
-              </p>
-              <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-600">
-                <Shield size={14} className="text-indigo-500/60" /> Secure session
-              </div>
-            </motion.footer>
-          </motion.div>
-        </main>
-      </div>
+              <AlertCircle size={18} className="shrink-0 text-amber-400 mt-0.5" />
+              <p className="leading-relaxed">{userError}</p>
+            </motion.div>
+          )}
+
+          <ProfileKpiGrid
+            motionCustom={2}
+            fadeUpVariants={fadeUp}
+            totalDeliveries={deliveriesLive}
+            weekEarnings={weekEarningsLive}
+            successRate={workerScores.successRate}
+            walletBalance={walletBalance}
+            liveOrderCount={0}
+          />
+
+          <ProfileDemandAndAI
+            motionCustom={3}
+            fadeUpVariants={fadeUp}
+            hourlyDemand={hourlyDemand}
+            city={user.city}
+            platform={user.platform}
+            scores={workerScores}
+          />
+
+          <ProfileLocationCard
+            motionCustom={4}
+            fadeUpVariants={fadeUp}
+            locStatus={locStatus}
+            locError={locError}
+            coords={coords}
+            accuracyM={accuracyM}
+            locatedAt={locatedAt}
+            address={address}
+            addressLoading={addressLoading}
+            cityMismatch={cityMismatch}
+            userCity={user.city}
+            embedBbox={embedBbox}
+            mapsHref={mapsHref}
+            coordsCopied={coordsCopied}
+            onCopyCoords={copyCoordinates}
+            onRefresh={refreshLocation}
+            cityLabel={user.city}
+          />
+
+          <motion.footer
+            custom={5}
+            variants={fadeUp}
+            className="flex flex-col items-center gap-3 rounded-2xl border border-white/[0.06] bg-slate-950/50 px-4 py-5 text-center sm:flex-row sm:justify-between sm:text-left"
+          >
+            <p className="max-w-xl text-xs leading-relaxed text-slate-500">
+              <span className="font-semibold text-slate-400">Privacy:</span> GPS is in-browser. KPI pulses and AI rotation are{" "}
+              <span className="text-slate-400">simulated</span> for a live-ops feel — swap with real streams when ready.
+            </p>
+            <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+              <Shield size={14} className="text-indigo-500/60" /> Secure session
+            </div>
+          </motion.footer>
+        </motion.div>
+      </main>
+    </div>
+  );
+
+  if (isDashboard) return content;
+
+  return (
+    <div className="min-h-screen bg-[#020617] text-slate-100 font-sans selection:bg-indigo-500/30 relative overflow-x-hidden">
+      <LiveBackground />
+      <ProfileAmbientLayer />
+      {content}
     </div>
   );
 }

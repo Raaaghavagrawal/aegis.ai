@@ -1,5 +1,5 @@
 /**
- * GigShield Data Preprocessor
+ * Aegis Data Preprocessor
  * Cleans, normalizes, and smooths raw API data before it reaches the ML layer.
  */
 

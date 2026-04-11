@@ -45,6 +45,10 @@ async function syncUserTableSchema() {
   await ensureColumn("users", "last_active_at", "TIMESTAMP NULL DEFAULT NULL");
   await ensureColumn("users", "avg_daily_deliveries", "INT DEFAULT 20");
   await ensureColumn("users", "earnings_per_delivery", "INT DEFAULT 40");
+  await ensureColumn("users", "notify_risk", "BOOLEAN DEFAULT TRUE");
+  await ensureColumn("users", "notify_payout", "BOOLEAN DEFAULT TRUE");
+  await ensureColumn("users", "notify_audit", "BOOLEAN DEFAULT TRUE");
+  await ensureColumn("users", "notify_weekly", "BOOLEAN DEFAULT FALSE");
 }
 
 async function createUser({
@@ -75,7 +79,7 @@ async function getUserByEmail(email) {
 
 async function getUserById(id) {
   const [rows] = await pool.execute(
-    "SELECT id, name, email, city, platform, weekly_income, avg_daily_deliveries, earnings_per_delivery FROM users WHERE id = ?",
+    "SELECT id, name, email, city, platform, weekly_income, avg_daily_deliveries, earnings_per_delivery, notify_risk, notify_payout, notify_audit, notify_weekly FROM users WHERE id = ?",
     [id]
   );
   return rows[0] || null;
@@ -84,7 +88,7 @@ async function getUserById(id) {
 async function getUserInternal(id) {
   await syncUserTableSchema();
   const [rows] = await pool.execute(
-    "SELECT id, name, email, city, platform, weekly_income, last_active_at, avg_daily_deliveries, earnings_per_delivery FROM users WHERE id = ?",
+    "SELECT id, name, email, city, platform, weekly_income, last_active_at, avg_daily_deliveries, earnings_per_delivery, notify_risk, notify_payout, notify_audit, notify_weekly FROM users WHERE id = ?",
     [id]
   );
   return rows[0] || null;
@@ -115,6 +119,18 @@ async function getUsersByCityWithActivePolicy(city) {
   return rows;
 }
 
+async function updateUserProfile(id, { name, email, city, platform, weekly_income, notify_risk, notify_payout, notify_audit, notify_weekly }) {
+  await syncUserTableSchema();
+  await pool.execute(
+    `UPDATE users 
+     SET name = ?, email = ?, city = ?, platform = ?, weekly_income = ?, 
+         notify_risk = ?, notify_payout = ?, notify_audit = ?, notify_weekly = ?
+     WHERE id = ?`,
+    [name, email, city, platform, weekly_income, notify_risk, notify_payout, notify_audit, notify_weekly, id]
+  );
+  return getUserById(id);
+}
+
 module.exports = {
   syncUserTableSchema,
   createUser,
@@ -123,4 +139,5 @@ module.exports = {
   getUserInternal,
   touchUserActivity,
   getUsersByCityWithActivePolicy,
+  updateUserProfile,
 };

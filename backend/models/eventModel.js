@@ -23,7 +23,6 @@ async function ensureColumn(tableName, columnName, columnDefinitionSql) {
        ADD COLUMN \`${columnName}\` ${columnDefinitionSql}`
     );
   } catch (error) {
-    // In case of race condition between multiple instances
     if (error && error.code === "ER_DUP_FIELDNAME") return;
     throw error;
   }
@@ -44,6 +43,8 @@ async function syncEventTableSchema() {
 
   await ensureColumn("events", "temperature", "DECIMAL(8,2) NOT NULL DEFAULT 0");
   await ensureColumn("events", "pollution_level", "VARCHAR(50) NULL");
+  await ensureColumn("events", "humidity", "DECIMAL(8,2) NOT NULL DEFAULT 0");
+  await ensureColumn("events", "wind_speed", "DECIMAL(8,2) NOT NULL DEFAULT 0");
 }
 
 async function createEvent({
@@ -52,13 +53,15 @@ async function createEvent({
   temperature,
   aqi,
   pollutionLevel,
+  humidity = 0,
+  windSpeed = 0,
   eventDate,
   triggered,
 }) {
   const [result] = await pool.execute(
-    `INSERT INTO events (city, rainfall, temperature, aqi, pollution_level, event_date, triggered)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [city, rainfall, temperature, aqi, pollutionLevel, eventDate, triggered]
+    `INSERT INTO events (city, rainfall, temperature, aqi, pollution_level, humidity, wind_speed, event_date, triggered)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [city, rainfall, temperature, aqi, pollutionLevel, humidity, windSpeed, eventDate, triggered]
   );
   return result.insertId;
 }

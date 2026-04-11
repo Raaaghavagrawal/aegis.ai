@@ -30,12 +30,16 @@ async function simulatePayout(req, res, next) {
 
 async function getWallet(req, res, next) {
   try {
-    const userId = Number(req.params.user_id);
+    const userId = Number(req.params.user_id) || req.user?.id;
     if (!userId) {
-      return res.status(400).json({ message: "user_id is required" });
+      return res.status(401).json({ message: "User not identified" });
     }
     const wallet = await getUserWallet(userId);
-    return res.json({ balance: Number(wallet.balance) });
+    const payouts = await getPayoutsByUserId(userId);
+    return res.json({ 
+      balance: Number(wallet.balance),
+      payouts: payouts || []
+    });
   } catch (error) {
     return next(error);
   }
@@ -43,9 +47,9 @@ async function getWallet(req, res, next) {
 
 async function getUserPayouts(req, res, next) {
   try {
-    const userId = Number(req.params.user_id);
+    const userId = Number(req.params.user_id) || req.user?.id;
     if (!userId) {
-      return res.status(400).json({ message: "user_id is required" });
+      return res.status(401).json({ message: "User not identified" });
     }
     const payouts = await getPayoutsByUserId(userId);
     return res.json(payouts);

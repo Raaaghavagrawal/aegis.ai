@@ -43,11 +43,11 @@ function normalizeUser(u) {
   };
 }
 
-export default function OrdersPage() {
+export default function OrdersPage({ isDashboard = false }) {
   const navigate = useNavigate();
   const cached = useMemo(() => {
     try {
-      return JSON.parse(localStorage.getItem("gigshield_user") || "{}");
+      return JSON.parse(localStorage.getItem("aegis_user") || "{}");
     } catch {
       return {};
     }
@@ -61,7 +61,7 @@ export default function OrdersPage() {
 
   const [soundOn, setSoundOn] = useState(() => {
     try {
-      return localStorage.getItem("gigshield_profile_sound") !== "0";
+      return localStorage.getItem("aegis_profile_sound") !== "0";
     } catch {
       return true;
     }
@@ -76,7 +76,7 @@ export default function OrdersPage() {
       if (n) {
         setUser(n);
         try {
-          localStorage.setItem("gigshield_user", JSON.stringify(n));
+          localStorage.setItem("aegis_user", JSON.stringify(n));
         } catch {
           /* ignore */
         }
@@ -139,7 +139,7 @@ export default function OrdersPage() {
     setSoundOn((v) => {
       const next = !v;
       try {
-        localStorage.setItem("gigshield_profile_sound", next ? "1" : "0");
+        localStorage.setItem("aegis_profile_sound", next ? "1" : "0");
       } catch {
         /* ignore */
       }
@@ -152,19 +152,16 @@ export default function OrdersPage() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("gigshield_token");
-    localStorage.removeItem("gigshield_user");
+    localStorage.removeItem("aegis_token");
+    localStorage.removeItem("aegis_user");
     navigate("/auth");
   };
 
-  return (
-    <div className="min-h-screen bg-[#020617] text-slate-100 font-sans selection:bg-indigo-500/30 relative overflow-x-hidden">
-      <LiveBackground />
-      <ProfileAmbientLayer />
+  const content = (
+    <div className="relative z-10 min-h-screen flex flex-col">
+      <OrderToastStack enabled soundEnabled={soundOn} onPulse={onToastPulse} />
 
-      <div className="relative z-10 min-h-screen flex flex-col">
-        <OrderToastStack enabled soundEnabled={soundOn} onPulse={onToastPulse} />
-
+      {!isDashboard && (
         <header className="sticky top-0 z-30 border-b border-white/[0.06] bg-[#020617]/80 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-[#020617]/65">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3.5 sm:px-8">
             <div className="flex min-w-0 items-center gap-3 sm:gap-4">
@@ -176,7 +173,7 @@ export default function OrdersPage() {
                 <ArrowLeft size={18} className="transition group-hover:-translate-x-0.5" />
               </Link>
               <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-400/95">GigShield Logistics</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-400/95">Aegis Logistics</p>
                 <h1 className="truncate text-lg font-extrabold tracking-tight text-white sm:text-xl">Live orders hub</h1>
               </div>
             </div>
@@ -199,8 +196,9 @@ export default function OrdersPage() {
             </div>
           </div>
         </header>
+      )}
 
-        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-8 sm:py-10">
+      <main className={`mx-auto w-full max-w-7xl flex-1 ${isDashboard ? 'px-0 py-0' : 'px-4 py-6 sm:px-8 sm:py-10'}`}>
           <motion.div initial="hidden" animate="show" variants={staggerWrap} className="space-y-8">
             <motion.div
               custom={0}
@@ -349,6 +347,15 @@ export default function OrdersPage() {
           </motion.div>
         </main>
       </div>
+  );
+
+  if (isDashboard) return content;
+
+  return (
+    <div className="min-h-screen bg-[#020617] text-slate-100 font-sans selection:bg-indigo-500/30 relative overflow-x-hidden">
+      <LiveBackground />
+      <ProfileAmbientLayer />
+      {content}
     </div>
   );
 }

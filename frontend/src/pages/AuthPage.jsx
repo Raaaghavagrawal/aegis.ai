@@ -86,31 +86,21 @@ function AuthPage() {
           earnings_per_delivery: Number(form.earnings_per_delivery),
           weekly_income: Number(form.avg_daily_deliveries) * Number(form.earnings_per_delivery) * 7,
         });
-        localStorage.setItem("gigshield_token", signupRes.data.token);
-        localStorage.setItem("gigshield_user", JSON.stringify(signupRes.data.user));
+        localStorage.setItem("aegis_token", signupRes.data.token);
+        localStorage.setItem("aegis_user", JSON.stringify(signupRes.data.user));
       } else {
         const loginRes = await api.post("/api/auth/login", {
           email: form.email,
           password: form.password,
         });
-        localStorage.setItem("gigshield_token", loginRes.data.token);
-        localStorage.setItem("gigshield_user", JSON.stringify(loginRes.data.user));
+        localStorage.setItem("aegis_token", loginRes.data.token);
+        localStorage.setItem("aegis_user", JSON.stringify(loginRes.data.user));
       }
 
       navigate("/dashboard");
     } catch (err) {
-      const apiMsg = err?.response?.data?.message;
-      const noResponse =
-        !err?.response &&
-        (err?.code === "ERR_NETWORK" ||
-          err?.message === "Network Error" ||
-          err?.message?.includes("ECONNREFUSED"));
       setError(
-        apiMsg ||
-          (noResponse
-            ? "Cannot reach the API. Start the backend from the backend folder (npm start) and make sure backend/.env is saved with DATABASE_URL and JWT_SECRET."
-            : null) ||
-          err?.message ||
+        err?.response?.data?.message ||
           "Authentication failed. Please check your details."
       );
     } finally {
@@ -129,7 +119,7 @@ function AuthPage() {
             <span className="w-8 h-8 rounded-lg flex items-center justify-center bg-indigo-500/10 border border-indigo-500/20 text-indigo-300">
               <Shield size={16} />
             </span>
-            <span className="font-black tracking-tight text-lg">GigShield AI</span>
+            <span className="font-black tracking-tight text-lg">Aegis AI</span>
           </Link>
         </div>
 
@@ -174,7 +164,7 @@ function AuthPage() {
           <div className="text-center space-y-1">
             <div className="text-xs font-extrabold tracking-widest text-slate-400 uppercase">SECURE ACCESS</div>
             <h2 className="text-3xl font-bold text-white">
-              {mode === "login" ? "Log in to GigShield" : "Create account"}
+              {mode === "login" ? "Log in to Aegis" : "Create account"}
             </h2>
             <p className="text-sm text-slate-400">
               Choose your access method below to continue.
@@ -366,7 +356,7 @@ function AuthPage() {
                 </button>
               </div>
 
-              {error && <p className="text-red-400 text-xs">{error}</p>}
+              {error && <p className="text-rose-400 text-xs">{error}</p>}
 
               <button
                 disabled={loading}
