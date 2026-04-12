@@ -56,7 +56,7 @@ const NotificationsCenter = () => {
     const t = type?.toLowerCase() || '';
     if (t.includes('risk')) return <Activity size={16} className="text-rose-400" />;
     if (t.includes('payout')) return <Zap size={16} className="text-emerald-400" />;
-    if (t.includes('fraud')) return <Shield size={16} className="text-amber-400" />;
+    if (t.includes('environment')) return <CloudRain size={16} className="text-sky-400" />;
     return <Bell size={16} className="text-blue-400" />;
   };
 

@@ -5,86 +5,91 @@ import { Link } from 'react-router-dom';
 
 const Hero = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-      {/* Background Blobs */}
-      <div className="blob" style={{ top: '10%', left: '5%' }}></div>
-      <div className="blob" style={{ bottom: '10%', right: '5%', background: 'radial-gradient(circle, rgba(6, 182, 212, 0.4) 0%, transparent 70%)' }}></div>
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 px-6 sm:px-10">
+      {/* Background Ambient Lighting */}
+      <div className="absolute top-[20%] left-[10%] w-[400px] h-[400px] bg-indigo-500/10 blur-[120px] rounded-full -z-10 animate-pulse"></div>
+      <div className="absolute bottom-[20%] right-[10%] w-[350px] h-[350px] bg-cyan-400/10 blur-[100px] rounded-full -z-10"></div>
 
-      <div className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '4rem', alignItems: 'center' }}>
+      <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
         
         <motion.div
-          initial={{ x: -100, opacity: 0 }}
+          initial={{ x: -20, opacity: 0 }}
           whileInView={{ x: 0, opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="max-w-2xl"
         >
-          <h1 style={{ fontSize: 'clamp(2.5rem, 6vw, 4rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '1.5rem', letterSpacing: '-0.03em' }}>
-            Protect Your Income <br />
-            <span className="gradient-text">Automatically.</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full mb-6 text-blue-400 text-[11px] font-black uppercase tracking-widest shadow-xl">
+             <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+             Powered by Parametric Intelligence
+          </div>
+
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight mb-8 text-white">
+            Protect Your <br className="hidden sm:block" />
+            <span className="gradient-text">Income Core</span>
           </h1>
           
-          <p style={{ color: '#94a3b8', fontSize: '1.1rem', maxWidth: '500px', marginBottom: '2.5rem', lineHeight: 1.6 }}>
-            Parametric insurance that pays out instantly when weather or pollution hits your city. No complicated claim forms — just AI-powered protection.
+          <p className="text-lg text-slate-400 font-medium leading-relaxed max-w-lg mb-12">
+            Parametric insurance that pays out instantly when environmental triggers hit your city. No forms, no wait — just AI-synchronized protection.
           </p>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              style={{ background: 'linear-gradient(135deg, #6366f1, #818cf8)', color: 'white', padding: '14px 32px', borderRadius: '100px', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 10px 30px rgba(99, 102, 241, 0.4)' }}
-            >
-              <Link to="/auth" style={{ color: "white", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "8px" }}>
-                Analyze My Risk <ArrowRight size={18} />
+          <div className="flex flex-wrap items-center gap-6">
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Link 
+                to="/auth" 
+                className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold transition-all shadow-lg shadow-indigo-500/25 flex items-center gap-3"
+              >
+                Analyze My Risk <ArrowRight size={20} />
               </Link>
             </motion.div>
             
-            <button style={{ background: 'transparent', color: '#f8fafc', border: '1px solid rgba(255,255,255,0.2)', padding: '14px 28px', borderRadius: '100px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-              <Play size={16} fill="white" /> See How It Works
+            <button className="px-8 py-4 bg-transparent border border-white/10 hover:border-white/25 text-white/80 hover:text-white rounded-2xl font-bold transition-all flex items-center gap-3">
+              <Play size={18} fill="currentColor" /> Watch Keynote
             </button>
           </div>
 
-          <div style={{ marginTop: '3rem', display: 'flex', gap: '2rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '1.5rem', fontWeight: 800 }}>50M+</span>
-              <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 500, textTransform: 'uppercase' }}>Gig Workers</span>
+          <div className="mt-16 flex gap-10 border-t border-white/5 pt-10">
+            <div className="flex flex-col">
+              <span className="text-3xl font-black text-white">50M+</span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Gig Nodes Protected</span>
             </div>
-            <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '1.5rem', fontWeight: 800 }}>₹0</span>
-              <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 500, textTransform: 'uppercase' }}>Claim Paperwork</span>
+            <div className="flex flex-col">
+              <span className="text-3xl font-black text-blue-400">₹0</span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Claims Friction</span>
             </div>
           </div>
         </motion.div>
 
         <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
+          initial={{ scale: 0.95, opacity: 0 }}
           whileInView={{ scale: 1, opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="relative"
-          style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}
+          transition={{ duration: 1, delay: 0.1 }}
+          className="relative flex justify-center"
         >
-          <div className="glass-card" style={{ width: '100%', maxWidth: '400px', padding: '40px', textAlign: 'center', position: 'relative', zIndex: 2 }}>
+          <div className="glass-card relative z-10 w-full max-w-md p-10 text-center overflow-hidden group">
+             <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
              <motion.div 
                animate={{ y: [0, -10, 0] }}
                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-               style={{ fontSize: '6rem', marginBottom: '20px' }}>
+               className="text-8xl mb-10 drop-shadow-[0_0_50px_rgba(99,102,241,0.3)] select-none"
+             >
                🛡️
              </motion.div>
-             <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '10px' }}>AI Shield Active</h3>
-             <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Continuously monitoring weather triggers across 500+ Indian districts.</p>
+             <h3 className="text-2xl font-black text-white mb-3 uppercase tracking-tight">System Shield: Online</h3>
+             <p className="text-sm text-slate-400 font-medium leading-relaxed">Monitoring atmospheric triggers across 500+ secure node districts in real-time.</p>
+             
+             <div className="mt-10 flex items-center justify-center gap-3">
+                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Network Synchronized</span>
+             </div>
           </div>
           
-          {/* Animated Circles around the shield */}
-          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '120%', height: '120%', border: '1px solid rgba(99, 102, 241, 0.2)', borderRadius: '50%', zIndex: 1, animation: 'spin 20s linear infinite' }}></div>
-          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '90%', height: '90%', border: '1px solid rgba(6, 182, 212, 0.1)', borderRadius: '50%', zIndex: 1, animation: 'spin-reverse 15s linear infinite' }}></div>
+          {/* Orbital Decorations */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] border border-white/5 rounded-full animate-[spin_30s_linear_infinite] -z-10"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[90%] border border-white/5 rounded-full animate-[spin_20s_linear_infinite_reverse] -z-10"></div>
         </motion.div>
       </div>
-      
-      <style>{`
-        @keyframes spin { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
-        @keyframes spin-reverse { from { transform: translate(-50%, -50%) rotate(360deg); } to { transform: translate(-50%, -50%) rotate(0deg); } }
-      `}</style>
     </section>
   );
 };

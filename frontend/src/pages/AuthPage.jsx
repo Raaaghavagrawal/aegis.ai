@@ -16,10 +16,18 @@ import { api } from "../utils/api";
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState("login");
+  const [mode, setMode] = useState(() => localStorage.getItem("aegis_token") ? "session" : "login");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const user = JSON.parse(localStorage.getItem("aegis_user") || "{}");
+
+  const handleLogout = () => {
+    localStorage.setItem("aegis_token", "");
+    localStorage.setItem("aegis_user", "");
+    setMode("login");
+  };
 
   const [form, setForm] = useState({
     name: "",
@@ -203,169 +211,198 @@ function AuthPage() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-3">
-              {mode === "signup" && (
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                      <User size={14} />
-                    </span>
-                    <input
-                      name="name"
-                      placeholder="Full name"
-                      value={form.name}
-                      onChange={onChange}
-                      required
-                      className="w-full h-10 text-sm px-3 pl-9 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
-                    />
+            {mode === "session" ? (
+              <div className="space-y-6 py-4">
+                <div className="flex flex-col items-center gap-4 text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 border border-indigo-500/30">
+                    <Shield size={32} />
                   </div>
-                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                      <MapPin size={14} />
-                    </span>
-                    <input
-                      name="city"
-                      placeholder="City"
-                      value={form.city || ""}
-                      onChange={onChange}
-                      onFocus={() => form.city?.length >= 3 && setShowCitySuggestions(true)}
-                      onBlur={() => setTimeout(() => setShowCitySuggestions(false), 200)}
-                      autoComplete="off"
-                      required
-                      className="w-full h-10 text-sm px-3 pl-9 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
-                    />
-                    {fetchingCity && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <div className="w-3 h-3 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
-                      </div>
-                    )}
-                    {showCitySuggestions && apiSuggestions.length > 0 && (
-                      <div className="absolute left-0 right-0 top-11 bg-[#0f172a] border border-white/10 rounded-xl overflow-hidden z-20 shadow-2xl backdrop-blur-xl">
-                        {apiSuggestions.map((item, idx) => (
-                          <button
-                            key={idx}
-                            type="button"
-                            className="w-full px-4 py-2 text-left text-[11px] font-semibold text-slate-300 hover:bg-indigo-500/10 hover:text-white transition-colors border-b border-white/5 last:border-0"
-                            onClick={() => {
-                              setForm(f => ({ ...f, city: item.city }));
-                              setShowCitySuggestions(false);
-                            }}
-                          >
-                            <span className="block truncate">{item.city}</span>
-                            <span className="block text-[9px] text-slate-500 truncate">{item.display_name}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <div className="relative col-span-2">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                      <Briefcase size={14} />
-                    </span>
-                    <select
-                      name="platform"
-                      value={form.platform}
-                      onChange={onChange}
-                      className="w-full h-10 text-sm px-3 pl-9 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all appearance-none"
-                    >
-                      <option className="bg-slate-900">Swiggy</option>
-                      <option className="bg-slate-900">Zomato</option>
-                      <option className="bg-slate-900">Rapido</option>
-                      <option className="bg-slate-900">Uber</option>
-                      <option className="bg-slate-900">Dunzo</option>
-                      <option className="bg-slate-900">Porter</option>
-                      <option className="bg-slate-900">Zepto</option>
-                      <option className="bg-slate-900">Blinkit</option>
-                    </select>
-                  </div>
-
-                  <div className="relative">
-                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                      <Monitor size={14} />
-                    </span>
-                    <input
-                      name="avg_daily_deliveries"
-                      type="number"
-                      placeholder="Daily Deliveries"
-                      value={form.avg_daily_deliveries}
-                      onChange={onChange}
-                      required
-                      className="w-full h-10 text-sm px-3 pl-9 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
-                    />
-                  </div>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">
-                      ₹/D
-                    </span>
-                    <input
-                      name="earnings_per_delivery"
-                      type="number"
-                      placeholder="₹ Per Order"
-                      value={form.earnings_per_delivery}
-                      onChange={onChange}
-                      required
-                      className="w-full h-10 text-sm px-3 pl-9 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
-                    />
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Identity Verified</h3>
+                    <p className="text-sm text-slate-400 mt-1">Welcome back, <span className="text-indigo-300 font-bold">{user.name || "Gig Worker"}</span></p>
                   </div>
                 </div>
-              )}
 
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                  <Mail size={14} />
-                </span>
-                <input
-                  name="email"
-                  type="email"
-                  placeholder="Email address"
-                  value={form.email}
-                  onChange={onChange}
-                  required
-                  className="w-full h-10 text-sm px-3 pl-9 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
-                />
+                <div className="space-y-3">
+                  <button
+                    onClick={() => navigate("/dashboard")}
+                    className="w-full h-11 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-black uppercase tracking-wider rounded-xl shadow-lg shadow-indigo-500/20 transition-all"
+                  >
+                    Proceed to Dashboard
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full h-11 bg-slate-800/40 hover:bg-rose-500/10 border border-white/5 hover:border-rose-500/30 text-slate-400 hover:text-rose-200 text-xs font-bold uppercase tracking-widest rounded-xl transition-all"
+                  >
+                    Not you? Sign Out
+                  </button>
+                </div>
               </div>
-
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                  <Lock size={14} />
-                </span>
-                <input
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  value={form.password}
-                  onChange={onChange}
-                  required
-                  className="w-full h-10 text-sm px-3 pl-9 pr-10 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
-                />
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-3">
+                {mode === "signup" && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                        <User size={14} />
+                      </span>
+                      <input
+                        name="name"
+                        placeholder="Full name"
+                        value={form.name}
+                        onChange={onChange}
+                        required
+                        className="w-full h-10 text-sm px-3 pl-9 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
+                      />
+                    </div>
+                     <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                        <MapPin size={14} />
+                      </span>
+                      <input
+                        name="city"
+                        placeholder="City"
+                        value={form.city || ""}
+                        onChange={onChange}
+                        onFocus={() => form.city?.length >= 3 && setShowCitySuggestions(true)}
+                        onBlur={() => setTimeout(() => setShowCitySuggestions(false), 200)}
+                        autoComplete="off"
+                        required
+                        className="w-full h-10 text-sm px-3 pl-9 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
+                      />
+                      {fetchingCity && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <div className="w-3 h-3 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
+                        </div>
+                      )}
+                      {showCitySuggestions && apiSuggestions.length > 0 && (
+                        <div className="absolute left-0 right-0 top-11 bg-[#0f172a] border border-white/10 rounded-xl overflow-hidden z-20 shadow-2xl backdrop-blur-xl">
+                          {apiSuggestions.map((item, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              className="w-full px-4 py-2 text-left text-[11px] font-semibold text-slate-300 hover:bg-indigo-500/10 hover:text-white transition-colors border-b border-white/5 last:border-0"
+                              onClick={() => {
+                                setForm(f => ({ ...f, city: item.city }));
+                                setShowCitySuggestions(false);
+                              }}
+                            >
+                              <span className="block truncate">{item.city}</span>
+                              <span className="block text-[9px] text-slate-500 truncate">{item.display_name}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="relative col-span-2">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                        <Briefcase size={14} />
+                      </span>
+                      <select
+                        name="platform"
+                        value={form.platform}
+                        onChange={onChange}
+                        className="w-full h-10 text-sm px-3 pl-9 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all appearance-none"
+                      >
+                        <option className="bg-slate-900">Swiggy</option>
+                        <option className="bg-slate-900">Zomato</option>
+                        <option className="bg-slate-900">Rapido</option>
+                        <option className="bg-slate-900">Uber</option>
+                        <option className="bg-slate-900">Dunzo</option>
+                        <option className="bg-slate-900">Porter</option>
+                        <option className="bg-slate-900">Zepto</option>
+                        <option className="bg-slate-900">Blinkit</option>
+                      </select>
+                    </div>
+  
+                    <div className="relative">
+                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                        <Monitor size={14} />
+                      </span>
+                      <input
+                        name="avg_daily_deliveries"
+                        type="number"
+                        placeholder="Daily Deliveries"
+                        value={form.avg_daily_deliveries}
+                        onChange={onChange}
+                        required
+                        className="w-full h-10 text-sm px-3 pl-9 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
+                      />
+                    </div>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">
+                        ₹/D
+                      </span>
+                      <input
+                        name="earnings_per_delivery"
+                        type="number"
+                        placeholder="₹ Per Order"
+                        value={form.earnings_per_delivery}
+                        onChange={onChange}
+                        required
+                        className="w-full h-10 text-sm px-3 pl-9 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
+                      />
+                    </div>
+                  </div>
+                )}
+  
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                    <Mail size={14} />
+                  </span>
+                  <input
+                    name="email"
+                    type="email"
+                    placeholder="Email address"
+                    value={form.email}
+                    onChange={onChange}
+                    required
+                    className="w-full h-10 text-sm px-3 pl-9 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
+                  />
+                </div>
+  
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                    <Lock size={14} />
+                  </span>
+                  <input
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    value={form.password}
+                    onChange={onChange}
+                    required
+                    className="w-full h-10 text-sm px-3 pl-9 pr-10 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-200 hover:bg-white/5 rounded-md transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
+  
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-xs text-slate-400">
+                    {mode === "login" ? "" : "Details can be edited later."}
+                  </span>
+                  <button type="button" className="text-xs font-semibold text-indigo-400 hover:text-indigo-300" disabled>
+                    Forgot password?
+                  </button>
+                </div>
+  
+                {error && <p className="text-rose-400 text-xs">{error}</p>}
+  
                 <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-200 hover:bg-white/5 rounded-md transition-colors"
+                  disabled={loading}
+                  type="submit"
+                  className="w-full h-10 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg shadow-lg shadow-indigo-500/20 transition-all disabled:opacity-70 disabled:cursor-not-allowed mt-1"
                 >
-                  {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                  {loading ? "Please wait..." : mode === "signup" ? "Create account" : "Login"}
                 </button>
-              </div>
-
-              <div className="flex items-center justify-between pt-1">
-                <span className="text-xs text-slate-400">
-                  {mode === "login" ? "" : "Details can be edited later."}
-                </span>
-                <button type="button" className="text-xs font-semibold text-indigo-400 hover:text-indigo-300" disabled>
-                  Forgot password?
-                </button>
-              </div>
-
-              {error && <p className="text-rose-400 text-xs">{error}</p>}
-
-              <button
-                disabled={loading}
-                type="submit"
-                className="w-full h-10 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg shadow-lg shadow-indigo-500/20 transition-all disabled:opacity-70 disabled:cursor-not-allowed mt-1"
-              >
-                {loading ? "Please wait..." : mode === "signup" ? "Create account" : "Login"}
-              </button>
-            </form>
+              </form>
+            )}
           </div>
 
           {mode === "login" && (

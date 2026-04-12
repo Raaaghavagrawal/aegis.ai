@@ -4,11 +4,13 @@ const {
   createPolicyForUser,
   getMyPolicies,
   scalePolicy,
+  purchasePlan,
 } = require("../controllers/policyController");
 
 const router = express.Router();
 
 router.post("/", protect, createPolicyForUser);
+router.post("/purchase", protect, purchasePlan);
 router.post("/scale", protect, scalePolicy);
 router.get("/me", protect, getMyPolicies);
 

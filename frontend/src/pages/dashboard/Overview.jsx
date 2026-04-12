@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ComposedChart, Line, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from 'recharts';
-import { Zap, TrendingUp, Activity, Loader2, AlertCircle } from 'lucide-react';
+import { Zap, TrendingUp, Activity, Loader2, AlertCircle, BadgeCheck } from 'lucide-react';
 import { api } from '../../utils/api';
 
 const Overview = () => {
@@ -22,6 +22,7 @@ const Overview = () => {
         weeklyIncome: res.data.ai_metrics?.weekly_income || 0,
         financialMomentum: res.data.user?.wallet_balance || res.data.wallet_balance || 0,
         history: res.data.history || [],
+        activePolicy: res.data.active_policy || null,
       };
 
       setData(mappedData);
@@ -117,6 +118,11 @@ const Overview = () => {
               <h3 className="text-5xl font-semibold text-white tracking-tight mb-4 tabular-nums">
                 ₹{Number(ai.net_protected_forecast || 0).toLocaleString()}
               </h3>
+              {data?.activePolicy && (
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 text-[10px] font-black uppercase tracking-widest mt-2 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
+                  <BadgeCheck size={14} className="animate-pulse" /> Active {data.activePolicy.coverage_percentage === 40 ? 'Elite' : data.activePolicy.coverage_percentage === 30 ? 'Pro' : 'Basic'} Shield Enabled
+                </div>
+              )}
               <div className="mt-8 flex flex-wrap justify-center items-center gap-12 text-sm">
                 <div className="flex flex-col items-center">
                   <span className="text-slate-500 text-[11px] uppercase tracking-wider font-bold mb-1">Weekly Income</span>
@@ -138,7 +144,7 @@ const Overview = () => {
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <ComposedChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
-                  <XAxis dataKey="time" stroke="#475569" fontSize={8} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="time" interval={3} stroke="#475569" fontSize={8} axisLine={false} tickLine={false} />
                   <YAxis yAxisId="left" stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
                   <YAxis yAxisId="right" orientation="right" stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
                   <Tooltip 
@@ -147,8 +153,9 @@ const Overview = () => {
                     labelStyle={{ fontSize: '11px', color: '#64748b' }}
                   />
                   <Legend verticalAlign="top" height={36} iconType="circle" />
-                  <Bar yAxisId="left" dataKey="AQI" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={25} />
-                  <Bar yAxisId="left" dataKey="Rainfall" fill="#818cf8" radius={[4, 4, 0, 0]} barSize={25} />
+                  <Area yAxisId="left" type="monotone" dataKey="AQI" stroke="none" fill="#3b82f6" fillOpacity={0.1} legendType="none" />
+                  <Bar yAxisId="left" dataKey="AQI" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={20} />
+                  <Bar yAxisId="left" dataKey="Rainfall" fill="#818cf8" radius={[4, 4, 0, 0]} barSize={20} />
                   <Line yAxisId="right" type="monotone" dataKey="Temperature" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3, fill: '#f59e0b', strokeWidth: 0 }} />
                 </ComposedChart>
               </ResponsiveContainer>
@@ -207,7 +214,7 @@ const Overview = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-slate-800/20 rounded-2xl p-8 border border-white/5 hover:border-white/10 transition-all duration-300">
            <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-6">Aegis Factor Assessment</h4>
            <div className="space-y-4">
@@ -242,16 +249,6 @@ const Overview = () => {
                  <p className="text-lg font-bold text-white uppercase tracking-tight">+14.2% Stability</p>
               </div>
            </div>
-        </div>
-
-        <div className="bg-slate-800/20 rounded-2xl p-8 border border-white/5 hover:border-white/10 transition-all duration-300">
-           <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-6">Financial Momentum</h4>
-           <p className="text-3xl font-bold text-white tracking-tight leading-none mb-2 tabular-nums">₹{Number(data?.financialMomentum || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-8">Managed Vault Balance (Momentum)</p>
-           <div className="h-[100px] w-full bg-slate-950/20 rounded-2xl border border-white/5 flex items-center justify-center overflow-hidden">
-              <TrendingUp size={48} className="text-emerald-500/10" />
-           </div>
-           <button onClick={fetchData} className="mt-6 w-full py-3 bg-slate-900 border border-white/5 rounded-xl text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-widest transition-all">Refresh Sync</button>
         </div>
       </div>
     </motion.div>

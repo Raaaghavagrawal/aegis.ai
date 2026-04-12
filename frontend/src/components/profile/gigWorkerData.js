@@ -45,19 +45,32 @@ export function deriveWorkerScores(userId) {
   };
 }
 
-/** Hour buckets for demand chart (synthetic, city-tinted label only). */
+/** Hour buckets for demand chart (24-hour rolling window ending at current hour). */
 export function buildHourlyDemandSeries(userId) {
   const id = Number(userId) || 1;
-  const curve = [3, 4, 5, 7, 9, 11, 12, 11, 10, 12, 14, 13, 10, 8, 6];
-  return curve.map((base, i) => {
-    const h = 8 + i;
-    const demand = Math.max(2, base + ((id + h * 5) % 5) - 2);
-    return {
+  const currentHour = new Date().getHours();
+  const data = [];
+
+  for (let i = 23; i >= 0; i--) {
+    const h = (currentHour - i + 24) % 24;
+    // Detirministic synthetic demand curve
+    // Peaks around lunch (13) and dinner (20)
+    const lunchEffect = 8 * Math.exp(-Math.pow(h - 13, 2) / 4);
+    const dinnerEffect = 10 * Math.exp(-Math.pow(h - 20, 2) / 6);
+    const lateNightEffect = 4 * Math.exp(-Math.pow(h - 1, 2) / 8);
+    
+    const base = 4 + lunchEffect + dinnerEffect + lateNightEffect;
+    const noise = ((id * 7 + h * 13) % 4) - 2;
+    const demand = Math.max(2, Math.round(base + noise));
+
+    data.push({
       slot: `${h}:00`,
       demand,
-      short: `${h > 12 ? h - 12 : h}${h >= 12 ? "p" : "a"}`,
-    };
-  });
+      short: `${h === 0 ? 12 : h > 12 ? h - 12 : h}${h >= 12 ? "p" : "a"}`,
+      hour: h,
+    });
+  }
+  return data;
 }
 
 export function buildSyntheticOrders(platform, city, earningsPerDelivery) {

@@ -60,10 +60,18 @@ async function updatePolicyCoverage(id, userId, newCoverage, newPremium) {
   return result.affectedRows > 0;
 }
 
+async function deactivateAllUserPolicies(userId) {
+  await pool.execute(
+    "UPDATE policies SET status = 'inactive' WHERE user_id = ? AND status = 'active'",
+    [userId]
+  );
+}
+
 module.exports = {
   syncPolicyTableSchema,
   createPolicy,
   getPoliciesByUserId,
   hasActivePolicy,
   updatePolicyCoverage,
+  deactivateAllUserPolicies,
 };
