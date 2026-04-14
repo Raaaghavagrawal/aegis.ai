@@ -75,15 +75,15 @@ const PolicyCenter = () => {
 
   if (loading) {
     return (
-      <div className="space-y-6 font-poppins">
+      <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className="bg-slate-800/20 border border-white/5 p-6 rounded-2xl animate-pulse h-32" />
+            <div key={i} className="skeleton rounded-2xl h-32" />
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-slate-800/20 border border-white/5 rounded-2xl p-8 animate-pulse h-96" />
-          <div className="bg-slate-800/20 border border-white/5 rounded-2xl p-8 animate-pulse h-96" />
+          <div className="lg:col-span-2 skeleton rounded-2xl h-96" />
+          <div className="skeleton rounded-2xl h-96" />
         </div>
       </div>
     );
@@ -162,18 +162,18 @@ const PolicyCenter = () => {
     >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {summaryCards.map((card, i) => (
-          <div key={i} className="bg-slate-800/20 border border-white/5 p-6 rounded-2xl hover:border-blue-500/10 transition-all duration-300 group shadow-sm">
-            <div className={`w-10 h-10 ${card.bg} ${card.color} rounded-xl flex items-center justify-center mb-4 border border-white/5`}>
+          <div key={i} className="premium-card p-6 group">
+            <div className={`w-10 h-10 ${card.bg} ${card.color} rounded-xl flex items-center justify-center mb-4`}>
               {card.icon}
             </div>
-            <p className="text-[11px] uppercase tracking-wider text-slate-500 font-bold">{card.label}</p>
-            <p className="text-xl font-semibold text-white mt-1">{card.value}</p>
+            <p className="text-[10px] uppercase tracking-wider font-black mb-1" style={{ color: "var(--text-muted)" }}>{card.label}</p>
+            <p className="text-xl font-black" style={{ color: "var(--text-bright)" }}>{card.value}</p>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-slate-800/20 border border-white/5 rounded-2xl p-8 relative overflow-hidden group shadow-sm">
+        <div className="lg:col-span-2 premium-card p-8 relative overflow-hidden">
           <div className="relative z-10">
             <div className="flex justify-between items-start mb-12">
               <div>
@@ -230,34 +230,35 @@ const PolicyCenter = () => {
           </div>
         </div>
 
-        <div className="bg-slate-800/20 border border-white/5 rounded-2xl p-8 flex flex-col shadow-sm">
-          <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-8">Node Coverage Matrix</h4>
-          <div className="space-y-7 flex-1">
+        <div className="premium-card p-8 flex flex-col">
+          <h4 className="text-[10px] font-black uppercase tracking-wider mb-8" style={{ color: "var(--text-muted)" }}>Node Coverage Matrix</h4>
+          <div className="space-y-6 flex-1">
             {[
-              { label: 'Atmos Sensitivity', pct: 100, color: 'bg-blue-500' },
-              { label: 'Hydro Gradient', pct: 100, color: 'bg-emerald-500' },
-              { label: 'Thermal Resilience', pct: 75, color: 'bg-indigo-500' },
-              { label: 'Systemic Health', pct: 100, color: 'bg-blue-600' },
+              { label: 'Atmos Sensitivity', pct: 100, color: '#6366f1' },
+              { label: 'Hydro Gradient',    pct: 100, color: '#10b981' },
+              { label: 'Thermal Resilience',pct: 75,  color: '#818cf8' },
+              { label: 'Systemic Health',   pct: 100, color: '#06b6d4' },
             ].map((item, i) => (
               <div key={i} className="space-y-2.5">
-                <div className="flex justify-between items-center px-1">
-                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">{item.label}</span>
-                  <span className="text-[11px] font-bold text-white">{item.pct}%</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-black uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>{item.label}</span>
+                  <span className="text-[10px] font-black" style={{ color: "var(--text-bright)" }}>{item.pct}%</span>
                 </div>
-                <div className="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden border border-white/5">
-                  <motion.div 
+                <div className="progress-bar">
+                  <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${item.pct}%` }}
-                    transition={{ duration: 1.2, delay: i * 0.1, ease: "easeOut" }}
-                    className={`h-full ${item.color} rounded-full`} 
+                    transition={{ duration: 1.2, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                    className="progress-fill"
+                    style={{ background: `linear-gradient(90deg, ${item.color} 0%, ${item.color}88 100%)` }}
                   />
                 </div>
               </div>
             ))}
           </div>
-          <button className="mt-12 flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition group">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Matrix Calibration</span>
-            <ChevronRight size={16} className="text-slate-600 group-hover:translate-x-1 transition-transform" />
+          <button className="mt-10 flex items-center justify-between p-4 rounded-xl transition-all group" style={{ background: "var(--bg-glass)", border: "1px solid var(--border)" }}>
+            <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Matrix Calibration</span>
+            <ChevronRight size={14} style={{ color: "var(--text-dim)" }} className="group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
       </div>

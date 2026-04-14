@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Menu, X, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import ThemeToggle from './ThemeToggle';
+import LanguageSelector from './LanguageSelector';
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);

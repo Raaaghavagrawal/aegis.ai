@@ -1,55 +1,78 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, Shield, CloudRain, Zap, Activity, Info, Loader2, RefreshCcw, CheckCircle2 } from 'lucide-react';
+import {
+  Bell, Shield, CloudRain, Zap, Activity, Info,
+  Loader2, RefreshCcw, CheckCircle2, BellOff, Sparkles
+} from 'lucide-react';
 import { api } from '../../utils/api';
+
+const stagger = { animate: { transition: { staggerChildren: 0.06 } } };
+const fadeUp  = {
+  initial: { opacity: 0, x: -12 },
+  animate: { opacity: 1, x: 0, transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } },
+};
 
 const NotificationsCenter = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError]  = useState(null);
+  const [filter, setFilter] = useState('all');
 
   const fetchData = useCallback(async () => {
     try {
-      console.log("[NOTIFICATIONS] Initiating neural link sync...");
-      setLoading(true);
-      setError(null);
+      setLoading(true); setError(null);
       const res = await api.get('/api/notifications');
-      console.log("[NOTIFICATIONS] Sync complete. Vector count:", res.data?.length);
       setLogs(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error("[NOTIFICATIONS] Sync failed:", err);
-      // Only set error if it's a legitimate connection or server failure
-      if (err.response?.status >= 400) {
-        setError(`Uplink Error ${err.response.status}: Neural link interrupted.`);
-      } else {
-        setError("Network drift detected. Could not establish payload connection.");
-      }
+      setError(err.response?.status >= 400
+        ? `Server Error ${err.response.status}: Could not fetch notifications.`
+        : "Network error. Check your connection.");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const getConfig = (type) => {
+    const t = (type || '').toLowerCase();
+    if (t.includes('risk'))   return { icon: <Activity  size={15} />, color: 'text-rose-400',   bg: 'bg-rose-500/10',   border: 'border-rose-500/20',   badge: 'risk'    };
+    if (t.includes('payout')) return { icon: <Zap        size={15} />, color: 'text-emerald-400',bg: 'bg-emerald-500/10',border: 'border-emerald-500/20',badge: 'live'    };
+    if (t.includes('fraud'))  return { icon: <Shield    size={15} />, color: 'text-amber-400',  bg: 'bg-amber-500/10',  border: 'border-amber-500/20',  badge: 'warning' };
+    if (t.includes('rain'))   return { icon: <CloudRain size={15} />, color: 'text-blue-400',   bg: 'bg-blue-500/10',   border: 'border-blue-500/20',   badge: 'live'    };
+    return { icon: <Bell size={15} />, color: 'text-indigo-400', bg: 'bg-indigo-500/10', border: 'border-indigo-500/20', badge: 'live' };
+  };
+
+  const filters = ['all', 'risk', 'payout', 'fraud'];
+  const filtered = filter === 'all' ? logs : logs.filter(l => (l.event_type || l.type || '').toLowerCase().includes(filter));
 
   if (loading && logs.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-48 text-slate-500 font-poppins">
-        <Loader2 size={32} className="animate-spin mb-4 text-blue-500" />
-        <p className="text-[11px] font-bold uppercase tracking-widest">Awaiting system telemetry updates...</p>
+      <div className="flex flex-col items-center justify-center py-48">
+        <div className="relative mb-5">
+          <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+            <Bell size={24} className="text-indigo-400" />
+          </div>
+          <Loader2 size={16} className="animate-spin absolute -bottom-1 -right-1 text-indigo-400" />
+        </div>
+        <p className="text-[11px] font-black uppercase tracking-[0.25em] animate-pulse" style={{ color: "var(--text-muted)" }}>
+          Fetching live alerts...
+        </p>
       </div>
     );
   }
 
   if (error) {
-     return (
-       <div className="flex flex-col items-center justify-center py-32 text-center font-poppins">
-         <Info size={48} className="text-slate-700 mb-6" />
-         <h3 className="text-xl font-bold text-white mb-2">{error}</h3>
-         <button onClick={fetchData} className="mt-8 px-10 py-3 bg-slate-800 hover:bg-slate-700 border border-white/10 text-white rounded-xl text-[11px] font-bold uppercase tracking-widest active:scale-95 transition-all">Retry Link</button>
-       </div>
-     );
+    return (
+      <div className="flex flex-col items-center justify-center py-32 text-center">
+        <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mb-5">
+          <Info size={24} className="text-rose-400" />
+        </div>
+        <h3 className="text-base font-black mb-2" style={{ color: "var(--text-bright)" }}>Connection Lost</h3>
+        <p className="text-sm mb-6" style={{ color: "var(--text-muted)" }}>{error}</p>
+        <button onClick={fetchData} className="btn-primary"><RefreshCcw size={13} /> Retry</button>
+      </div>
+    );
   }
 
   const getIcon = (type) => {
@@ -61,45 +84,96 @@ const NotificationsCenter = () => {
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="max-w-4xl mx-auto space-y-6 font-poppins"
-    >
-      <div className="flex items-center justify-between mb-8">
-         <h2 className="text-2xl font-bold text-white tracking-tight">System Notifications</h2>
-         <div className="flex items-center gap-3">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest italic">{logs.length} Vectors Recorded</span>
-            <button onClick={fetchData} className="p-2.5 bg-slate-800/50 border border-white/5 rounded-xl text-slate-500 hover:text-white transition-all"><RefreshCcw size={16} className={loading ? 'animate-spin' : ''}/></button>
-         </div>
-      </div>
+    <motion.div variants={stagger} initial="initial" animate="animate" className="max-w-3xl mx-auto space-y-6">
 
-      <div className="space-y-4">
-        {logs.length > 0 ? logs.map((log, i) => (
-          <div key={i} className="bg-slate-800/20 border border-white/5 p-6 rounded-2xl hover:border-white/10 transition-all duration-300 group">
-             <div className="flex items-start gap-5">
-                <div className="mt-1 p-3 bg-slate-900 border border-white/5 rounded-xl group-hover:bg-slate-950 transition-colors">
-                  {getIcon(log.event_type)}
+      {/* Header */}
+      <motion.div variants={fadeUp} className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-black tracking-tight" style={{ color: "var(--text-bright)" }}>
+            Smart Alerts
+          </h2>
+          <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
+            {logs.length} notifications · Real-time Aegis monitoring
+          </p>
+        </div>
+        <button
+          onClick={fetchData}
+          className="p-2.5 rounded-xl transition-all"
+          style={{ background: "var(--bg-glass)", border: "1px solid var(--border)", color: "var(--text-muted)" }}
+        >
+          <RefreshCcw size={15} className={loading ? 'animate-spin' : ''} />
+        </button>
+      </motion.div>
+
+      {/* Filter Tabs */}
+      <motion.div variants={fadeUp} className="flex items-center gap-2 p-1 rounded-2xl" style={{ background: "var(--bg-glass)", border: "1px solid var(--border)" }}>
+        {filters.map(f => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className="flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest capitalize transition-all duration-200"
+            style={{
+              background:  filter === f ? "var(--primary)" : "transparent",
+              color:       filter === f ? "#fff"           : "var(--text-muted)",
+              boxShadow:   filter === f ? "0 4px 12px rgba(99,102,241,0.35)" : "none",
+            }}
+          >
+            {f}
+          </button>
+        ))}
+      </motion.div>
+
+      {/* Notification Cards */}
+      <div className="space-y-3">
+        {filtered.length > 0 ? filtered.map((log, i) => {
+          const cfg = getConfig(log.event_type || log.type);
+          return (
+            <motion.div
+              key={i}
+              variants={fadeUp}
+              className="premium-card p-5 hover:border-opacity-70 cursor-default group"
+            >
+              <div className="flex items-start gap-4">
+                <div className={`p-3 rounded-xl shrink-0 ${cfg.bg}`} style={{ border: `1px solid ${cfg.border.replace('border-','')}` }}>
+                  <span className={cfg.color}>{cfg.icon}</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                   <div className="flex items-center justify-between gap-2 mb-1.5">
-                      <p className="text-sm font-bold text-white uppercase tracking-tight">{log.message}</p>
-                      <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest whitespace-nowrap">{new Date(log.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-                   </div>
-                   <p className="text-xs text-slate-400 leading-relaxed font-medium mb-4">Parametric event recorded on SecureNode-L1. Automated resolution active based on atmospheric telemetry.</p>
-                   <div className="flex items-center gap-4">
-                      <span className="text-[10px] font-bold text-blue-500/80 bg-blue-500/5 px-2 py-1 rounded border border-blue-500/10 uppercase tracking-widest">{(log.type || 'system').replace(/_/g, ' ')}</span>
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5"><CheckCircle2 size={12} className="text-emerald-500"/> Verified</span>
-                   </div>
+                  <div className="flex items-start justify-between gap-3 mb-1.5">
+                    <p className="text-sm font-black leading-tight" style={{ color: "var(--text-bright)" }}>
+                      {log.message}
+                    </p>
+                    <span className="text-[9px] font-bold whitespace-nowrap shrink-0" style={{ color: "var(--text-dim)" }}>
+                      {new Date(log.created_at).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <p className="text-xs leading-relaxed mb-3" style={{ color: "var(--text-muted)" }}>
+                    Parametric event logged on SecureNode-L1. Automated resolution is active based on your coverage plan.
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <span className={`badge-${cfg.badge} text-[9px]`}>
+                      <div className={`pulse-dot ${cfg.badge === 'risk' ? 'pulse-dot-rose' : cfg.badge === 'warning' ? 'pulse-dot-amber' : 'pulse-dot-green'}`} />
+                      {(log.event_type || log.type || 'system').replace(/_/g, ' ')}
+                    </span>
+                    <span className="flex items-center gap-1 text-[9px] font-bold text-emerald-400">
+                      <CheckCircle2 size={10} /> Verified
+                    </span>
+                  </div>
                 </div>
-             </div>
-          </div>
-        )) : (
-          <div className="py-32 text-center bg-slate-800/10 border border-dashed border-white/5 rounded-3xl">
-             <Bell size={40} className="mx-auto text-slate-800 mb-6" />
-             <p className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.2em]">Zero system broadcasts detected</p>
-             <p className="text-[10px] text-slate-600 mt-2 font-medium">Monitoring parametric triggers in real-time...</p>
-          </div>
+              </div>
+            </motion.div>
+          );
+        }) : (
+          <motion.div variants={fadeUp} className="premium-card py-24 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-indigo-500/5 border border-indigo-500/10 flex items-center justify-center mx-auto mb-5">
+              <BellOff size={24} style={{ color: "var(--text-dim)" }} />
+            </div>
+            <p className="text-sm font-black uppercase tracking-widest" style={{ color: "var(--text-dim)" }}>
+              All Clear
+            </p>
+            <p className="text-xs mt-2" style={{ color: "var(--text-dim)" }}>
+              No {filter === 'all' ? '' : filter} alerts at the moment
+            </p>
+          </motion.div>
         )}
       </div>
     </motion.div>

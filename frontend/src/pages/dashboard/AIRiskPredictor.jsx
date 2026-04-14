@@ -65,8 +65,8 @@ const AIRiskPredictor = () => {
         <div className="w-16 h-16 bg-rose-500/10 border border-rose-500/20 rounded-2xl flex items-center justify-center text-rose-500 mb-6">
           <AlertTriangle size={32} />
         </div>
-        <h3 className="text-xl font-bold text-white mb-2">{error}</h3>
-        <button onClick={fetchData} className="mt-8 px-8 py-3 bg-slate-800 hover:bg-slate-700 border border-white/10 text-white rounded-xl text-xs font-bold uppercase tracking-widest transition active:scale-95">
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{error}</h3>
+        <button onClick={fetchData} className="mt-8 px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold uppercase tracking-widest transition active:scale-95 shadow-lg shadow-indigo-500/20">
           Retry Analysis
         </button>
       </div>
@@ -96,24 +96,24 @@ const AIRiskPredictor = () => {
     >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {signals.map((sig, i) => (
-          <div key={i} className="bg-slate-800/20 border border-white/5 p-6 rounded-2xl hover:border-blue-500/10 transition-all duration-300">
+          <div key={i} className="border border-gray-200 dark:border-white/5 p-6 rounded-2xl hover:border-gray-300 dark:hover:border-blue-500/10 transition-all duration-300 shadow-sm" style={{ backgroundColor: 'var(--bg-card)' }}>
             <div className="flex items-center justify-between mb-4">
-              <div className={`p-2 bg-slate-900 border border-white/5 rounded-lg ${sig.color}`}>
+              <div className={`p-2 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-white/5 rounded-lg ${sig.color}`}>
                 {sig.icon}
               </div>
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{sig.trend}</span>
             </div>
             <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">{sig.label}</p>
-            <p className="text-2xl font-semibold text-white">{sig.value}</p>
+            <p className="text-2xl font-semibold text-gray-900 dark:text-white">{sig.value}</p>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-slate-800/20 border border-white/5 rounded-2xl p-8 flex flex-col hover:border-white/10 transition-all duration-300">
+        <div className="lg:col-span-2 border border-gray-200 dark:border-white/5 rounded-2xl p-8 flex flex-col hover:border-gray-300 dark:hover:border-white/10 transition-all duration-300 shadow-sm" style={{ backgroundColor: 'var(--bg-card)' }}>
           <div className="flex justify-between items-start mb-10">
             <div>
-              <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-1">Neural Forecast Vector</h4>
+              <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-1">Neural Forecast Vector</h4>
               <p className="text-[11px] text-slate-500 font-medium uppercase tracking-tight">Projected disruption likelihood across node segments</p>
             </div>
             <div className="flex gap-2">
@@ -123,14 +123,14 @@ const AIRiskPredictor = () => {
             </div>
           </div>
           
-          <div className="bg-slate-900/40 border border-white/5 rounded-2xl p-6 mb-8">
+          <div className="border border-gray-200 dark:border-white/5 rounded-2xl p-6 mb-8" style={{ backgroundColor: 'var(--bg-deep)' }}>
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-blue-500/10 border border-blue-500/10 rounded-xl flex items-center justify-center text-blue-400">
+              <div className="w-12 h-12 bg-blue-500/10 border border-blue-500/10 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400">
                 <Lightbulb size={24} />
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">AI Recommendation</p>
-                <p className="text-sm font-semibold text-white leading-relaxed">{data?.recommendation || 'Continuous monitoring active.'}</p>
+                <p className="text-sm font-semibold text-gray-900 dark:text-white leading-relaxed">{data?.recommendation || 'Continuous monitoring active.'}</p>
               </div>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed font-medium">Risk exposure based on {data?.risk?.risk_level || 'stable'} environmental indicators. Parametric triggers are calibrated to localized telemetry nodes.</p>
@@ -146,7 +146,7 @@ const AIRiskPredictor = () => {
                 <div key={i} className="space-y-2">
                   <div className="flex justify-between items-center text-[11px] font-bold text-slate-500 uppercase">
                     <span>{m.label}</span>
-                    <span className="text-white">{m.value}%</span>
+                    <span className="text-gray-900 dark:text-white">{m.value}%</span>
                   </div>
                   <div className="h-1.5 bg-slate-900 rounded-full border border-white/5 overflow-hidden">
                     <motion.div initial={{ width: 0 }} animate={{ width: `${m.value}%` }} transition={{ duration: 1 }} className={`h-full ${m.color}`} />
@@ -154,20 +154,20 @@ const AIRiskPredictor = () => {
                 </div>
               ))}
             </div>
-            <div className="bg-slate-900/20 border border-white/5 rounded-2xl p-6 flex items-center justify-center">
+            <div className="border border-gray-200 dark:border-white/5 rounded-2xl p-6 flex items-center justify-center shadow-inner" style={{ backgroundColor: 'var(--bg-deep)' }}>
                <div className="text-center">
                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Stability Index</p>
-                 <p className="text-4xl font-bold text-blue-400">{Math.round(100 - riskScore)}%</p>
-                 <p className="text-[10px] text-slate-600 mt-2 font-medium uppercase tracking-wider">Optimal Condition</p>
+                 <p className="text-4xl font-bold text-blue-600 dark:text-blue-400">{Math.round(100 - riskScore)}%</p>
+                 <p className="text-[10px] text-slate-600 dark:text-slate-500 mt-2 font-medium uppercase tracking-wider">Optimal Condition</p>
                </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-slate-800/20 border border-white/5 rounded-2xl p-8 flex flex-col hover:border-white/10 transition-all duration-300">
+          <div className="border border-gray-200 dark:border-white/5 rounded-2xl p-8 flex flex-col hover:border-gray-300 dark:hover:border-white/10 transition-all duration-300 shadow-sm" style={{ backgroundColor: 'var(--bg-card)' }}>
           <div className="flex justify-between items-center mb-8">
              <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Metric Mapping</h4>
-             <button onClick={fetchData} className="p-1.5 text-slate-500 hover:text-white transition-colors"><RefreshCcw size={14} className={loading ? 'animate-spin' : ''}/></button>
+             <button onClick={fetchData} className="p-1.5 text-slate-500 hover:text-gray-900 dark:hover:text-white transition-colors"><RefreshCcw size={14} className={loading ? 'animate-spin' : ''}/></button>
           </div>
           <div className="flex-1 w-full h-[300px] flex items-center justify-center relative">
             <ResponsiveContainer width="100%" height="100%">
@@ -175,27 +175,27 @@ const AIRiskPredictor = () => {
                 <Pie data={riskLevels} innerRadius={70} outerRadius={90} paddingAngle={10} dataKey="value" stroke="none">
                   {riskLevels.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                 </Pie>
-                <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', fontSize: '11px' }} />
+                <Tooltip contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '10px', fontSize: '11px', color: 'var(--text-main)' }} />
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center">
-                <AlertTriangle size={24} className="mx-auto text-slate-600 mb-2" />
-                <p className="text-lg font-bold text-white leading-none">{riskScore}</p>
+                <AlertTriangle size={24} className="mx-auto text-slate-500 mb-2" />
+                <p className="text-lg font-bold text-gray-900 dark:text-white leading-none">{riskScore}</p>
                 <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1">Score</p>
               </div>
             </div>
           </div>
           <div className="mt-8 space-y-4">
-            <div className="flex items-center justify-between p-4 bg-slate-900/40 border border-white/5 rounded-xl group cursor-pointer hover:border-blue-500/20 transition-all">
+            <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-white/5 rounded-xl group cursor-pointer hover:border-blue-500/20 transition-all shadow-sm" style={{ backgroundColor: 'var(--bg-deep)' }}>
                <div className="flex items-center gap-3">
-                 <div className="p-2 bg-blue-500/5 rounded-lg text-blue-400"><TrendingDown size={14}/></div>
+                 <div className="p-2 bg-blue-500/5 rounded-lg text-blue-600 dark:text-blue-400"><TrendingDown size={14}/></div>
                  <div>
-                   <p className="text-[11px] font-bold text-slate-200 uppercase tracking-wider leading-none mb-1">Volatility Vector</p>
+                   <p className="text-[11px] font-bold text-gray-800 dark:text-slate-200 uppercase tracking-wider leading-none mb-1">Volatility Vector</p>
                    <p className="text-[10px] text-slate-500 font-medium">Synced just now</p>
                  </div>
                </div>
-               <ChevronRight size={16} className="text-slate-700 group-hover:translate-x-1 group-hover:text-blue-500 transition-all" />
+               <ChevronRight size={16} className="text-slate-400 dark:text-slate-700 group-hover:translate-x-1 group-hover:text-blue-600 dark:group-hover:text-blue-500 transition-all" />
             </div>
           </div>
         </div>

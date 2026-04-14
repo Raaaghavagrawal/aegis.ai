@@ -4,19 +4,104 @@ import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ComposedChart, Lin
 import { Zap, TrendingUp, Activity, Loader2, AlertCircle, BadgeCheck } from 'lucide-react';
 import { api } from '../../utils/api';
 
+const stagger = {
+  animate: { transition: { staggerChildren: 0.07 } },
+};
+const fadeUp = {
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
+};
+
+// ─── Animated Counter ────────────────────────────────────────────────────────
+function AnimatedNumber({ value, prefix = '', suffix = '', decimals = 0 }) {
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    let start = 0;
+    const end = Number(value) || 0;
+    if (end === 0) return;
+    const duration = 900;
+    const step = (timestamp) => {
+      if (!start) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(eased * end);
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [value]);
+  return (
+    <span>
+      {prefix}{display.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}{suffix}
+    </span>
+  );
+}
+
+// ─── Skeleton Card ────────────────────────────────────────────────────────────
+const SkeletonCard = () => (
+  <div className="premium-card p-6 space-y-4">
+    <div className="skeleton h-3 w-24 rounded" />
+    <div className="skeleton h-8 w-36 rounded" />
+    <div className="skeleton h-2 w-full rounded" />
+    <div className="skeleton h-2 w-3/4 rounded" />
+  </div>
+);
+
+// ─── Stat Card ────────────────────────────────────────────────────────────────
+function StatCard({ label, value, prefix, suffix, color, icon, trend, trendLabel, delay }) {
+  const trendUp = trend >= 0;
+  return (
+    <motion.div variants={fadeUp} className="premium-card p-6 group cursor-default">
+      <div className="flex items-start justify-between mb-4">
+        <div className={`p-2.5 rounded-xl ${color.bg}`}>
+          <span className={color.icon}>{icon}</span>
+        </div>
+        {trend !== undefined && (
+          <div className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-black uppercase ${trendUp ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
+            {trendUp ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
+            {Math.abs(trend)}%
+          </div>
+        )}
+      </div>
+      <p className="text-[10px] font-black uppercase tracking-wider mb-1" style={{ color: "var(--text-muted)" }}>
+        {label}
+      </p>
+      <p className="text-3xl font-black tracking-tight stat-value" style={{ color: "var(--text-bright)" }}>
+        <AnimatedNumber value={value} prefix={prefix} suffix={suffix} decimals={0} />
+      </p>
+      {trendLabel && (
+        <p className="text-[10px] mt-2" style={{ color: "var(--text-dim)" }}>{trendLabel}</p>
+      )}
+    </motion.div>
+  );
+}
+
+// ─── Custom Tooltip ───────────────────────────────────────────────────────────
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="p-3 rounded-xl text-xs" style={{ background: "var(--bg-surface)", border: "1px solid var(--border-bright)", boxShadow: "0 8px 30px rgba(0,0,0,0.4)" }}>
+      <p className="font-bold mb-2" style={{ color: "var(--text-muted)" }}>{label}</p>
+      {payload.map((p, i) => (
+        <p key={i} className="font-bold" style={{ color: p.color }}>
+          {p.name}: <span style={{ color: "var(--text-bright)" }}>{Number(p.value).toFixed(1)}</span>
+        </p>
+      ))}
+    </div>
+  );
+};
+
+// ─── Overview Component ───────────────────────────────────────────────────────
 const Overview = () => {
+  const { t } = useTranslation();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchData = useCallback(async () => {
     try {
-      setLoading(true);
-      setError(null);
+      setLoading(true); setError(null);
       const res = await api.get('/api/dashboard/overview');
-      console.log("OVERVIEW RAW:", res.data);
-      
-      const mappedData = {
+      setData({
         ...res.data,
         netProtected: res.data.ai_metrics?.net_protected_forecast || 0,
         weeklyIncome: res.data.ai_metrics?.weekly_income || 0,
@@ -27,96 +112,144 @@ const Overview = () => {
 
       setData(mappedData);
     } catch (err) {
-      console.error("Overview Fetch Error:", err);
-      setError("Failed to synchronize with Aegis neural network. Re-initiating uplink...");
+      setError("Could not reach Aegis servers. Check your connection.");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
-  useEffect(() => {
-    if (data) console.log("[Overview] STATE UPDATED:", data);
-  }, [data]);
-
-  const stats = data?.system_stats || {};
-  const ai = data?.ai_metrics || {};
-  const env = data?.environment || {};
+  const ai   = data?.ai_metrics || {};
+  const env  = data?.environment || {};
   const user = data?.user || {};
 
   const pieData = useMemo(() => {
-    const env = data?.environment || {};
-    const ai = data?.ai_metrics || {};
-
-    if (!ai || !env) return [];
-    const aq = env.aqi || 0;
-    const rf = env.rainfall || 0;
-    const riskScr = ai.risk?.risk_score || 0;
-    
-    // Weighted risk metrics
-    const wAtmos = 10 + (aq / 300) * 90;
-    const wHydro = 10 + Math.min(1, rf / 50) * 90;
-    const wSystem = 10 + (riskScr / 100) * 90;
-    const total = wAtmos + wHydro + wSystem;
-    
+    const aq  = env.aqi || 0;
+    const rf  = env.rainfall || 0;
+    const rsk = ai.risk?.risk_score || 0;
+    const wA  = 10 + (aq / 300) * 90;
+    const wH  = 10 + Math.min(1, rf / 50) * 90;
+    const wS  = 10 + (rsk / 100) * 90;
+    const tot = wA + wH + wS;
     return [
-      { name: "Atmospheric", color: "#3b82f6", value: Math.round((wAtmos / total) * 100) },
-      { name: "Precipitation", color: "#818cf8", value: Math.round((wHydro / total) * 100) },
-      { name: "Systemic", color: "#6366f1", value: Math.round((wSystem / total) * 100) },
+      { name: "Atmospheric",  color: "#6366f1", value: Math.round((wA / tot) * 100) },
+      { name: "Precipitation",color: "#06b6d4", value: Math.round((wH / tot) * 100) },
+      { name: "Systemic",     color: "#10b981", value: Math.round((wS / tot) * 100) },
     ];
   }, [data]);
 
   const chartData = useMemo(() => {
-    if (!data?.history) return [];
-
-    const transformed = data.history
-      .map(item => ({
-        time: item.time,
-        AQI: Number(item.aqi),
-        Rainfall: Number(item.rainfall),
-        Temperature: Number(item.temperature)
-      }));
-
-    return transformed;
-
+    if (!data?.history?.length) return [];
+    return data.history.map(item => ({
+      time:        item.time,
+      AQI:         Number(item.aqi),
+      Rainfall:    Number(item.rainfall),
+      Temperature: Number(item.temperature),
+    }));
   }, [data?.history]);
 
   if (loading && !data) {
     return (
-      <div className="flex flex-col items-center justify-center py-48 text-slate-500 font-poppins">
-        <Loader2 size={32} className="animate-spin mb-4 text-blue-500" />
-        <p className="text-[11px] font-bold uppercase tracking-widest">Polling distributed telemetry nodes...</p>
-      </div>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 skeleton rounded-2xl h-80" />
+          <div className="skeleton rounded-2xl h-80" />
+        </div>
+      </motion.div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center py-32 text-center font-poppins">
-        <AlertCircle size={48} className="text-rose-500 mb-6" />
-        <h3 className="text-xl font-bold text-white mb-2">{error}</h3>
-        <button onClick={fetchData} className="mt-8 px-10 py-3 bg-slate-800 hover:bg-slate-700 border border-white/10 text-white rounded-xl text-[11px] font-bold uppercase tracking-widest active:scale-95 transition-all">Retry Link</button>
+      <div className="flex flex-col items-center justify-center py-32 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mb-6">
+          <AlertCircle size={28} className="text-rose-400" />
+        </div>
+        <h3 className="text-lg font-black mb-2" style={{ color: "var(--text-bright)" }}>Connection Lost</h3>
+        <p className="text-sm mb-8" style={{ color: "var(--text-muted)" }}>{error}</p>
+        <button onClick={fetchData} className="btn-primary">
+          <RefreshCcw size={14} /> Reconnect
+        </button>
       </div>
     );
   }
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-6 font-poppins"
-    >
+    <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-6">
+
+      {/* Hero Greeting */}
+      <motion.div variants={fadeUp} className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-black tracking-tight" style={{ color: "var(--text-bright)" }}>
+            Your Performance Today 👋
+          </h2>
+          <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
+            Real-time telemetry from {user.city || "your region"} · Aegis AI is watching
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="badge-live">
+            <div className="pulse-dot pulse-dot-green" />
+            Live Data
+          </div>
+          <button onClick={fetchData} className="p-2 rounded-xl transition-colors" style={{ color: "var(--text-muted)", background: "var(--bg-glass)" }}>
+            <RefreshCcw size={14} />
+          </button>
+        </div>
+      </motion.div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <StatCard
+          label="Net Income Protected"
+          value={ai.net_protected_forecast || 0}
+          prefix="₹"
+          color={{ bg: "bg-indigo-500/10", icon: "text-indigo-400" }}
+          icon={<Shield size={18} />}
+          trend={12.4}
+          trendLabel="vs last week"
+        />
+        <StatCard
+          label="Weekly Earnings"
+          value={ai.weekly_income || 0}
+          prefix="₹"
+          color={{ bg: "bg-emerald-500/10", icon: "text-emerald-400" }}
+          icon={<TrendingUp size={18} />}
+          trend={8.2}
+          trendLabel="Earnings up this week"
+        />
+        <StatCard
+          label="Potential Risk Exposure"
+          value={ai.estimated_loss || 0}
+          prefix="₹"
+          color={{ bg: "bg-rose-500/10", icon: "text-rose-400" }}
+          icon={<AlertCircle size={18} />}
+          trend={-3.1}
+          trendLabel="Reduced vs last week"
+        />
+        <StatCard
+          label="AI Confidence Score"
+          value={Math.round((ai.confidence || 0) * 100)}
+          suffix="%"
+          color={{ bg: "bg-cyan-500/10", icon: "text-cyan-400" }}
+          icon={<Zap size={18} />}
+          trendLabel="Model precision"
+        />
+      </div>
+
+      {/* Main Chart + Pie */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-slate-800/20 rounded-2xl p-8 border border-white/5 shadow-sm hover:border-white/10 transition-all duration-300 group h-full flex flex-col items-center justify-center text-center relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-50"><Zap size={20} className="text-blue-500/20" /></div>
-          <div className="flex flex-col items-center mb-10 w-full">
-            <div className="text-center">
-              <p className="text-[11px] text-slate-500 font-bold uppercase tracking-[0.2em] mb-4">Net Protected Forecast</p>
-              <h3 className="text-5xl font-semibold text-white tracking-tight mb-4 tabular-nums">
-                ₹{Number(ai.net_protected_forecast || 0).toLocaleString()}
+
+        {/* Area / Composed Chart */}
+        <motion.div variants={fadeUp} className="lg:col-span-2 premium-card p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="font-black text-sm uppercase tracking-wider" style={{ color: "var(--text-bright)" }}>
+                Environmental Telemetry
               </h3>
               {data?.activePolicy && (
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 text-[10px] font-black uppercase tracking-widest mt-2 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
@@ -136,10 +269,11 @@ const Overview = () => {
                   <span className="text-slate-500 text-[11px] uppercase tracking-wider font-bold mb-1">Model Precision</span>
                   <span className="text-blue-400 text-lg font-semibold tabular-nums">{Math.round((ai.confidence || 0) * 100)}%</span>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
-          <div className="w-full h-[300px] mt-4 relative">
+
+          <div className="h-[280px]">
             {chartData.length >= 1 ? (
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <ComposedChart data={chartData}>
@@ -160,58 +294,54 @@ const Overview = () => {
                 </ComposedChart>
               </ResponsiveContainer>
             ) : (
-              <div className="w-full h-full bg-slate-900/40 rounded-3xl border border-white/5 flex flex-col items-center justify-center text-center px-6">
-                <Activity size={32} className="text-blue-500/20 mb-4" />
-                <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Awaiting Atmospheric Telemetry</p>
-                <p className="text-[8px] opacity-50 mt-1 uppercase">Localized sensor synchronization in progress for {data?.user?.city || "your region"}</p>
+              <div className="w-full h-full rounded-2xl flex flex-col items-center justify-center" style={{ background: "var(--bg-glass)", border: "1px solid var(--border)" }}>
+                <Activity size={32} style={{ color: "var(--text-dim)" }} className="mb-3" />
+                <p className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>
+                  No telemetry data yet
+                </p>
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-slate-800/20 rounded-2xl p-8 border border-white/5 shadow-sm hover:border-white/10 transition-all duration-300 h-full flex flex-col">
-          <h4 className="text-[11px] font-bold tracking-wider uppercase text-slate-500 mb-2">Node Distribution</h4>
-          <p className="text-[10px] text-slate-500 mb-8 leading-snug">
-            Current risk weights detected across localized telemetry nodes.
+        {/* Risk Distribution Pie */}
+        <motion.div variants={fadeUp} className="premium-card p-6 flex flex-col">
+          <h3 className="font-black text-sm uppercase tracking-wider mb-1" style={{ color: "var(--text-bright)" }}>
+            Risk Distribution
+          </h3>
+          <p className="text-[10px] mb-4" style={{ color: "var(--text-muted)" }}>
+            Weighted environmental risk metrics
           </p>
-          <div className="w-full h-[240px] relative">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+
+          <div className="relative flex-1 min-h-[180px]">
+            <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie
-                  data={pieData}
-                  innerRadius={65}
-                  outerRadius={85}
-                  paddingAngle={8}
-                  dataKey="value"
-                  stroke="none"
-                  nameKey="name"
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`slice-${index}`} fill={entry.color} />
-                  ))}
+                <Pie data={pieData} innerRadius={55} outerRadius={75} paddingAngle={5} dataKey="value" stroke="none">
+                  {pieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
-                <Tooltip
-                  contentStyle={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "10px", fontSize: "11px" }}
-                />
+                <Tooltip content={<CustomTooltip />} />
               </PieChart>
             </ResponsiveContainer>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
-               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mb-1">AQI</p>
-               <p className="text-xl font-bold text-white leading-none">{env.aqi || "--"}</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <p className="text-[9px] font-black uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>AQI</p>
+              <p className="text-2xl font-black" style={{ color: "var(--text-bright)" }}>{env.aqi || "--"}</p>
             </div>
           </div>
-          <div className="mt-8 space-y-4">
+
+          <div className="mt-4 space-y-3">
             {pieData.map((d) => (
-              <div key={d.name} className="flex items-center justify-between gap-3 group">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
-                  <span className="text-[11px] text-slate-400 font-semibold uppercase tracking-tight">{d.name}</span>
+              <div key={d.name} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full" style={{ background: d.color }} />
+                  <span className="text-[11px] font-bold uppercase" style={{ color: "var(--text-muted)" }}>{d.name}</span>
                 </div>
-                <span className="text-[11px] font-bold text-white bg-slate-900/50 px-2 py-0.5 rounded border border-white/5 tabular-nums">{d.value}%</span>
+                <span className="text-[11px] font-black px-2 py-0.5 rounded-lg" style={{ color: "var(--text-bright)", background: "var(--bg-glass)", border: "1px solid var(--border)" }}>
+                  {d.value}%
+                </span>
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -236,17 +366,34 @@ const Overview = () => {
            </div>
         </div>
 
-        <div className="bg-slate-800/20 rounded-2xl p-8 border border-white/5 hover:border-white/10 transition-all duration-300">
-           <div className="flex items-center justify-between mb-6">
-              <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Neural Pulse Cluster</h4>
-              <span className="text-[9px] font-bold text-blue-400 bg-blue-500/5 px-2 py-0.5 rounded border border-blue-500/10 uppercase tracking-widest whitespace-nowrap">{user.city} Segment</span>
-           </div>
-           <p className="text-xs text-slate-400 leading-relaxed font-medium mb-6">Active localized environmental triggers synchronized with Aegis cloud infrastructure.</p>
-           <div className="flex items-center gap-4 p-4 bg-slate-950/40 rounded-2xl border border-white/5">
-              <div className="p-2.5 bg-blue-500/10 rounded-xl text-blue-500"><TrendingUp size={20}/></div>
-              <div>
-                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mb-1">Growth Index</p>
-                 <p className="text-lg font-bold text-white uppercase tracking-tight">+14.2% Stability</p>
+        {/* Environment Factor Assessment */}
+        <motion.div variants={fadeUp} className="premium-card p-6">
+          <h4 className="text-[10px] font-black uppercase tracking-widest mb-5" style={{ color: "var(--text-muted)" }}>
+            Factor Assessment
+          </h4>
+          <div className="space-y-4">
+            {[
+              { label: "Atmospheric Buffer", value: env.aqi != null ? Math.max(0, 100 - Math.round(env.aqi / 3)) : 0, color: "#6366f1", icon: <Wind size={14} /> },
+              { label: "Hydric Load",         value: env.rainfall != null ? Math.min(100, env.rainfall * 2) : 0,        color: "#06b6d4", icon: <Droplets size={14} /> },
+              { label: "Model Precision",      value: ai.confidence != null ? Math.round(ai.confidence * 100) : 0,      color: "#10b981", icon: <Zap size={14} /> },
+            ].map((item, i) => (
+              <div key={i} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span style={{ color: item.color }}>{item.icon}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>{item.label}</span>
+                  </div>
+                  <span className="text-[11px] font-black" style={{ color: "var(--text-bright)" }}>{item.value}%</span>
+                </div>
+                <div className="progress-bar">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${item.value}%` }}
+                    transition={{ duration: 1.2, delay: i * 0.15, ease: [0.16, 1, 0.3, 1] }}
+                    className="progress-fill"
+                    style={{ background: `linear-gradient(90deg, ${item.color} 0%, ${item.color}88 100%)` }}
+                  />
+                </div>
               </div>
            </div>
         </div>
@@ -254,5 +401,4 @@ const Overview = () => {
     </motion.div>
   );
 };
-
 export default Overview;

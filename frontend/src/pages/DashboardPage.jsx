@@ -20,22 +20,32 @@ import {
   Home,
 } from "lucide-react";
 
-// Import Modular Components
 import Overview from "./dashboard/Overview";
 import PolicyCenter from "./dashboard/PolicyCenter";
 import EnvironmentalAnalytics from "./dashboard/EnvironmentalAnalytics";
-import AIRiskPredictor from "./dashboard/AIRiskPredictor";
+import AICoPilot from "./dashboard/AICoPilot";
 import FraudDetection from "./dashboard/FraudDetection";
 import WalletAndClaims from "./dashboard/WalletAndClaims";
 import NotificationsCenter from "./dashboard/NotificationsCenter";
 import Settings from "./dashboard/Settings";
 import ProfilePage from "./ProfilePage";
 import OrdersPage from "./OrdersPage";
+import { useTranslation } from "react-i18next";
+import LanguageSelector from "../components/LanguageSelector";
+import ThemeToggle from "../components/ThemeToggle";
+
+const pageVariants = {
+  initial: { opacity: 0, y: 16, filter: "blur(4px)" },
+  animate: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } },
+  exit:    { opacity: 0, y: -8, filter: "blur(2px)", transition: { duration: 0.2 } },
+};
 
 function DashboardPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("aegis_user") || "{}");
   const [activeTab, setActiveTab] = useState("overview");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const navItems = [
     { id: "overview", label: "Overview", icon: <TrendingUp size={18} /> },
@@ -47,6 +57,9 @@ function DashboardPage() {
     { id: "wallet", label: "Wallet & History", icon: <WalletIcon size={18} /> },
     { id: "settings", label: "Settings", icon: <SettingsIcon size={18} /> },
   ];
+
+  // flat list for finding current label
+  const allNavItems = navGroups.flatMap(g => g.items);
 
   const handleLogout = () => {
     localStorage.removeItem("aegis_token");
@@ -71,6 +84,15 @@ function DashboardPage() {
               <h1 className="text-xl font-bold tracking-tight text-white leading-none">Aegis.ai</h1>
               <p className="text-[10px] text-blue-400 font-semibold uppercase tracking-wider mt-1">Parametric Net</p>
             </div>
+            <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-[--bg-surface] animate-pulse" />
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight" style={{ color: "var(--text-bright)" }}>
+              GigShield
+            </h1>
+            <p className="text-[9px] font-bold uppercase tracking-widest" style={{ color: "var(--primary)" }}>
+              Aegis Network ✦
+            </p>
           </div>
 
           {/* Scrollable Nav Area */}
@@ -86,6 +108,7 @@ function DashboardPage() {
             ))}
           </nav>
         </div>
+      </div>
 
         {/* Fixed Bottom Profile Section */}
         <div className="p-6 border-t border-white/5 bg-[#0B1120]">
@@ -102,13 +125,34 @@ function DashboardPage() {
                 <p className="text-[11px] text-slate-500 truncate leading-tight mt-0.5">{user.platform || "Active Node"}</p>
               </div>
             </div>
-            <div className="flex items-center justify-between text-[11px] font-medium text-slate-400 bg-slate-900/40 px-3 py-2 rounded-lg border border-white/5">
-              <span className="flex items-center gap-2 font-bold uppercase tracking-widest text-[9px]"><MapPin size={12} className="text-blue-500" /> {user.city || "Mumbai"}</span>
-              <ChevronRight size={14} className="text-slate-600 group-hover:translate-x-0.5 transition-transform" />
+            <div className="flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider" style={{ background: "rgba(16,185,129,0.1)", color: "#10b981" }}>
+              <MapPin size={9} />
+              {user.city?.split(" ")[0] || "City"}
             </div>
           </div>
         </div>
-      </aside>
+      </div>
+
+      {/* Nav Groups */}
+      <nav className="flex-1 overflow-y-auto px-3 pb-4 scrollbar-hide space-y-5">
+        {navGroups.map((group) => (
+          <div key={group.label}>
+            <p className="text-[9px] font-black uppercase tracking-[0.15em] px-3 mb-2" style={{ color: "var(--text-dim)" }}>
+              {group.label}
+            </p>
+            <div className="space-y-0.5">
+              {group.items.map((item) => (
+                <NavItem
+                  key={item.id}
+                  item={item}
+                  active={activeTab === item.id}
+                  onClick={() => setActiveTab(item.id)}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+      </nav>
 
       {/* Main Content Area */}
       <div className="flex-1 lg:ml-72 flex flex-col min-h-screen relative">
@@ -150,14 +194,14 @@ function DashboardPage() {
         </header>
 
         {/* Content */}
-        <main className="p-8 pb-12 flex-1">
+        <main className="flex-1 p-6 pb-16">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
             >
               {activeTab === "overview" && <Overview />}
               {activeTab === "policy" && <PolicyCenter />}
@@ -176,8 +220,7 @@ function DashboardPage() {
   );
 }
 
-// Sidebar Component
-function NavItem({ active, onClick, icon, label }) {
+function NavItem({ item, active, onClick }) {
   return (
     <button
       onClick={onClick}

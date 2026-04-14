@@ -1,7 +1,8 @@
-import React from 'react';
 import { motion } from 'framer-motion';
+import { useTheme } from '../context/ThemeContext';
 
 const LiveBackground = () => {
+  const { theme } = useTheme();
   // Generate random points for the "live network"
   const points = Array.from({ length: 20 }).map((_, i) => ({
     id: i,
@@ -16,7 +17,15 @@ const LiveBackground = () => {
     <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1, overflow: 'hidden', pointerEvents: 'none' }}>
       
       {/* Deep Gradient Base */}
-      <div style={{ position: 'absolute', width: '100%', height: '100%', background: 'radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%)' }}></div>
+      <div style={{ 
+        position: 'absolute', 
+        width: '100%', 
+        height: '100%', 
+        background: theme === 'dark' 
+          ? 'radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%)' 
+          : 'radial-gradient(circle at 50% 50%, #f8fafc 0%, #f1f5f9 100%)',
+        transition: 'background 0.5s ease'
+      }}></div>
 
       {/* Animated Mesh Grid */}
       <div style={{ 
@@ -25,10 +34,11 @@ const LiveBackground = () => {
         height: '200%', 
         top: '-50%', 
         left: '-50%',
-        backgroundImage: 'linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px)',
+        backgroundImage: `linear-gradient(rgba(99, 102, 241, ${theme === 'dark' ? '0.05' : '0.1'}) 1px, transparent 1px), linear-gradient(90deg, rgba(99, 102, 241, ${theme === 'dark' ? '0.05' : '0.1'}) 1px, transparent 1px)`,
         backgroundSize: '80px 80px',
         transform: 'perspective(1000px) rotateX(60deg)',
-        zIndex: 0
+        zIndex: 0,
+        opacity: theme === 'dark' ? 1 : 0.5
       }}></div>
 
       {/* Floating Network Nodes */}

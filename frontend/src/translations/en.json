@@ -1,0 +1,31 @@
+{
+  "nav": {
+    "overview": "Overview",
+    "policy": "Policy Center",
+    "analytics": "Env. Analytics",
+    "predictor": "AI Predictor",
+    "fraud": "Fraud Radar",
+    "wallet": "Wallet",
+    "profile": "Profile",
+    "orders": "Logistics Hub",
+    "settings": "Settings",
+    "signOut": "Sign Out"
+  },
+  "dashboard": {
+    "greeting_morning": "Good morning",
+    "greeting_afternoon": "Good afternoon",
+    "greeting_evening": "Good evening",
+    "live_network": "Live Network",
+    "active_node": "Active Node"
+  },
+  "overview": {
+    "net_protected": "Net Protected Forecast",
+    "weekly_income": "Weekly Income",
+    "potential_offset": "Potential Offset",
+    "model_precision": "Model Precision",
+    "node_distribution": "Node Distribution",
+    "factor_assessment": "Aegis Factor Assessment",
+    "neural_pulse": "Neural Pulse Cluster",
+    "financial_momentum": "Financial Momentum"
+  }
+}

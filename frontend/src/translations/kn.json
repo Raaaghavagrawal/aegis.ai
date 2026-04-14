@@ -1,0 +1,31 @@
+{
+  "nav": {
+    "overview": "ಅವಲೋಕನ",
+    "policy": "ಪಾಲಿಸಿ ಕೇಂದ್ರ",
+    "analytics": "ಪರಿಸರ ವಿಶ್ಲೇಷಣೆ",
+    "predictor": "AI ಮುನ್ಸೂಚಕ",
+    "fraud": "ವಂಚನೆ ರೇಡಾರ್",
+    "wallet": "ವಾಲೆಟ್",
+    "profile": "ಪ್ರೊಫೈಲ್",
+    "orders": "ಲಾಜಿಸ್ಟಿಕ್ಸ್ ಹಬ್",
+    "settings": "ಸೆಟ್ಟಿಂಗ್‌ಗಳು",
+    "signOut": "ಸೈನ್ ಔಟ್"
+  },
+  "dashboard": {
+    "greeting_morning": "ಶುಭೋದಯ",
+    "greeting_afternoon": "ಶುಭ ಮಧ್ಯಾಹ್ನ",
+    "greeting_evening": "ಶುಭ ಸಂಜೆ",
+    "live_network": "ಲೈವ್ ನೆಟ್‌ವರ್ಕ್",
+    "active_node": "ಸಕ್ರಿಯ ನೋಡ್"
+  },
+  "overview": {
+    "net_protected": "ನಿವ್ವಳ ಸಂರಕ್ಷಿತ ಮುನ್ಸೂಚನೆ",
+    "weekly_income": "ವಾರದ ಆದಾಯ",
+    "potential_offset": "ಸಂಭವನೀಯ ಆಫ್‌ಸೆಟ್",
+    "model_precision": "ಮಾದರಿ ನಿಖರತೆ",
+    "node_distribution": "ನೋಡ್ ವಿತರಣೆ",
+    "factor_assessment": "ಎಜಿಸ್ ಅಂಶದ ಮೌಲ್ಯಮಾಪನ",
+    "neural_pulse": "ನ್ಯೂರಲ್ ಪಲ್ಸ್ ಕ್ಲಸ್ಟರ್",
+    "financial_momentum": "ಹಣಕಾಸಿನ ವೇಗ"
+  }
+}

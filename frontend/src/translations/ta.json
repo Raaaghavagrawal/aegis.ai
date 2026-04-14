@@ -1,0 +1,31 @@
+{
+  "nav": {
+    "overview": "மேலோட்டம்",
+    "policy": "பாலிசி மையம்",
+    "analytics": "சுற்றுச்சூழல் பகுப்பாய்வு",
+    "predictor": "AI கணிப்பாளர்",
+    "fraud": "மோசடி ரேடார்",
+    "wallet": "வாலட்",
+    "profile": "சுயவிவரம்",
+    "orders": "லாஜிஸ்டிக்ஸ் மையம்",
+    "settings": "அமைப்புகள்",
+    "signOut": "வெளியேறு"
+  },
+  "dashboard": {
+    "greeting_morning": "காலை வணக்கம்",
+    "greeting_afternoon": "மதிய வணக்கம்",
+    "greeting_evening": "மாலை வணக்கம்",
+    "live_network": "நேரடி நெட்வொர்க்",
+    "active_node": "செயலில் உள்ள முனை"
+  },
+  "overview": {
+    "net_protected": "நிகர பாதுகாக்கப்பட்ட கணிப்பு",
+    "weekly_income": "வாராந்திர வருமானம்",
+    "potential_offset": "சாத்தியமான ஈடுசெய்தல்",
+    "model_precision": "மாதிரி துல்லியம்",
+    "node_distribution": "முனை விநியோகம்",
+    "factor_assessment": "ஏஜிஸ் காரணி மதிப்பீடு",
+    "neural_pulse": "நியூரல் பல்ஸ் கிளஸ்டர்",
+    "financial_momentum": "நிதி வேகம்"
+  }
+}

@@ -73,8 +73,8 @@ const EnvironmentalAnalytics = () => {
         <div className="w-16 h-16 bg-rose-500/10 border border-rose-500/20 rounded-2xl flex items-center justify-center text-rose-500 mb-6">
           <AlertTriangle size={32} />
         </div>
-        <h3 className="text-xl font-bold text-white mb-2">{error}</h3>
-        <button onClick={fetchData} className="mt-8 px-8 py-3 bg-slate-800 hover:bg-slate-700 border border-white/10 text-white rounded-xl text-xs font-bold uppercase tracking-widest transition active:scale-95">
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{error}</h3>
+        <button onClick={fetchData} className="mt-8 px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold uppercase tracking-widest transition active:scale-95 shadow-lg shadow-blue-500/20">
           Retry Uplink
         </button>
       </div>
@@ -89,26 +89,27 @@ const EnvironmentalAnalytics = () => {
     >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-slate-800/20 border border-white/5 p-6 rounded-2xl hover:border-blue-500/10 transition-all duration-300 group">
+          <div key={i} className="bg-white dark:bg-slate-800/20 border border-gray-200 dark:border-white/5 p-6 rounded-2xl hover:border-gray-300 dark:hover:border-blue-500/10 transition-all duration-300 group shadow-sm">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-slate-900 border border-white/5 rounded-lg text-slate-400 group-hover:text-blue-400 transition-colors">
+              <div className="p-2 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-white/5 rounded-lg text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                 {stat.icon}
               </div>
               <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{stat.label}</p>
             </div>
-            <p className={`text-2xl font-semibold text-white`}>{stat.value}</p>
+            <p className={`text-2xl font-semibold text-gray-900 dark:text-white`}>{stat.value}</p>
             <p className="text-[10px] text-slate-500 mt-1 uppercase font-bold tracking-tight">{stat.sub}</p>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-slate-800/20 border border-white/5 rounded-2xl p-8 flex flex-col hover:border-white/10 transition-all duration-300 h-[450px]">
+        <div className="bg-white dark:bg-slate-800/20 border border-gray-200 dark:border-white/5 rounded-2xl p-8 flex flex-col hover:border-gray-300 dark:hover:border-white/10 transition-all duration-300 h-[450px] shadow-sm">
           <div className="flex justify-between items-start mb-8">
             <div>
-              <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-1">Atmospheric Telemetry</h4>
+              <h4 className="text-sm font-bold text-gray-800 dark:text-white uppercase tracking-wider mb-1">Atmospheric Telemetry</h4>
               <p className="text-[11px] text-slate-500 font-medium uppercase">Rolling AQI and Pollution indices</p>
             </div>
+Pair of braces removed at end to match original pattern.
             <button onClick={fetchData} className="p-2 border border-white/5 rounded-lg text-slate-500 hover:text-white transition-all"><RefreshCcw size={16} className={loading ? 'animate-spin' : ''} /></button>
           </div>
           <div className="flex-1 w-full min-h-0">
@@ -125,9 +126,9 @@ const EnvironmentalAnalytics = () => {
                   <XAxis dataKey="created_at" tickFormatter={(t) => new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
                   <YAxis stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                    contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', fontSize: '11px', color: 'var(--text-main)' }}
                     itemStyle={{ fontSize: '11px', fontWeight: 'bold' }}
-                    labelStyle={{ fontSize: '11px', color: '#64748b' }}
+                    labelStyle={{ fontSize: '11px', color: 'var(--text-muted)' }}
                   />
                   <Area type="monotone" dataKey="aqi" stroke="#3b82f6" fillOpacity={1} fill="url(#colorAqi)" strokeWidth={2} />
                 </AreaChart>
@@ -141,14 +142,14 @@ const EnvironmentalAnalytics = () => {
           </div>
         </div>
 
-        <div className="bg-slate-800/20 border border-white/5 rounded-2xl p-8 flex flex-col hover:border-white/10 transition-all duration-300 h-[450px]">
+        <div className="bg-white dark:bg-slate-800/20 border border-gray-200 dark:border-white/5 rounded-2xl p-8 flex flex-col hover:border-gray-300 dark:hover:border-white/10 transition-all duration-300 h-[450px] shadow-sm">
           <div className="flex justify-between items-start mb-8">
             <div>
-              <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-1">Precipitation Nodes</h4>
+              <h4 className="text-sm font-bold text-gray-800 dark:text-white uppercase tracking-wider mb-1">Precipitation Nodes</h4>
               <p className="text-[11px] text-slate-500 font-medium uppercase">Measured rainfall volume across segments</p>
             </div>
             <div className="flex gap-2">
-              <button className="flex items-center gap-2 px-3 py-1.5 border border-white/10 rounded-lg text-[10px] font-bold text-slate-500 hover:text-white transition-all uppercase tracking-widest"><Calendar size={12}/> Window</button>
+              <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 dark:border-white/10 rounded-lg text-[10px] font-bold text-slate-500 hover:text-gray-900 dark:hover:text-white transition-all uppercase tracking-widest"><Calendar size={12}/> Window</button>
             </div>
           </div>
           <div className="flex-1 w-full min-h-0">
@@ -159,9 +160,9 @@ const EnvironmentalAnalytics = () => {
                   <XAxis dataKey="created_at" tickFormatter={(t) => new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
                   <YAxis stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
                   <Tooltip 
-                     contentStyle={{ backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                     contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', fontSize: '11px', color: 'var(--text-main)' }}
                      itemStyle={{ fontSize: '11px', fontWeight: 'bold' }}
-                     labelStyle={{ fontSize: '11px', color: '#64748b' }}
+                     labelStyle={{ fontSize: '11px', color: 'var(--text-muted)' }}
                   />
                   <Bar dataKey="rainfall" fill="#818cf8" radius={[4, 4, 0, 0]} maxBarSize={30} />
                 </BarChart>
@@ -175,10 +176,10 @@ const EnvironmentalAnalytics = () => {
           </div>
         </div>
 
-        <div className="bg-slate-800/20 border border-white/5 rounded-2xl p-8 flex flex-col lg:col-span-2 hover:border-white/10 transition-all duration-300 h-[400px]">
+        <div className="bg-white dark:bg-slate-800/20 border border-gray-200 dark:border-white/5 rounded-2xl p-8 flex flex-col lg:col-span-2 hover:border-gray-300 dark:hover:border-white/10 transition-all duration-300 h-[400px] shadow-sm">
           <div className="flex justify-between items-start mb-8">
             <div>
-              <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-1">Thermal Stability Index</h4>
+              <h4 className="text-sm font-bold text-gray-800 dark:text-white uppercase tracking-wider mb-1">Thermal Stability Index</h4>
               <p className="text-[11px] text-slate-500 font-medium uppercase">Drift monitoring vs base environmental coordinates</p>
             </div>
           </div>
@@ -190,9 +191,9 @@ const EnvironmentalAnalytics = () => {
                   <XAxis dataKey="created_at" tickFormatter={(t) => new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
                   <YAxis stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
                   <Tooltip 
-                     contentStyle={{ backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                     contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', fontSize: '11px', color: 'var(--text-main)' }}
                      itemStyle={{ fontSize: '11px', fontWeight: 'bold' }}
-                     labelStyle={{ fontSize: '11px', color: '#64748b' }}
+                     labelStyle={{ fontSize: '11px', color: 'var(--text-muted)' }}
                   />
                   <Line type="monotone" dataKey="temperature" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3, fill: '#3b82f6', strokeWidth: 0 }} activeDot={{ r: 5, strokeWidth: 0 }} />
                 </LineChart>

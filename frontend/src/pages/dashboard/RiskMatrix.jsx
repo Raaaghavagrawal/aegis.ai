@@ -23,27 +23,27 @@ const RiskMatrix = ({
   extendedPolicyText 
 }) => {
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:items-stretch">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:items-stretch font-poppins">
       <div className="flex flex-col gap-6 lg:h-full lg:min-h-0">
-        <div className="bg-[#111827] rounded-xl p-5 border border-gray-800 shadow-sm hover:border-gray-700 transition shrink-0">
-          <h4 className="text-sm font-semibold mb-6 uppercase tracking-widest text-gray-500">Execution Config</h4>
+        <div className="rounded-xl p-5 border border-gray-200 dark:border-gray-800 shadow-sm hover:border-gray-300 dark:hover:border-gray-700 transition shrink-0" style={{ backgroundColor: 'var(--bg-card)' }}>
+          <h4 className="text-sm font-semibold mb-6 uppercase tracking-widest text-slate-500">Execution Config</h4>
           <div className="space-y-5">
             <div className="space-y-1.5">
-              <label className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em] italic">Deployment City</label>
+              <label className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] italic">Deployment City</label>
               <input
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                className="w-full bg-[#0B0F19] border border-gray-800 rounded-xl p-3.5 text-xs focus:outline-none focus:border-indigo-600 focus:bg-indigo-950/10 transition-all font-medium text-white italic"
+                className="w-full bg-gray-50 dark:bg-[#0B0F19] border border-gray-200 dark:border-gray-800 rounded-xl p-3.5 text-xs focus:outline-none focus:border-indigo-600 focus:bg-indigo-950/10 transition-all font-medium text-gray-900 dark:text-white italic"
                 placeholder="e.g. Mumbai"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em] italic">Target Income (₹/wk)</label>
+              <label className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] italic">Target Income (₹/wk)</label>
               <input
                 type="number"
                 value={income}
                 onChange={(e) => setIncome(e.target.value)}
-                className="w-full bg-[#0B0F19] border border-gray-800 rounded-xl p-3.5 text-xs focus:outline-none focus:border-indigo-600 focus:bg-indigo-950/10 transition-all font-medium text-white italic"
+                className="w-full bg-gray-50 dark:bg-[#0B0F19] border border-gray-200 dark:border-gray-800 rounded-xl p-3.5 text-xs focus:outline-none focus:border-indigo-600 focus:bg-indigo-950/10 transition-all font-medium text-gray-900 dark:text-white italic"
               />
             </div>
             <button
@@ -56,12 +56,12 @@ const RiskMatrix = ({
                 {!loading && <Activity size={14} className="group-hover:rotate-12 transition-transform" />}
               </div>
             </button>
-            {error && <p className="text-[11px] text-red-500 bg-red-500/5 p-3 rounded-lg border border-red-500/10 font-bold italic">{error}</p>}
+            {error && <p className="text-[11px] text-red-600 dark:text-red-500 bg-red-500/5 p-3 rounded-lg border border-red-500/10 font-bold italic">{error}</p>}
           </div>
         </div>
 
-        <div className="bg-[#111827] rounded-xl p-5 border border-gray-800 shadow-sm shrink-0">
-          <h4 className="text-sm font-semibold mb-6 uppercase tracking-widest text-gray-500">Real-Time Core (AI Mode)</h4>
+        <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-5 shadow-sm shrink-0" style={{ backgroundColor: 'var(--bg-card)' }}>
+          <h4 className="text-sm font-semibold mb-6 uppercase tracking-widest text-slate-500">Real-Time Core (AI Mode)</h4>
           <div className="space-y-3">
             <SignalRow label="Model Status" value="ACTIVE (ML)" color="emerald" />
             <SignalRow label="Disruption Prob." value={`${Math.round((analysis?.disruption_probability || 0) * 100)}%`} />
@@ -71,18 +71,18 @@ const RiskMatrix = ({
           </div>
         </div>
 
-        <div className="flex-1 min-h-[280px] flex flex-col bg-[#111827] rounded-xl p-5 border border-gray-800 shadow-sm hover:border-gray-700 transition">
+        <div className="flex-1 min-h-[280px] flex flex-col rounded-xl p-5 border border-gray-200 dark:border-gray-800 shadow-sm hover:border-gray-300 dark:hover:border-gray-700 transition" style={{ backgroundColor: 'var(--bg-card)' }}>
           <div className="flex items-start justify-between gap-3 mb-4">
             <div>
-              <h4 className="text-sm font-semibold tracking-wide flex items-center gap-2 uppercase text-[10px] text-gray-500">
-                <Gauge size={14} className="text-cyan-400" /> Environmental load
+              <h4 className="text-sm font-semibold tracking-wide flex items-center gap-2 uppercase text-[10px] text-slate-500">
+                <Gauge size={14} className="text-cyan-600 dark:text-cyan-400" /> Environmental load
               </h4>
-              <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider italic">
+              <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-wider italic">
                 Same 20‑min buckets
               </p>
             </div>
             {envLoadMeters.cityLabel && (
-              <span className="text-[10px] font-bold text-indigo-300/90 bg-indigo-500/10 border border-indigo-500/20 px-2 py-1 rounded-lg uppercase tracking-wide shrink-0">
+              <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-300/90 bg-indigo-500/5 dark:bg-indigo-500/10 border border-indigo-500/10 dark:border-indigo-500/20 px-2 py-1 rounded-lg uppercase tracking-wide shrink-0">
                 {envLoadMeters.cityLabel}
               </span>
             )}
@@ -90,16 +90,16 @@ const RiskMatrix = ({
 
           <div className="space-y-4 flex-1 flex flex-col min-h-0 mt-4">
             <div className="space-y-1.5">
-              <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-gray-500">
+              <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-slate-500">
                 <span className="flex items-center gap-1.5">
-                  <Wind size={11} className="text-indigo-400" /> AQI vs 300 cap
+                  <Wind size={11} className="text-indigo-500" /> AQI vs 300 cap
                 </span>
-                <span className="text-gray-400">
+                <span className="text-gray-600 dark:text-gray-400">
                   {envLoadMeters.aq}{" "}
-                  <span className="text-gray-600">({getAqiLabel(envLoadMeters.aq)})</span>
+                  <span className="text-slate-500">({getAqiLabel(envLoadMeters.aq)})</span>
                 </span>
               </div>
-              <div className="h-1.5 rounded-full bg-gray-950 border border-gray-800 overflow-hidden">
+              <div className="h-1.5 rounded-full bg-gray-100 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${envLoadMeters.nearAqiTrigger ? "bg-amber-500" : "bg-indigo-500"}`}
                   style={{ width: `${envLoadMeters.aqiPct}%` }}
@@ -107,25 +107,25 @@ const RiskMatrix = ({
               </div>
             </div>
             <div className="space-y-1.5">
-              <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-gray-500">
+              <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-slate-500">
                 <span className="flex items-center gap-1.5">
-                  <CloudRain size={11} className="text-indigo-400" /> Rain vs 50mm trigger
+                  <CloudRain size={11} className="text-indigo-500" /> Rain vs 50mm trigger
                 </span>
-                <span className="text-gray-400">{envLoadMeters.rf} mm</span>
+                <span className="text-gray-600 dark:text-gray-400">{envLoadMeters.rf} mm</span>
               </div>
-              <div className="h-1.5 rounded-full bg-gray-950 border border-gray-800 overflow-hidden">
+              <div className="h-1.5 rounded-full bg-gray-100 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${envLoadMeters.nearRainTrigger ? "bg-sky-500" : "bg-cyan-600"}`}
                   style={{ width: `${envLoadMeters.rainPct}%` }}
                 />
               </div>
             </div>
-            <p className="text-[11px] text-gray-500 leading-relaxed italic">
-              Sky state: <span className="text-gray-300 font-bold">{envLoadMeters.cond}</span>.
+            <p className="text-[11px] text-slate-500 leading-relaxed italic">
+              Sky state: <span className="text-gray-900 dark:text-gray-300 font-bold">{envLoadMeters.cond}</span>.
             </p>
-            <div className="mt-auto pt-4 border-t border-gray-800/80 flex-1 flex flex-col min-h-[140px]">
-              <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                <LineIcon size={12} className="text-emerald-400/90" />
+            <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-800/80 flex-1 flex flex-col min-h-[140px]">
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                <LineIcon size={12} className="text-emerald-600 dark:text-emerald-400/90" />
                 Risk pulse (this window)
               </p>
                 <div className="flex-1 w-full h-full min-h-[120px]">
@@ -141,7 +141,7 @@ const RiskMatrix = ({
                       <XAxis hide dataKey="bucketKey" />
                       <Tooltip 
                         labelFormatter={(label) => formatTenMinAxis(label)}
-                        contentStyle={{ backgroundColor: "#111827", border: "1px solid #1f2937", borderRadius: "10px", fontSize: "11px" }}
+                        contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: "10px", fontSize: "11px", color: 'var(--text-main)' }}
                       />
                       <Area type="monotone" dataKey="risk" name="Risk" stroke="#10b981" strokeWidth={2} fill="url(#riskPulseFill)" />
                     </AreaChart>
@@ -154,16 +154,16 @@ const RiskMatrix = ({
       </div>
 
       <div className="lg:col-span-2 space-y-6">
-        <div className="bg-[#111827] rounded-xl p-5 border border-gray-800 shadow-sm hover:border-gray-700 transition">
+        <div className="rounded-xl p-5 border border-gray-200 dark:border-gray-800 shadow-sm hover:border-gray-300 dark:hover:border-gray-700 transition" style={{ backgroundColor: 'var(--bg-card)' }}>
            <div className="flex justify-between items-center mb-8">
             <div>
-              <h4 className="text-sm font-semibold tracking-wide flex items-center gap-2 uppercase text-[10px] text-gray-500">
-                <Activity size={14} className="text-indigo-400" /> AI Risk Mapping
+              <h4 className="text-sm font-semibold tracking-wide flex items-center gap-2 uppercase text-[10px] text-slate-500">
+                <Activity size={14} className="text-indigo-500" /> AI Risk Mapping
               </h4>
-              <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider italic">Bayesian Logic Applied</p>
+              <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-wider italic">Bayesian Logic Applied</p>
             </div>
             {analysis && (
-               <div className="px-3 py-1 bg-indigo-600/10 text-indigo-400 border border-indigo-600/20 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-600/5">
+               <div className="px-3 py-1 bg-indigo-600/10 text-indigo-600 dark:text-indigo-400 border border-indigo-600/20 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-600/5">
                 {analysis.risk.risk_level} VECTOR (ML)
               </div>
             )}
@@ -178,9 +178,9 @@ const RiskMatrix = ({
                       <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <XAxis dataKey="bucketKey" tickFormatter={formatTenMinAxis} stroke="#374151" fontSize={10} axisLine={false} tickLine={false} />
-                  <YAxis stroke="#374151" fontSize={10} axisLine={false} tickLine={false} />
-                  <Tooltip labelFormatter={(label) => formatTenMinAxis(label)} contentStyle={{ backgroundColor: '#111827', border: '1px solid #1f2937', borderRadius: '12px' }} />
+                  <XAxis dataKey="bucketKey" tickFormatter={formatTenMinAxis} stroke="var(--chart-axis)" fontSize={10} axisLine={false} tickLine={false} />
+                  <YAxis stroke="var(--chart-axis)" fontSize={10} axisLine={false} tickLine={false} />
+                  <Tooltip labelFormatter={(label) => formatTenMinAxis(label)} contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-main)' }} />
                   <Area type="monotone" dataKey="risk" name="Risk score" stroke="#10b981" strokeWidth={3} fill="url(#riskCyan)" />
                   <Line type="monotone" dataKey="predicted_loss" name="Predicted Loss" stroke="#f59e0b" strokeWidth={2} dot={false} />
                 </ComposedChart>
@@ -188,18 +188,18 @@ const RiskMatrix = ({
             )}
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8 pt-8 border-t border-gray-800/80">
-            <MetricMini label="Rainfall" value={`${analysis?.weather?.rainfall ?? 0}mm`} sub={analysis?.weather?.condition || "—"} icon={<CloudRain size={12} className="text-indigo-400" />} />
-            <MetricMini label="AQI INDEX" value={analysis?.weather?.aqi ?? 0} sub={getAqiLabel(analysis?.weather?.aqi)} icon={<Wind size={12} className="text-indigo-400" />} />
-            <MetricMini label="Threat" value={analysis?.risk?.risk_level || "Low"} sub={`SCORE ${analysis?.risk?.risk_score ?? 0}`} icon={<Activity size={12} className="text-indigo-400" />} />
-            <MetricMini label="Net Credit" value={`₹${Math.round(analysis?.risk?.suggested_payout ?? 0)}`} sub="Calc Result" icon={<IndianRupee size={12} className="text-indigo-400" />} />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8 pt-8 border-t border-gray-200 dark:border-gray-800/80">
+            <MetricMini label="Rainfall" value={`${analysis?.weather?.rainfall ?? 0}mm`} sub={analysis?.weather?.condition || "—"} icon={<CloudRain size={12} className="text-indigo-500" />} />
+            <MetricMini label="AQI INDEX" value={analysis?.weather?.aqi ?? 0} sub={getAqiLabel(analysis?.weather?.aqi)} icon={<Wind size={12} className="text-indigo-500" />} />
+            <MetricMini label="Threat" value={analysis?.risk?.risk_level || "Low"} sub={`SCORE ${analysis?.risk?.risk_score ?? 0}`} icon={<Activity size={12} className="text-indigo-500" />} />
+            <MetricMini label="Net Credit" value={`₹${Math.round(analysis?.risk?.suggested_payout ?? 0)}`} sub="Calc Result" icon={<IndianRupee size={12} className="text-indigo-500" />} />
           </div>
         </div>
 
-        <div className="bg-[#111827] rounded-xl p-5 border border-gray-800 shadow-sm hover:border-gray-700 transition">
+        <div className="rounded-xl p-5 border border-gray-200 dark:border-gray-800 shadow-sm hover:border-gray-300 dark:hover:border-gray-700 transition" style={{ backgroundColor: 'var(--bg-card)' }}>
           <div className="flex items-center gap-3 mb-6">
-             <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400"><Activity size={16}/></div>
-             <h4 className="text-sm font-bold text-white uppercase tracking-widest italic">Intelligence Insights</h4>
+             <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400"><Activity size={16}/></div>
+             <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-widest italic">Intelligence Insights</h4>
           </div>
           <div className="space-y-4">
             {analysis?.ai_insight ? (
@@ -207,11 +207,11 @@ const RiskMatrix = ({
                 <div className="flex gap-4 p-5 bg-emerald-500/5 rounded-2xl border border-emerald-500/10 shadow-inner group">
                   <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 mt-1.5 shrink-0 animate-pulse group-hover:scale-125 transition-transform shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
                   <div className="space-y-2 min-w-0 flex-1">
-                    <p className="text-[12px] font-bold leading-relaxed text-emerald-100/95 italic">
+                    <p className="text-[12px] font-bold leading-relaxed text-emerald-900 dark:text-emerald-100/95 italic">
                       {analysis.ai_insight}
                     </p>
                     {riskWindowTrend && (
-                      <p className="text-[11px] leading-relaxed text-emerald-200/65 border-t border-emerald-500/10 pt-2 font-medium">
+                      <p className="text-[11px] leading-relaxed text-emerald-800/70 dark:text-emerald-200/65 border-t border-emerald-500/10 pt-2 font-medium">
                         {riskWindowTrend}
                       </p>
                     )}
@@ -219,9 +219,9 @@ const RiskMatrix = ({
                 </div>
 
                 {explainableInsights.length > 0 && (
-                  <div className="rounded-xl border border-gray-800/80 bg-[#0B0F19]/40 p-5">
-                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3 italic">Hedge Calculation Log</p>
-                    <ul className="space-y-2.5 text-[11px] leading-relaxed text-gray-400 list-disc pl-4 marker:text-indigo-500/80 italic font-medium">
+                  <div className="rounded-xl border border-gray-200 dark:border-gray-800/80 bg-gray-50/50 dark:bg-[#0B0F19]/40 p-5">
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 italic">Hedge Calculation Log</p>
+                    <ul className="space-y-2.5 text-[11px] leading-relaxed text-slate-600 dark:text-gray-400 list-disc pl-4 marker:text-indigo-500/80 italic font-medium">
                       {explainableInsights.map((line, i) => (
                         <li key={i}>{line}</li>
                       ))}
@@ -230,15 +230,15 @@ const RiskMatrix = ({
                 )}
 
                 <div className="p-5 rounded-xl bg-indigo-500/5 border border-indigo-500/10 group">
-                  <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3 italic">Aegis Core recommendation</p>
-                  <p className="text-[11px] text-gray-400 font-bold italic leading-relaxed group-hover:text-gray-200 transition-colors">
+                  <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-3 italic">Aegis Core recommendation</p>
+                  <p className="text-[11px] text-slate-600 dark:text-gray-400 font-bold italic leading-relaxed group-hover:text-gray-900 dark:group-hover:text-gray-200 transition-colors">
                     {extendedPolicyText || "Operational parameters within safety bounds."}
                   </p>
                 </div>
               </>
             ) : (
-              <div className="flex gap-4 p-4 bg-gray-950/40 rounded-xl border border-gray-800/40 text-[11px] leading-relaxed text-gray-400 italic">
-                <span>Run <strong className="text-white">Compute Risk Vectors</strong> to trigger neural logic.</span>
+              <div className="flex gap-4 p-4 bg-gray-100 dark:bg-gray-950/40 rounded-xl border border-gray-200 dark:border-gray-800/40 text-[11px] leading-relaxed text-slate-500 italic">
+                <span>Run <strong className="text-gray-900 dark:text-white">Compute Risk Vectors</strong> to trigger neural logic.</span>
               </div>
             )}
           </div>

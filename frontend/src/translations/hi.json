@@ -1,0 +1,31 @@
+{
+  "nav": {
+    "overview": "अवलोकन",
+    "policy": "पॉलिसी सेंटर",
+    "analytics": "पर्यावरण विश्लेषण",
+    "predictor": "AI भविष्यवक्ता",
+    "fraud": "धोखाधड़ी रडार",
+    "wallet": "वॉलेट",
+    "profile": "प्रोफ़ाइल",
+    "orders": "लॉजिस्टिक्स हब",
+    "settings": "सेटिंग्स",
+    "signOut": "साइन आउट"
+  },
+  "dashboard": {
+    "greeting_morning": "सुप्रभात",
+    "greeting_afternoon": "शुभ दोपहर",
+    "greeting_evening": "शुभ संध्या",
+    "live_network": "लाइव नेटवर्क",
+    "active_node": "सक्रिय नोड"
+  },
+  "overview": {
+    "net_protected": "शुद्ध संरक्षित पूर्वानुमान",
+    "weekly_income": "साप्ताहिक आय",
+    "potential_offset": "संभावित ऑफसेट",
+    "model_precision": "मॉडल परिशुद्धता",
+    "node_distribution": "नोड वितरण",
+    "factor_assessment": "एजिस फैक्टर आकलन",
+    "neural_pulse": "न्यूरल पल्स क्लस्टर",
+    "financial_momentum": "वित्तीय गति"
+  }
+}
