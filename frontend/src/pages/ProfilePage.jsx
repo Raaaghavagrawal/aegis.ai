@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { AlertCircle, ArrowLeft, LogOut, Package, Shield, Volume2, VolumeX } from "lucide-react";
@@ -10,8 +10,12 @@ import {
   ProfileDemandAndAI,
   ProfileLocationCard,
   ProfileAmbientLayer,
+  ProfileOrdersSection,
   deriveWorkerScores,
   buildHourlyDemandSeries,
+  buildSyntheticOrders,
+  summarizeOrders,
+  createStreamOrder,
   fadeUp,
   staggerWrap,
 } from "../components/profile";
@@ -79,6 +83,45 @@ export default function ProfilePage({ isDashboard = false }) {
   const [addressLoading, setAddressLoading] = useState(false);
   const [locError, setLocError] = useState("");
   const [coordsCopied, setCoordsCopied] = useState(false);
+
+  // Orders State (Moved from Logistics Hub)
+  const streamSeq = useRef(0);
+  const [orders, setOrders] = useState(() =>
+    buildSyntheticOrders(cached.platform, cached.city, cached.earnings_per_delivery)
+  );
+
+  useEffect(() => {
+    setOrders(buildSyntheticOrders(user.platform, user.city, user.earnings_per_delivery));
+  }, [user.platform, user.city, user.earnings_per_delivery]);
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      streamSeq.current += 1;
+      setOrders((prev) => {
+        const next = [createStreamOrder(user.city, user.earnings_per_delivery, streamSeq.current), ...prev];
+        return next.slice(0, 36);
+      });
+    }, 13000);
+    return () => window.clearInterval(id);
+  }, [user.city, user.earnings_per_delivery]);
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setOrders((prev) =>
+        prev.map((o, i) => {
+          const minutesAgo = o.minutesAgo + 1;
+          let status = o.status;
+          if (o.status === "assigned" && minutesAgo > 2 && i % 4 === 0) status = "picked_up";
+          else if (o.status === "picked_up" && minutesAgo > 5) status = "en_route";
+          else if (o.status === "en_route" && minutesAgo > 14) status = "delivered";
+          return { ...o, minutesAgo, status };
+        })
+      );
+    }, 9000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const orderSummary = useMemo(() => summarizeOrders(orders), [orders]);
 
   const [soundOn, setSoundOn] = useState(() => {
     try {
@@ -250,7 +293,7 @@ export default function ProfilePage({ isDashboard = false }) {
   const weekEarningsLive = (user.weekly_income || 0) + weekPulse;
 
   const content = (
-    <div className="relative z-10 min-h-screen flex flex-col">
+    <div className={`relative z-10 flex flex-col ${isDashboard ? 'w-full' : 'min-h-screen'}`}>
       {!isDashboard && (
         <header className="sticky top-0 z-30 border-b border-white/[0.06] bg-[#020617]/80 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-[#020617]/65">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3.5 sm:px-8">
@@ -329,7 +372,7 @@ export default function ProfilePage({ isDashboard = false }) {
             weekEarnings={weekEarningsLive}
             successRate={workerScores.successRate}
             walletBalance={walletBalance}
-            liveOrderCount={0}
+            liveOrderCount={orderSummary.live}
           />
 
           <ProfileDemandAndAI
@@ -361,8 +404,18 @@ export default function ProfilePage({ isDashboard = false }) {
             cityLabel={user.city}
           />
 
+          <ProfileOrdersSection
+            motionCustom={5}
+            fadeUpVariants={fadeUp}
+            orders={orders}
+            summary={orderSummary}
+            hubTitle="Live Logistics Stream"
+            hubSubtitle="Real-time order tracking and dispatch logs integrated into your profile."
+            hubBadge="Integrated Hub"
+          />
+
           <motion.footer
-            custom={5}
+            custom={6}
             variants={fadeUp}
             className="flex flex-col items-center gap-3 rounded-2xl border border-white/[0.06] bg-slate-950/50 px-4 py-5 text-center sm:flex-row sm:justify-between sm:text-left"
           >

@@ -2,19 +2,30 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  LogOut, MapPin, RefreshCcw, Shield, TrendingUp,
-  Wallet as WalletIcon, FileText, History, BarChart3,
-  BrainCircuit, ShieldAlert, Bell, Settings as SettingsIcon,
-  ChevronRight, Package, Zap, User,
+  LogOut,
+  MapPin,
+  RefreshCcw,
+  Shield,
+  TrendingUp,
+  Wallet as WalletIcon,
+  FileText,
+  History,
+  BarChart3,
+  BrainCircuit,
+  ShieldAlert,
+  Bell,
+  Settings as SettingsIcon,
+  ChevronRight,
+  Package,
+  Home,
 } from "lucide-react";
 
 import Overview from "./dashboard/Overview";
 import PolicyCenter from "./dashboard/PolicyCenter";
-import ClaimsHistory from "./dashboard/ClaimsHistory";
 import EnvironmentalAnalytics from "./dashboard/EnvironmentalAnalytics";
 import AICoPilot from "./dashboard/AICoPilot";
 import FraudDetection from "./dashboard/FraudDetection";
-import WalletProtection from "./dashboard/WalletProtection";
+import WalletAndClaims from "./dashboard/WalletAndClaims";
 import NotificationsCenter from "./dashboard/NotificationsCenter";
 import Settings from "./dashboard/Settings";
 import ProfilePage from "./ProfilePage";
@@ -36,38 +47,15 @@ function DashboardPage() {
   const [activeTab, setActiveTab] = useState("overview");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
-  const navGroups = [
-    {
-      label: "Dashboard",
-      items: [
-        { id: "overview",   label: "Performance",         icon: <TrendingUp size={16} />,    badge: null },
-        { id: "predictor",  label: "AI Co-Pilot",         icon: <BrainCircuit size={16} />,  badge: "AI" },
-        { id: "analytics",  label: "Environment",         icon: <BarChart3 size={16} />,     badge: null },
-      ],
-    },
-    {
-      label: "Insurance",
-      items: [
-        { id: "policy",     label: "My Policies",         icon: <FileText size={16} />,      badge: null },
-        { id: "claims",     label: "Claims History",      icon: <History size={16} />,       badge: null },
-        { id: "wallet",     label: "Wallet & Balance",    icon: <WalletIcon size={16} />,    badge: null },
-      ],
-    },
-    {
-      label: "Safety",
-      items: [
-        { id: "fraud",         label: "Fraud Detection",  icon: <ShieldAlert size={16} />,   badge: null },
-        { id: "notifications", label: "Alerts",           icon: <Bell size={16} />,           badge: "3" },
-      ],
-    },
-    {
-      label: "Account",
-      items: [
-        { id: "profile",    label: "My Profile",          icon: <User size={16} />,          badge: null },
-        { id: "orders",     label: "My Orders",           icon: <Package size={16} />,       badge: null },
-        { id: "settings",   label: "Settings",            icon: <SettingsIcon size={16} />,  badge: null },
-      ],
-    },
+  const navItems = [
+    { id: "overview", label: "Overview", icon: <TrendingUp size={18} /> },
+    { id: "policy", label: "Policy Center", icon: <FileText size={18} /> },
+    { id: "analytics", label: "Env. Analytics", icon: <BarChart3 size={18} /> },
+    { id: "predictor", label: "Risk Predictor", icon: <BrainCircuit size={18} /> },
+    { id: "fraud", label: "Fraud Detection", icon: <ShieldAlert size={18} /> },
+    { id: "notifications", label: "Notifications", icon: <Bell size={18} /> },
+    { id: "wallet", label: "Wallet & History", icon: <WalletIcon size={18} /> },
+    { id: "settings", label: "Settings", icon: <SettingsIcon size={18} /> },
   ];
 
   // flat list for finding current label
@@ -79,24 +67,22 @@ function DashboardPage() {
     navigate("/auth");
   };
 
-  const Sidebar = () => (
-    <aside
-      className="hidden lg:flex flex-col w-64 fixed h-full z-50 transition-all duration-300"
-      style={{
-        backgroundColor: "var(--bg-surface)",
-        borderRight: "1px solid var(--border)",
-        backdropFilter: "blur(20px)",
-      }}
-    >
-      {/* Logo */}
-      <div className="p-6 pb-4">
-        <div
-          className="flex items-center gap-3 cursor-pointer group"
-          onClick={() => navigate("/")}
-        >
-          <div className="relative">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-              <Shield size={18} className="text-white" />
+  return (
+    <div className="flex min-h-screen bg-[#0B1120] text-slate-100 selection:bg-blue-500/30 font-poppins">
+      {/* Sidebar */}
+      <aside className="w-72 fixed h-full bg-[#020617]/40 backdrop-blur-2xl border-r border-white/5 hidden lg:flex flex-col z-50">
+        <div className="p-8 flex flex-col h-full overflow-hidden">
+          {/* Logo Section */}
+          <div 
+            className="flex items-center gap-3 mb-10 transition-transform duration-300 hover:scale-[1.01] cursor-pointer" 
+            onClick={() => navigate("/")}
+          >
+            <div className="bg-blue-600 p-2 rounded-xl shadow-lg">
+              <Shield size={22} className="text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold tracking-tight text-white leading-none">Aegis.ai</h1>
+              <p className="text-[10px] text-blue-400 font-semibold uppercase tracking-wider mt-1">Parametric Net</p>
             </div>
             <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-[--bg-surface] animate-pulse" />
           </div>
@@ -108,29 +94,35 @@ function DashboardPage() {
               Aegis Network ✦
             </p>
           </div>
+
+          {/* Scrollable Nav Area */}
+          <nav className="flex-1 overflow-y-auto pr-2 space-y-1 custom-scrollbar">
+            {navItems.map((item) => (
+              <NavItem
+                key={item.id}
+                active={activeTab === item.id}
+                onClick={() => setActiveTab(item.id)}
+                icon={item.icon}
+                label={item.label}
+              />
+            ))}
+          </nav>
         </div>
       </div>
 
-      {/* User Card */}
-      <div className="px-4 pb-4">
-        <div
-          className="p-3 rounded-2xl cursor-pointer group transition-all duration-300"
-          style={{ background: "var(--bg-glass)", border: "1px solid var(--border)" }}
-          onClick={() => setActiveTab("profile")}
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500/20 to-violet-500/20 border border-indigo-500/20 flex items-center justify-center font-black text-sm" style={{ color: "var(--primary-bright)" }}>
-              {user.name?.[0]?.toUpperCase() || "G"}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold truncate" style={{ color: "var(--text-bright)" }}>
-                {user.name || "Gig Worker"}
-              </p>
-              <div className="flex items-center gap-1 mt-0.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
-                  {user.platform || "Active Rider"}
-                </p>
+        {/* Fixed Bottom Profile Section */}
+        <div className="p-6 border-t border-white/5 bg-[#0B1120]">
+          <div 
+            onClick={() => setActiveTab("profile")}
+            className="bg-slate-800/20 p-4 rounded-xl border border-white/5 hover:border-blue-500/20 transition-all duration-300 group cursor-pointer"
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 font-bold border border-blue-500/20">
+                {user.name?.[0] || 'G'}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold truncate text-white">{user.name || "Gig Worker"}</p>
+                <p className="text-[11px] text-slate-500 truncate leading-tight mt-0.5">{user.platform || "Active Node"}</p>
               </div>
             </div>
             <div className="flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider" style={{ background: "rgba(16,185,129,0.1)", color: "#10b981" }}>
@@ -162,76 +154,41 @@ function DashboardPage() {
         ))}
       </nav>
 
-      {/* Logout */}
-      <div className="p-4" style={{ borderTop: "1px solid var(--border)" }}>
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 group"
-          style={{ color: "var(--text-muted)" }}
-          onMouseEnter={e => {
-            e.currentTarget.style.background = "rgba(244,63,94,0.08)";
-            e.currentTarget.style.color = "#f43f5e";
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.background = "transparent";
-            e.currentTarget.style.color = "var(--text-muted)";
-          }}
-        >
-          <LogOut size={15} />
-          Sign Out
-        </button>
-      </div>
-    </aside>
-  );
-
-  return (
-    <div className="flex min-h-screen" style={{ backgroundColor: "var(--bg-deep)" }}>
-      {/* Ambient background blobs */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="blob blob-blue" style={{ width: "500px", height: "500px", top: "-100px", right: "200px", opacity: 0.12 }} />
-        <div className="blob blob-cyan"  style={{ width: "400px", height: "400px", bottom: "100px", left: "400px", opacity: 0.08 }} />
-      </div>
-
-      <Sidebar />
-
-      {/* Main Content */}
-      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen relative z-10">
+      {/* Main Content Area */}
+      <div className="flex-1 lg:ml-72 flex flex-col min-h-screen relative">
         {/* Header */}
-        <header
-          className="h-16 sticky top-0 z-40 px-6 flex items-center justify-between transition-all duration-300"
-          style={{
-            backgroundColor: "var(--bg-surface)",
-            borderBottom: "1px solid var(--border)",
-            backdropFilter: "blur(20px)",
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <div>
-              <h2 className="text-base font-black tracking-tight" style={{ color: "var(--text-bright)" }}>
-                {allNavItems.find(n => n.id === activeTab)?.label || "Dashboard"}
-              </h2>
-              <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>
-                GigShield Aegis Network
-              </p>
-            </div>
-            <div className="badge-live ml-2">
-              <div className="pulse-dot pulse-dot-green" />
-              Live
+        <header className="h-20 border-b border-white/5 bg-[#020617]/40 backdrop-blur-2xl sticky top-0 z-40 px-8 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <h2 className="text-xl font-bold text-white tracking-tight uppercase">
+              {navItems.find(n => n.id === activeTab)?.label}
+            </h2>
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/5 border border-blue-500/10 ml-4">
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
+              <span className="text-[11px] text-blue-400 font-bold uppercase tracking-wider">Live Network</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <LanguageSelector />
-            <button
-              onClick={() => window.location.reload()}
-              className="p-2 rounded-xl transition-all duration-200"
-              style={{ color: "var(--text-muted)", background: "transparent" }}
-              onMouseEnter={e => { e.currentTarget.style.background = "var(--bg-glass)"; e.currentTarget.style.color = "var(--primary)"; }}
-              onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-muted)"; }}
-              title="Refresh"
+          <div className="flex items-center gap-4">
+             <button
+              onClick={() => navigate("/")}
+              className="p-2.5 text-slate-500 hover:text-blue-400 hover:bg-white/5 rounded-lg transition-all"
+              title="Back to Home"
             >
-              <RefreshCcw size={16} />
+              <Home size={18} />
+            </button>
+             <button
+              onClick={() => window.location.reload()}
+              className="p-2.5 text-slate-500 hover:text-blue-400 hover:bg-white/5 rounded-lg transition-all"
+              title="Refresh Interface"
+            >
+              <RefreshCcw size={18} />
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-6 py-2.5 bg-rose-500/5 hover:bg-rose-500/10 border border-rose-500/10 hover:border-rose-500/30 text-[10px] font-black uppercase tracking-widest text-rose-400 rounded-xl transition-all group active:scale-95"
+            >
+              <LogOut size={14} className="group-hover:translate-x-0.5 transition-transform" /> 
+              <span>Sign Out</span>
             </button>
           </div>
         </header>
@@ -246,17 +203,15 @@ function DashboardPage() {
               animate="animate"
               exit="exit"
             >
-              {activeTab === "overview"       && <Overview />}
-              {activeTab === "policy"         && <PolicyCenter />}
-              {activeTab === "claims"         && <ClaimsHistory />}
-              {activeTab === "analytics"      && <EnvironmentalAnalytics />}
-              {activeTab === "predictor"      && <AICoPilot />}
-              {activeTab === "fraud"          && <FraudDetection />}
-              {activeTab === "wallet"         && <WalletProtection />}
-              {activeTab === "notifications"  && <NotificationsCenter />}
-              {activeTab === "profile"        && <ProfilePage isDashboard={true} />}
-              {activeTab === "orders"         && <OrdersPage isDashboard={true} />}
-              {activeTab === "settings"       && <Settings />}
+              {activeTab === "overview" && <Overview />}
+              {activeTab === "policy" && <PolicyCenter />}
+              {activeTab === "analytics" && <EnvironmentalAnalytics />}
+              {activeTab === "predictor" && <AIRiskPredictor />}
+              {activeTab === "fraud" && <FraudDetection />}
+              {activeTab === "wallet" && <WalletAndClaims />}
+              {activeTab === "notifications" && <NotificationsCenter />}
+              { activeTab === "profile" && <ProfilePage isDashboard={true} /> }
+              { activeTab === "settings" && <Settings /> }
             </motion.div>
           </AnimatePresence>
         </main>
@@ -269,37 +224,17 @@ function NavItem({ item, active, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 relative group ${active ? "nav-item-active" : ""}`}
-      style={!active ? { color: "var(--text-muted)" } : {}}
-      onMouseEnter={e => {
-        if (!active) {
-          e.currentTarget.style.background = "var(--bg-glass)";
-          e.currentTarget.style.color = "var(--text-bright)";
-        }
-      }}
-      onMouseLeave={e => {
-        if (!active) {
-          e.currentTarget.style.background = "transparent";
-          e.currentTarget.style.color = "var(--text-muted)";
-        }
-      }}
+      className={`w-full flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 relative group/nav ${
+        active
+          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-[0_0_20px_rgba(37,99,235,0.2)]"
+          : "text-slate-500 hover:text-slate-200 hover:bg-white/[0.02] border border-transparent"
+      }`}
     >
-      <span className={`shrink-0 transition-colors ${active ? "text-indigo-400" : ""}`}>
-        {item.icon}
-      </span>
-      <span className="flex-1 text-left truncate">{item.label}</span>
-      {item.badge && (
-        <span
-          className="text-[9px] font-black px-1.5 py-0.5 rounded-md"
-          style={{
-            background: item.badge === "AI" ? "rgba(99,102,241,0.2)" : "rgba(244,63,94,0.15)",
-            color:      item.badge === "AI" ? "#818cf8"              : "#f43f5e",
-            border:     item.badge === "AI" ? "1px solid rgba(99,102,241,0.3)" : "1px solid rgba(244,63,94,0.25)",
-          }}
-        >
-          {item.badge}
-        </span>
-      )}
+      {active && <motion.div layoutId="nav-pill" className="absolute inset-0 bg-white/5 rounded-xl -z-10" />}
+      <div className={`transition-colors duration-200 shrink-0 ${active ? 'text-white' : 'group-hover/nav:text-blue-400'}`}>
+        {icon}
+      </div>
+      <span className="truncate">{label}</span>
     </button>
   );
 }

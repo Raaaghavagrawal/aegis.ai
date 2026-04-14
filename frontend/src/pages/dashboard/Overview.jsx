@@ -1,12 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import {
-  AreaChart, Area, ComposedChart, Bar, Line,
-  XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, PieChart, Pie, Cell
-} from 'recharts';
-import { Zap, TrendingUp, Activity, Loader2, AlertCircle, ArrowUpRight, ArrowDownRight, RefreshCcw, Droplets, Wind, Thermometer, Shield } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ComposedChart, Line, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from 'recharts';
+import { Zap, TrendingUp, Activity, Loader2, AlertCircle, BadgeCheck } from 'lucide-react';
 import { api } from '../../utils/api';
 
 const stagger = {
@@ -108,11 +103,14 @@ const Overview = () => {
       const res = await api.get('/api/dashboard/overview');
       setData({
         ...res.data,
-        netProtected:       res.data.ai_metrics?.net_protected_forecast || 0,
-        weeklyIncome:       res.data.ai_metrics?.weekly_income || 0,
-        financialMomentum:  res.data.user?.wallet_balance || res.data.wallet_balance || 0,
-        history:            res.data.history || [],
-      });
+        netProtected: res.data.ai_metrics?.net_protected_forecast || 0,
+        weeklyIncome: res.data.ai_metrics?.weekly_income || 0,
+        financialMomentum: res.data.user?.wallet_balance || res.data.wallet_balance || 0,
+        history: res.data.history || [],
+        activePolicy: res.data.active_policy || null,
+      };
+
+      setData(mappedData);
     } catch (err) {
       setError("Could not reach Aegis servers. Check your connection.");
     } finally {
@@ -253,15 +251,23 @@ const Overview = () => {
               <h3 className="font-black text-sm uppercase tracking-wider" style={{ color: "var(--text-bright)" }}>
                 Environmental Telemetry
               </h3>
-              <p className="text-[10px] mt-1" style={{ color: "var(--text-muted)" }}>
-                AQI · Rainfall · Temperature over last cycle
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              {[{ label: "AQI", color: "#6366f1" }, { label: "Rain", color: "#06b6d4" }, { label: "Temp", color: "#f59e0b" }].map(l => (
-                <div key={l.label} className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full" style={{ background: l.color }} />
-                  <span className="text-[10px] font-bold uppercase" style={{ color: "var(--text-muted)" }}>{l.label}</span>
+              {data?.activePolicy && (
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 text-[10px] font-black uppercase tracking-widest mt-2 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
+                  <BadgeCheck size={14} className="animate-pulse" /> Active {data.activePolicy.coverage_percentage === 40 ? 'Elite' : data.activePolicy.coverage_percentage === 30 ? 'Pro' : 'Basic'} Shield Enabled
+                </div>
+              )}
+              <div className="mt-8 flex flex-wrap justify-center items-center gap-12 text-sm">
+                <div className="flex flex-col items-center">
+                  <span className="text-slate-500 text-[11px] uppercase tracking-wider font-bold mb-1">Weekly Income</span>
+                  <span className="text-white text-lg font-semibold tabular-nums">₹{Number(ai.weekly_income || 0).toLocaleString()}</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-slate-500 text-[11px] uppercase tracking-wider font-bold mb-1">Potential Offset</span>
+                  <span className="text-rose-400 text-lg font-semibold tabular-nums">₹{Number(ai.estimated_loss || 0).toLocaleString()}</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-slate-500 text-[11px] uppercase tracking-wider font-bold mb-1">Model Precision</span>
+                  <span className="text-blue-400 text-lg font-semibold tabular-nums">{Math.round((ai.confidence || 0) * 100)}%</span>
                 </div>
               ))}
             </div>
@@ -269,38 +275,22 @@ const Overview = () => {
 
           <div className="h-[280px]">
             {chartData.length >= 1 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={chartData} margin={{ left: -10, right: 0 }}>
-                  <defs>
-                    <linearGradient id="aqiGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor="#6366f1" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="rainGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor="#06b6d4" stopOpacity={0.2} />
-                      <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" vertical={false} />
-                  <XAxis
-                    dataKey="time"
-                    stroke="var(--chart-axis)"
-                    fontSize={9}
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: "var(--chart-axis)", fontWeight: 700 }}
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                <ComposedChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+                  <XAxis dataKey="time" interval={3} stroke="#475569" fontSize={8} axisLine={false} tickLine={false} />
+                  <YAxis yAxisId="left" stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
+                  <YAxis yAxisId="right" orientation="right" stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                    itemStyle={{ fontSize: '11px', fontWeight: 'bold' }}
+                    labelStyle={{ fontSize: '11px', color: '#64748b' }}
                   />
-                  <YAxis
-                    stroke="var(--chart-axis)"
-                    fontSize={9}
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: "var(--chart-axis)", fontWeight: 700 }}
-                  />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="AQI"      fill="url(#aqiGrad)"  radius={[4, 4, 0, 0]} barSize={16} stroke="#6366f1" strokeWidth={1} />
-                  <Bar dataKey="Rainfall" fill="url(#rainGrad)" radius={[4, 4, 0, 0]} barSize={16} stroke="#06b6d4" strokeWidth={1} />
-                  <Line type="monotone" dataKey="Temperature" stroke="#f59e0b" strokeWidth={2.5} dot={{ r: 3, fill: '#f59e0b', strokeWidth: 0 }} />
+                  <Legend verticalAlign="top" height={36} iconType="circle" />
+                  <Area yAxisId="left" type="monotone" dataKey="AQI" stroke="none" fill="#3b82f6" fillOpacity={0.1} legendType="none" />
+                  <Bar yAxisId="left" dataKey="AQI" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={20} />
+                  <Bar yAxisId="left" dataKey="Rainfall" fill="#818cf8" radius={[4, 4, 0, 0]} barSize={20} />
+                  <Line yAxisId="right" type="monotone" dataKey="Temperature" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3, fill: '#f59e0b', strokeWidth: 0 }} />
                 </ComposedChart>
               </ResponsiveContainer>
             ) : (
@@ -354,8 +344,27 @@ const Overview = () => {
         </motion.div>
       </div>
 
-      {/* Bottom Row: Environment Factors + Neural Pulse + Balance */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-slate-800/20 rounded-2xl p-8 border border-white/5 hover:border-white/10 transition-all duration-300">
+           <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-6">Aegis Factor Assessment</h4>
+           <div className="space-y-4">
+              {[
+                { label: 'Atmospheric Buffer', value: env.aqi != null ? `${Math.max(0, 100 - Math.round(env.aqi/3))}%` : '--', color: 'bg-blue-500' },
+                { label: 'Hydric Load', value: env.rainfall != null ? `${Math.min(100, env.rainfall * 2)}%` : '--', color: 'bg-indigo-500' },
+                { label: 'Model Trust', value: ai.confidence != null ? `${Math.round(ai.confidence * 100)}%` : '--', color: 'bg-emerald-500' },
+              ].map((item, i) => (
+                <div key={i} className="space-y-2">
+                   <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                      <span>{item.label}</span>
+                      <span className="text-white">{item.value}</span>
+                   </div>
+                   <div className="h-1 bg-slate-900 rounded-full overflow-hidden border border-white/5">
+                      <motion.div initial={{ width: 0 }} animate={{ width: item.value.includes('%') ? item.value : 0 }} className={`h-full ${item.color}`} />
+                   </div>
+                </div>
+              ))}
+           </div>
+        </div>
 
         {/* Environment Factor Assessment */}
         <motion.div variants={fadeUp} className="premium-card p-6">
@@ -386,69 +395,10 @@ const Overview = () => {
                   />
                 </div>
               </div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Neural Pulse */}
-        <motion.div variants={fadeUp} className="premium-card p-6 relative overflow-hidden">
-          <div className="blob blob-blue absolute -top-20 -right-20 w-40 h-40" style={{ opacity: 0.2 }} />
-          <h4 className="text-[10px] font-black uppercase tracking-widest mb-2 relative z-10" style={{ color: "var(--text-muted)" }}>
-            Neural Pulse
-          </h4>
-          <div className="flex items-center gap-2 mb-4 relative z-10">
-            <div className="badge-live"><div className="pulse-dot pulse-dot-green" />{user.city || "Region"}</div>
-          </div>
-          <p className="text-xs leading-relaxed mb-5 relative z-10" style={{ color: "var(--text-muted)" }}>
-            Active localized triggers synced with Aegis cloud. Your region is being monitored in real-time.
-          </p>
-          <div className="p-4 rounded-2xl relative z-10 flex items-center gap-3" style={{ background: "var(--bg-glass)", border: "1px solid var(--border)" }}>
-            <div className="p-2.5 rounded-xl bg-indigo-500/10">
-              <TrendingUp size={18} className="text-indigo-400" />
-            </div>
-            <div>
-              <p className="text-[9px] font-black uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>
-                Stability Index
-              </p>
-              <p className="text-lg font-black gradient-text-green">+14.2% Stable</p>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Wallet Balance */}
-        <motion.div variants={fadeUp} className="premium-card p-6 relative overflow-hidden">
-          <div className="blob blob-green absolute -bottom-16 -right-16 w-36 h-36" style={{ opacity: 0.2 }} />
-          <h4 className="text-[10px] font-black uppercase tracking-widest mb-2 relative z-10" style={{ color: "var(--text-muted)" }}>
-            Vault Balance
-          </h4>
-          <p className="text-4xl font-black tracking-tight stat-value relative z-10" style={{ color: "var(--text-bright)" }}>
-            ₹<AnimatedNumber value={data?.financialMomentum || 0} decimals={0} />
-          </p>
-          <p className="text-[10px] font-bold mt-1 mb-5 relative z-10" style={{ color: "var(--text-dim)" }}>
-            Managed Wallet · Protected
-          </p>
-
-          {/* Mini Sparkline */}
-          <div className="h-16 -mx-2 relative z-10">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={[380,420,405,470,450,510,490,560].map((v, i) => ({ v }))}>
-                <defs>
-                  <linearGradient id="walletGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#10b981" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <Area type="monotone" dataKey="v" stroke="#10b981" strokeWidth={2.5} fill="url(#walletGrad)" dot={false} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-          <button onClick={fetchData} className="btn-secondary w-full mt-4 text-[10px] py-2 relative z-10">
-            <RefreshCcw size={12} /> Sync
-          </button>
-        </motion.div>
+           </div>
+        </div>
       </div>
     </motion.div>
   );
 };
-
 export default Overview;

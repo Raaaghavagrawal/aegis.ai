@@ -64,6 +64,15 @@ const PolicyCenter = () => {
   const activePolicy = policies.find(p => p.status === 'active');
   const [success, setSuccess] = useState(false);
 
+  // Derive dynamic labels based on coverage percentage
+  const getTierName = (pct) => {
+    if (pct >= 40) return "Elite";
+    if (pct >= 30) return "Pro";
+    return "Basic";
+  };
+
+  const tier = activePolicy ? getTierName(activePolicy.coverage_percentage) : "Standard";
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -169,7 +178,7 @@ const PolicyCenter = () => {
             <div className="flex justify-between items-start mb-12">
               <div>
                 <span className="px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/10 rounded-full text-[10px] font-bold uppercase tracking-wider">Active Certificate</span>
-              <h3 className="text-3xl font-black tracking-tight mt-3" style={{ color: "var(--text-bright)" }}>Elite Shield Node</h3>
+                <h3 className="text-3xl font-bold text-white mt-4 tracking-tight">{tier} Shield Node</h3>
               </div>
               <div className="text-right">
                 <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/10 rounded-full text-[10px] font-bold uppercase tracking-wider">Synchronized</span>
@@ -180,10 +189,10 @@ const PolicyCenter = () => {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 mb-12 py-8 border-y border-white/5">
               <div className="space-y-1">
                 <p className="text-[11px] uppercase font-bold text-slate-500 tracking-wider">Subscription Tier</p>
-                <p className="text-lg font-semibold text-white">Weekly Automated</p>
+                <p className="text-lg font-semibold text-white">{tier} Automated</p>
               </div>
               <div className="space-y-1">
-                <p className="text-[11px] uppercase font-bold text-slate-500 tracking-wider">Premium Cost</p>
+                <p className="text-[11px] uppercase font-bold text-slate-500 tracking-wider">Weekly Premium</p>
                 <p className="text-lg font-semibold text-white">₹{Number(activePolicy.premium).toLocaleString()}</p>
               </div>
               <div className="space-y-1">

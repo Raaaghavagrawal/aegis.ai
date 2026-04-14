@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Bar,
-  BarChart,
+  Area,
+  ComposedChart,
   CartesianGrid,
   ResponsiveContainer,
   Tooltip,
@@ -95,20 +96,31 @@ export default function ProfileDemandAndAI({
               </motion.div>
               <div>
                 <h3 className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">Demand radar</h3>
-                <p className="text-base font-bold text-white">Hourly order intensity (sample)</p>
+                <p className="text-base font-bold text-white">Demand Forecast Cycle</p>
               </div>
             </div>
-            <span className="rounded-full border border-amber-500/25 bg-amber-500/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-amber-200/90">
-              Live blend
+            <span className="rounded-full border border-indigo-500/25 bg-indigo-500/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-indigo-200/90">
+              Live Forecast
             </span>
           </div>
-          <p className="mt-2 text-sm text-slate-500">Pulses with synthetic demand — bar heights animate on load.</p>
+          <p className="mt-2 text-sm text-slate-500 font-medium">Detailed rolling 24-hour intensity map — updated in real-time.</p>
           <div className="mt-6 h-[220px] w-full min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-              <BarChart data={hourlyDemand} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
+              <ComposedChart data={hourlyDemand} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="demandBar" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#a5b4fc" stopOpacity={0.95} />
+                    <stop offset="100%" stopColor="#6366f1" stopOpacity={0.35} />
+                  </linearGradient>
+                  <linearGradient id="areaGlow" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#6366f1" stopOpacity={0.15} />
+                    <stop offset="100%" stopColor="#6366f1" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
                 <XAxis
                   dataKey="short"
+                  interval={3}
                   tick={{ fill: "#64748b", fontSize: 10 }}
                   axisLine={false}
                   tickLine={false}
@@ -121,24 +133,24 @@ export default function ProfileDemandAndAI({
                 />
                 <Tooltip
                   contentStyle={tooltipContentStyle}
-                  formatter={(v) => [`${v} index`, "Demand"]}
-                  labelFormatter={(l) => `Slot ${l}`}
+                  formatter={(v) => [`${v} intensity`, "Platform Load"]}
+                  labelFormatter={(l) => `Time Window: ${l}`}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="demand" 
+                  stroke="none" 
+                  fill="url(#areaGlow)" 
                 />
                 <Bar
                   dataKey="demand"
                   fill="url(#demandBar)"
-                  radius={[6, 6, 0, 0]}
-                  maxBarSize={28}
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={22}
                   isAnimationActive
-                  animationDuration={1200}
+                  animationDuration={1500}
                 />
-                <defs>
-                  <linearGradient id="demandBar" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#a5b4fc" stopOpacity={0.95} />
-                    <stop offset="100%" stopColor="#6366f1" stopOpacity={0.35} />
-                  </linearGradient>
-                </defs>
-              </BarChart>
+              </ComposedChart>
             </ResponsiveContainer>
           </div>
         </div>

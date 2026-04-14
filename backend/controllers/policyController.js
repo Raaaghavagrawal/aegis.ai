@@ -1,4 +1,4 @@
-const { createPolicy, getPoliciesByUserId } = require("../models/policyModel");
+const { createPolicy, getPoliciesByUserId, deactivateAllUserPolicies } = require("../models/policyModel");
 
 async function createPolicyForUser(req, res, next) {
   try {
@@ -69,8 +69,39 @@ async function scalePolicy(req, res, next) {
   }
 }
 
+async function purchasePlan(req, res, next) {
+  try {
+    const userId = req.user.id;
+    const { planName, price } = req.body;
+
+    let coverage = 15;
+    if (planName === "Pro") coverage = 30;
+    if (planName === "Elite") coverage = 40;
+
+    // DEACTIVATE OLD POLICIES FIRST
+    await deactivateAllUserPolicies(userId);
+
+    const policyId = await createPolicy({
+      userId,
+      premium: Number(price),
+      coveragePercentage: coverage,
+      startDate: new Date().toISOString().split('T')[0],
+      status: "active",
+    });
+
+    return res.status(201).json({
+      message: `${planName} plan activated successfully`,
+      policy_id: policyId,
+      coverage: coverage
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   createPolicyForUser,
   getMyPolicies,
   scalePolicy,
+  purchasePlan,
 };

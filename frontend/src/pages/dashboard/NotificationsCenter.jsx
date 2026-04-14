@@ -75,6 +75,14 @@ const NotificationsCenter = () => {
     );
   }
 
+  const getIcon = (type) => {
+    const t = type?.toLowerCase() || '';
+    if (t.includes('risk')) return <Activity size={16} className="text-rose-400" />;
+    if (t.includes('payout')) return <Zap size={16} className="text-emerald-400" />;
+    if (t.includes('environment')) return <CloudRain size={16} className="text-sky-400" />;
+    return <Bell size={16} className="text-blue-400" />;
+  };
+
   return (
     <motion.div variants={stagger} initial="initial" animate="animate" className="max-w-3xl mx-auto space-y-6">
 

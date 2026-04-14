@@ -11,8 +11,23 @@ async function getNotifications(req, res, next) {
     }
 
     const notifications = await getNotificationsByUserId(userId);
-    console.log(`[NOTIFICATIONS] Found ${notifications.length} records`);
     
+    // Inject Live Weather Broadcast
+    const { getLatestEventByCity } = require("../models/eventModel");
+    const event = await getLatestEventByCity(req.user.city || "Mumbai");
+    
+    if (event) {
+      notifications.unshift({
+        id: 'env-live',
+        message: `Env Update: AQI - ${Math.round(event.aqi)} | Rain - ${Number(event.rainfall).toFixed(2)}mm`,
+        event_type: 'environment_sync',
+        type: 'live_broadcast',
+        created_at: new Date().toISOString(),
+        is_read: false
+      });
+    }
+
+    console.log(`[NOTIFICATIONS] Found ${notifications.length} records`);
     return res.json(notifications);
   } catch (error) {
     console.error("[NOTIFICATIONS_ERROR]", error.message);
