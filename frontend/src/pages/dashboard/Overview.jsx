@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ComposedChart, Line, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from 'recharts';
-import { Zap, TrendingUp, Activity, Loader2, AlertCircle, BadgeCheck } from 'lucide-react';
+import { Zap, TrendingUp, Activity, Loader2, AlertCircle, BadgeCheck, ArrowUpRight, ArrowDownRight, Shield, RefreshCcw, Wind, Droplets } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../utils/api';
 
 const stagger = {
@@ -101,6 +102,7 @@ const Overview = () => {
     try {
       setLoading(true); setError(null);
       const res = await api.get('/api/dashboard/overview');
+      console.log("DASHBOARD API RESPONSE:", res.data);
       setData({
         ...res.data,
         netProtected: res.data.ai_metrics?.net_protected_forecast || 0,
@@ -108,9 +110,7 @@ const Overview = () => {
         financialMomentum: res.data.user?.wallet_balance || res.data.wallet_balance || 0,
         history: res.data.history || [],
         activePolicy: res.data.active_policy || null,
-      };
-
-      setData(mappedData);
+      });
     } catch (err) {
       setError("Could not reach Aegis servers. Check your connection.");
     } finally {
@@ -269,13 +269,13 @@ const Overview = () => {
                   <span className="text-slate-500 text-[11px] uppercase tracking-wider font-bold mb-1">Model Precision</span>
                   <span className="text-blue-400 text-lg font-semibold tabular-nums">{Math.round((ai.confidence || 0) * 100)}%</span>
                 </div>
-              ))}
+              </div>
             </div>
           </div>
 
-          <div className="h-[280px]">
+          <div className="h-[280px] w-full relative">
             {chartData.length >= 1 ? (
-              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={1}>
                 <ComposedChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
                   <XAxis dataKey="time" interval={3} stroke="#475569" fontSize={8} axisLine={false} tickLine={false} />
@@ -313,8 +313,8 @@ const Overview = () => {
             Weighted environmental risk metrics
           </p>
 
-          <div className="relative flex-1 min-h-[180px]">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="relative flex-1 min-h-[180px] w-full">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={1}>
               <PieChart>
                 <Pie data={pieData} innerRadius={55} outerRadius={75} paddingAngle={5} dataKey="value" stroke="none">
                   {pieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
@@ -395,8 +395,9 @@ const Overview = () => {
                   />
                 </div>
               </div>
-           </div>
-        </div>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </motion.div>
   );

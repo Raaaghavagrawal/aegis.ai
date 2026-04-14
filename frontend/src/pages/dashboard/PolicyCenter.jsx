@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, CreditCard, Calendar, ArrowUpRight, Download, ChevronRight, AlertCircle, Sparkles, RefreshCcw } from 'lucide-react';
+import { Shield, CreditCard, Calendar, ArrowUpRight, Download, ChevronRight, AlertCircle, Sparkles, RefreshCcw, Loader2 } from 'lucide-react';
 import { api, getAuthHeaders } from '../../utils/api';
 
 const PolicyCenter = () => {

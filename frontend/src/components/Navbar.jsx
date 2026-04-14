@@ -69,6 +69,13 @@ const Navbar = () => {
               </motion.a>
             );
           })}
+        </div>
+
+        <div className="flex items-center gap-6 desktop-only">
+          <div className="flex items-center gap-3 mr-4">
+            <LanguageSelector />
+            <ThemeToggle />
+          </div>
 
         </div>
 
@@ -114,6 +121,15 @@ const Navbar = () => {
               )
             ))}
 
+            <div className="flex flex-col gap-6 mt-4 pt-6 border-t border-white/5">
+              <div className="flex items-center justify-between px-2">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Preferences</span>
+                <div className="flex items-center gap-3">
+                  <LanguageSelector />
+                  <ThemeToggle />
+                </div>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

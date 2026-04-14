@@ -10,15 +10,35 @@ async function getStats(req, res, next) {
     const userId = req.user.id;
     const city = req.user.city || "Mumbai";
 
+    // 1. Non-blocking ingestion (background update)
     const { ingestEnvironmentForCity } = require("../controllers/environmentController");
-    await ingestEnvironmentForCity(city).catch(e => console.error("Auto-ingest failed:", e.message));
+    ingestEnvironmentForCity(city).catch(e => console.error("[BG_INGEST_FAILED]", e.message));
 
-    const [globalStats, wallet] = await Promise.all([
+    // 2. Parallel Database Fetching
+    const [
+      globalStats, 
+      wallet, 
+      eventData, 
+      [eventsToday], 
+      [policyRows]
+    ] = await Promise.all([
       getDashboardStats(),
-      getWalletByUserId(userId)
+      getWalletByUserId(userId),
+      getLatestEventByCity(city),
+      pool.execute(
+        `SELECT HOUR(created_at) as hour, AVG(aqi) as avg_aqi, AVG(rainfall) as avg_rainfall, AVG(temperature) as avg_temp 
+         FROM events 
+         WHERE city = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR) 
+         GROUP BY HOUR(created_at) ORDER BY hour ASC`,
+        [city]
+      ),
+      pool.execute(
+        "SELECT * FROM policies WHERE user_id = ? AND status = 'active' ORDER BY id DESC LIMIT 1",
+        [userId]
+      )
     ]);
 
-    const eventData = await getLatestEventByCity(city);
+    // 3. AI Intelligence (depends on latest event data)
     const aiResponse = await getIntegratedAIPredictions({
       city,
       platform: req.user.platform,
@@ -28,14 +48,6 @@ async function getStats(req, res, next) {
       aqi: eventData?.aqi || 50,
       temperature: eventData?.temperature || 25,
     });
-
-    const [eventsToday] = await pool.execute(
-      `SELECT HOUR(created_at) as hour, AVG(aqi) as avg_aqi, AVG(rainfall) as avg_rainfall, AVG(temperature) as avg_temp 
-       FROM events 
-       WHERE city = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR) 
-       GROUP BY HOUR(created_at) ORDER BY hour ASC`,
-      [city]
-    );
 
     const currentHour = new Date().getHours();
     const history = [];
@@ -58,12 +70,6 @@ async function getStats(req, res, next) {
 
     const weeklyIncome = req.user.weekly_income || 5000;
     const estimatedLoss = aiResponse?.estimated_loss || 0;
-
-    // Fetch Active Policy
-    const [policyRows] = await pool.execute(
-      "SELECT * FROM policies WHERE user_id = ? AND status = 'active' ORDER BY id DESC LIMIT 1",
-      [userId]
-    );
     const activePolicy = policyRows[0] || null;
     const coverageMult = activePolicy ? (activePolicy.coverage_percentage / 100) : 0;
     const protectedAmount = estimatedLoss * coverageMult;
@@ -81,7 +87,8 @@ async function getStats(req, res, next) {
       active_policy: activePolicy
     });
   } catch (error) {
-    return next(error);
+    console.error("[STATS_CONTROLLER_ERROR]", error);
+    return res.status(500).json({ error: error.message, stack: error.stack });
   }
 }
 

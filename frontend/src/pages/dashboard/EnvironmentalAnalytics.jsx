@@ -89,7 +89,7 @@ const EnvironmentalAnalytics = () => {
     >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-white dark:bg-slate-800/20 border border-gray-200 dark:border-white/5 p-6 rounded-2xl hover:border-gray-300 dark:hover:border-blue-500/10 transition-all duration-300 group shadow-sm">
+          <div key={i} className="premium-card p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-white/5 rounded-lg text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                 {stat.icon}
@@ -103,18 +103,17 @@ const EnvironmentalAnalytics = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-slate-800/20 border border-gray-200 dark:border-white/5 rounded-2xl p-8 flex flex-col hover:border-gray-300 dark:hover:border-white/10 transition-all duration-300 h-[450px] shadow-sm">
+        <div className="premium-card p-8 flex flex-col h-[450px] shadow-sm">
           <div className="flex justify-between items-start mb-8">
             <div>
               <h4 className="text-sm font-bold text-gray-800 dark:text-white uppercase tracking-wider mb-1">Atmospheric Telemetry</h4>
               <p className="text-[11px] text-slate-500 font-medium uppercase">Rolling AQI and Pollution indices</p>
             </div>
-Pair of braces removed at end to match original pattern.
             <button onClick={fetchData} className="p-2 border border-white/5 rounded-lg text-slate-500 hover:text-white transition-all"><RefreshCcw size={16} className={loading ? 'animate-spin' : ''} /></button>
           </div>
-          <div className="flex-1 w-full min-h-0">
+          <div className="flex-1 w-full min-h-0 relative">
             {envData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={1}>
                 <AreaChart data={envData}>
                   <defs>
                     <linearGradient id="colorAqi" x1="0" y1="0" x2="0" y2="1">
@@ -142,7 +141,7 @@ Pair of braces removed at end to match original pattern.
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800/20 border border-gray-200 dark:border-white/5 rounded-2xl p-8 flex flex-col hover:border-gray-300 dark:hover:border-white/10 transition-all duration-300 h-[450px] shadow-sm">
+        <div className="premium-card p-8 flex flex-col h-[450px] shadow-sm">
           <div className="flex justify-between items-start mb-8">
             <div>
               <h4 className="text-sm font-bold text-gray-800 dark:text-white uppercase tracking-wider mb-1">Precipitation Nodes</h4>
@@ -152,9 +151,9 @@ Pair of braces removed at end to match original pattern.
               <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 dark:border-white/10 rounded-lg text-[10px] font-bold text-slate-500 hover:text-gray-900 dark:hover:text-white transition-all uppercase tracking-widest"><Calendar size={12}/> Window</button>
             </div>
           </div>
-          <div className="flex-1 w-full min-h-0">
+          <div className="flex-1 w-full min-h-0 relative">
             {envData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={1}>
                 <BarChart data={envData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
                   <XAxis dataKey="created_at" tickFormatter={(t) => new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
@@ -176,16 +175,16 @@ Pair of braces removed at end to match original pattern.
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800/20 border border-gray-200 dark:border-white/5 rounded-2xl p-8 flex flex-col lg:col-span-2 hover:border-gray-300 dark:hover:border-white/10 transition-all duration-300 h-[400px] shadow-sm">
+        <div className="premium-card p-8 flex flex-col lg:col-span-2 h-[400px] shadow-sm">
           <div className="flex justify-between items-start mb-8">
             <div>
               <h4 className="text-sm font-bold text-gray-800 dark:text-white uppercase tracking-wider mb-1">Thermal Stability Index</h4>
               <p className="text-[11px] text-slate-500 font-medium uppercase">Drift monitoring vs base environmental coordinates</p>
             </div>
           </div>
-          <div className="flex-1 w-full min-h-0">
+          <div className="flex-1 w-full min-h-0 relative">
             {envData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={1}>
                 <LineChart data={envData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
                   <XAxis dataKey="created_at" tickFormatter={(t) => new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
