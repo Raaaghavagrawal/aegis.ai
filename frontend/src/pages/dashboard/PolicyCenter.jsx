@@ -173,58 +173,82 @@ const PolicyCenter = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 premium-card p-8 relative overflow-hidden">
+        <div className="lg:col-span-2 rounded-[32px] p-10 relative overflow-hidden border border-white/10 shadow-2xl transition-all duration-500 font-poppins" style={{ backgroundColor: 'var(--bg-card)', background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(99,102,241,0.08) 100%)' }}>
+          {/* Neural Seal Watermark */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.04] pointer-events-none">
+            <Shield size={420} className="text-indigo-500" />
+          </div>
+
           <div className="relative z-10">
-            <div className="flex justify-between items-start mb-12">
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-6 mb-16 px-2">
               <div>
-                <span className="px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/10 rounded-full text-[10px] font-bold uppercase tracking-wider">Active Certificate</span>
-                <h3 className="text-3xl font-bold text-white mt-4 tracking-tight">{tier} Shield Node</h3>
+                <span className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/10 rounded-full text-[10px] font-black uppercase tracking-widest mb-4">
+                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                  Live Parametric Certificate
+                </span>
+                <h3 className="text-4xl font-black tracking-tighter leading-none mb-3" style={{ color: 'var(--text-bright)' }}>
+                  {tier} Shield Node
+                </h3>
+                <p className="text-[11px] text-slate-500 font-bold font-mono uppercase tracking-tight">NODE_HASH: AEGIS_NET_{activePolicy.id?.toString().padStart(4, '0')}</p>
               </div>
-              <div className="text-right">
-                <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/10 rounded-full text-[10px] font-bold uppercase tracking-wider">Synchronized</span>
-                <p className="text-[11px] text-slate-500 mt-3 font-medium uppercase tracking-widest">ID: AGS-{activePolicy.id}-SYNC</p>
+              <div className="text-left sm:text-right">
+                <span className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/10 rounded-full text-[10px] font-black uppercase tracking-widest shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                   SYNC_OK
+                </span>
+                <p className="text-[11px] text-slate-500 mt-4 font-black uppercase tracking-[0.3em]">ID: AGS-{activePolicy.id}-SYNC</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 mb-12 py-8 border-y border-white/5">
-              <div className="space-y-1">
-                <p className="text-[11px] uppercase font-bold text-slate-500 tracking-wider">Subscription Tier</p>
-                <p className="text-lg font-semibold text-white">{tier} Automated</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 mb-16 p-8 bg-slate-500/5 dark:bg-white/[0.02] border border-slate-500/10 dark:border-white/5 rounded-[28px] backdrop-blur-md">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-500 tracking-[0.2em]">
+                  <Sparkles size={12} className="text-indigo-500" /> Subscription
+                </div>
+                <p className="text-2xl font-black italic tracking-tight" style={{ color: 'var(--text-bright)' }}>{tier} Automated</p>
+                <div className="h-0.5 w-12 bg-indigo-500/40 rounded-full" />
               </div>
-              <div className="space-y-1">
-                <p className="text-[11px] uppercase font-bold text-slate-500 tracking-wider">Weekly Premium</p>
-                <p className="text-lg font-semibold text-white">₹{Number(activePolicy.premium).toLocaleString()}</p>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-500 tracking-[0.2em]">
+                  <CreditCard size={12} className="text-emerald-500" /> Premium
+                </div>
+                <p className="text-2xl font-black italic tracking-tight" style={{ color: 'var(--text-bright)' }}>₹{Number(activePolicy.premium || 0).toLocaleString()}</p>
+                <div className="h-0.5 w-12 bg-emerald-500/40 rounded-full" />
               </div>
-              <div className="space-y-1">
-                <p className="text-[11px] uppercase font-bold text-slate-500 tracking-wider">Deployment Date</p>
-                <p className="text-lg font-semibold text-blue-400">
-                  {new Date(activePolicy.start_date).toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-500 tracking-[0.2em]">
+                  <Calendar size={12} className="text-blue-500" /> Deployment
+                </div>
+                <p className="text-2xl font-black italic tracking-tight text-blue-600 dark:text-blue-400">
+                  {new Date(activePolicy.start_date).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
                 </p>
+                <div className="h-0.5 w-12 bg-blue-500/40 rounded-full" />
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap items-center gap-6 px-4">
               <button 
                 onClick={handleScale}
                 disabled={scaling || Number(activePolicy.coverage_percentage) >= 100}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-lg active:scale-95 group disabled:opacity-50 ${
-                  success ? 'bg-emerald-600 shadow-emerald-500/20 text-white' : 'bg-blue-600 shadow-blue-500/10 hover:bg-blue-500 text-white'
+                className={`flex items-center gap-3 px-8 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all duration-300 shadow-2xl active:scale-95 group disabled:opacity-50 ${
+                  success ? 'bg-emerald-600 shadow-emerald-500/30 text-white' : 'bg-indigo-600 shadow-indigo-600/20 hover:bg-indigo-500 hover:shadow-indigo-500/30 text-white'
                 }`}
               >
                 {scaling ? (
-                  <Loader2 size={14} className="animate-spin" />
+                  <Loader2 size={16} className="animate-spin" />
                 ) : success ? (
-                  <Shield size={14} className="animate-bounce" />
+                  <Shield size={16} className="animate-bounce" />
                 ) : (
-                  <ArrowUpRight size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 )}
-                {scaling ? 'Expanding...' : success ? 'Elite Status Secured' : Number(activePolicy.coverage_percentage) >= 100 ? 'Fully Optimized' : 'Scale Protection'}
+                <span className="tracking-widest">{scaling ? 'Expanding Node...' : success ? 'Shield Verified' : 'Optimize Protection'}</span>
               </button>
-              <button className="flex items-center gap-2 px-6 py-3 bg-slate-900/50 hover:bg-slate-900 border border-white/5 text-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider transition active:scale-95">
-                <Download size={14} className="text-slate-500" /> Export Certificate
+              
+              <button className="flex items-center gap-3 px-8 py-4 bg-slate-900/10 dark:bg-slate-900/40 hover:bg-slate-900 border border-slate-900/10 dark:border-white/5 hover:border-slate-900 dark:hover:border-white/10 text-slate-600 dark:text-slate-400 hover:text-white rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all duration-300 active:scale-95 group">
+                <Download size={16} className="text-slate-500 group-hover:text-white transition-colors" /> Export PDF
               </button>
-              <button className="flex items-center gap-2 px-6 py-3 bg-rose-500/5 hover:bg-rose-500/10 border border-rose-500/10 text-rose-400 rounded-xl text-xs font-bold uppercase tracking-wider transition active:scale-95 ml-auto">
-                Deactivate Node
+
+              <button className="flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-rose-500/40 hover:text-rose-500 transition-colors ml-auto group">
+                Deactivate Node <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
           </div>
