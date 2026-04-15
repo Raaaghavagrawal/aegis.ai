@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Newspaper, Activity, Shield, Zap } from 'lucide-react';
 
-const LiveUpdates = ({ systemData, city, signalLogsForCity, SignalLogHoverDetail, formatTime }) => {
+const LiveUpdates = React.memo(({ systemData, city, signalLogsForCity, SignalLogHoverDetail, formatTime }) => {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-4xl mx-auto space-y-8 mt-6">
       <div className="bg-[#111827] rounded-3xl p-8 border border-gray-800 shadow-2xl relative overflow-hidden group hover:border-indigo-600/30 transition-all duration-500">
@@ -107,6 +107,6 @@ const LiveUpdates = ({ systemData, city, signalLogsForCity, SignalLogHoverDetail
       </div>
     </motion.div>
   );
-};
+});
 
 export default LiveUpdates;

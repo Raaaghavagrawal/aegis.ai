@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, IndianRupee, Search, CloudRain, Wind, AlertTriangle, Zap, CheckCircle2, Navigation, Info, Sparkles } from 'lucide-react';
 import axios from 'axios';
@@ -142,7 +142,7 @@ const Analyzer = () => {
               </div>
 
               <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} disabled={loading} type="submit" style={{ background: 'linear-gradient(135deg, #6366f1, #06b6d4)', color: 'white', border: 'none', padding: '18px', borderRadius: '14px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 10px 20px rgba(99, 102, 241, 0.3)', marginTop: '10px' }}>
-                {loading ? 'Initializing Analysis...' : 'Start Risk Scan'}
+                {loading ? 'Initializing Analysis...' : <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'}}><Search size={18} /> Start Risk Scan</div>}
               </motion.button>
             </form>
           </motion.div>
@@ -169,6 +169,17 @@ const Analyzer = () => {
                 </motion.div>
               ) : data ? (
                 <motion.div key="results" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                   {/* Weather Telemetry Row */}
+                   {data.weather && (
+                     <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#60a5fa', fontSize: '0.8rem', fontWeight: 800 }}>
+                         <CloudRain size={16} /> {data.weather.rainfall}mm Peak Rain
+                       </div>
+                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#94a3b8', fontSize: '0.8rem', fontWeight: 800 }}>
+                         <Wind size={16} /> {data.weather.aqi} AQI
+                       </div>
+                     </div>
+                   )}
                    {/* Risk Gauge Card */}
                    <div className="glass-card" style={{ padding: '32px', textAlign: 'center' }}>
                       <div style={{ position: 'relative', width: '200px', height: '120px', margin: '0 auto', overflow: 'hidden' }}>
@@ -191,8 +202,8 @@ const Analyzer = () => {
                          </div>
                       </div>
                       <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '8px' }}>
-                         <div style={{ padding: '6px 16px', background: data.risk.risk_level === 'HIGH' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', color: data.risk.risk_level === 'HIGH' ? '#ef4444' : '#10b981', borderRadius: '100px', fontSize: '0.85rem', fontWeight: 900 }}>
-                           {data.risk.risk_level} PROTECTION LEVEL REQUIRED
+                         <div style={{ padding: '6px 16px', display: 'flex', alignItems: 'center', gap: '6px', background: data.risk.risk_level === 'HIGH' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', color: data.risk.risk_level === 'HIGH' ? '#ef4444' : '#10b981', borderRadius: '100px', fontSize: '0.85rem', fontWeight: 900 }}>
+                           <AlertTriangle size={14} /> {data.risk.risk_level} PROTECTION LEVEL REQUIRED
                          </div>
                       </div>
                    </div>
@@ -200,7 +211,7 @@ const Analyzer = () => {
                    {/* Payout Details */}
                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                       <div className="glass-card" style={{ padding: '24px' }}>
-                         <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '8px' }}>Income Exposure</div>
+                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '8px' }}>Income Exposure <Info size={12}/></div>
                          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#ef4444' }}>₹{data.risk.predicted_loss.toLocaleString()}</div>
                       </div>
                       <div className="glass-card" style={{ padding: '24px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>

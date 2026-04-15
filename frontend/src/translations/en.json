@@ -11,6 +11,13 @@
     "settings": "Settings",
     "signOut": "Sign Out"
   },
+  "landing_nav": {
+    "analytics": "Analytics",
+    "community": "Community",
+    "plans": "Plans",
+    "security": "Security",
+    "preferences": "Preferences"
+  },
   "dashboard": {
     "greeting_morning": "Good morning",
     "greeting_afternoon": "Good afternoon",

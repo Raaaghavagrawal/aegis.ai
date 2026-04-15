@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Footer = () => {
+const Footer = React.memo(() => {
   return (
     <footer className="site-footer">
       <div className="site-footer-inner">
@@ -49,6 +49,6 @@ const Footer = () => {
       </div>
     </footer>
   );
-};
+});
 
 export default Footer;

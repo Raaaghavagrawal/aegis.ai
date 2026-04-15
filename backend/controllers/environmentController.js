@@ -66,7 +66,7 @@ async function getUnifiedEnvironmentData(req, res, next) {
     };
 
     const aiPrediction = await require("../services/aiService").getIntegratedAIPredictions(userFeatures);
-    const events = await getRecentEventsByCity(city, 20);
+    const events = await getRecentEventsByCity(city, 24);
 
     const history = events.map((ev) => ({
       rainfall: Number(ev.rainfall),
@@ -104,7 +104,7 @@ async function getHistoricalEnvironmentData(req, res, next) {
     if (!city) return res.status(400).json({ message: "city is required" });
 
     const liveData = await ingestEnvironmentForCity(city);
-    const events = await getRecentEventsByCity(city, 20);
+    const events = await getRecentEventsByCity(city, 24);
 
     const history = events.map((ev) => ({
       rainfall: Number(ev.rainfall),

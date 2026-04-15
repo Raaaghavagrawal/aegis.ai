@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Zap, AlertTriangle, TrendingDown, Clock, Lightbulb, MapPin, ChevronRight, Activity, Loader2, RefreshCcw } from 'lucide-react';

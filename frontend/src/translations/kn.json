@@ -11,6 +11,13 @@
     "settings": "ಸೆಟ್ಟಿಂಗ್‌ಗಳು",
     "signOut": "ಸೈನ್ ಔಟ್"
   },
+  "landing_nav": {
+    "analytics": "ವಿಶ್ಲೇಷಣೆ",
+    "community": "ಸಮುದಾಯ",
+    "plans": "ಯೋಜನೆಗಳು",
+    "security": "ಭದ್ರತೆ",
+    "preferences": "ಆದ್ಯತೆಗಳು"
+  },
   "dashboard": {
     "greeting_morning": "ಶುಭೋದಯ",
     "greeting_afternoon": "ಶುಭ ಮಧ್ಯಾಹ್ನ",

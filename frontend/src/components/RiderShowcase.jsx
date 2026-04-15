@@ -27,7 +27,7 @@ const RiderShowcase = () => {
         
         <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
           <h2 style={{ fontSize: '3rem', fontWeight: 900, marginBottom: '1rem' }}>Rider <span className="gradient-text">Spotlight</span></h2>
-          <p style={{ color: '#94a3b8', fontSize: '1.1rem' }}>Building trust through transparency: Real protection for real lives.</p>
+          <p style={{ color: 'var(--text-dim)', fontSize: '1.1rem' }}>Building trust through transparency: Real protection for real lives.</p>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '3rem' }}>
@@ -59,12 +59,12 @@ const RiderShowcase = () => {
                </div>
 
                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                  <div style={{ background: 'rgba(255,255,255,0.03)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', marginBottom: '8px' }}>Lifetime Deliveries</div>
+                  <div style={{ background: 'var(--bg-glass)', padding: '20px', borderRadius: '16px', border: '1px solid var(--border)' }}>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '8px' }}>Lifetime Deliveries</div>
                     <div style={{ fontSize: '1.5rem', fontWeight: 900 }}>{rider.deliveries}</div>
                   </div>
                   <div style={{ background: 'rgba(99, 102, 241, 0.05)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(99, 102, 241, 0.1)' }}>
-                    <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', marginBottom: '8px' }}>Total Savings</div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '8px' }}>Total Savings</div>
                     <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#10b981' }}>{rider.totalPayouts}</div>
                   </div>
                </div>
@@ -79,7 +79,7 @@ const RiderShowcase = () => {
             >
                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <Clock size={20} className="text-indigo-500" />
-                  <span style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>Member Since</span>
+                  <span style={{ fontSize: '0.9rem', color: 'var(--text-dim)' }}>Member Since</span>
                </div>
                <span style={{ fontWeight: 800 }}>{rider.joinDate}</span>
             </motion.div>
@@ -111,15 +111,15 @@ const RiderShowcase = () => {
                  >
                    <div style={{ position: 'absolute', left: '-30px', top: '4px', width: '16px', height: '16px', borderRadius: '50%', background: '#020617', border: '3px solid #6366f1', zIndex: 1 }}></div>
                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                      <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#94a3b8' }}>{t.date}</span>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-dim)' }}>{t.date}</span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem', fontWeight: 900, color: '#10b981' }}>
                          <Zap size={10} /> {t.status}
                       </div>
                    </div>
-                   <div style={{ background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                   <div style={{ background: 'var(--bg-glass)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)' }}>
                       <div style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '4px' }}>{t.event}</div>
-                      <div style={{ fontSize: '0.9rem', color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                         Payout: <span style={{ fontWeight: 800, color: 'white' }}>{t.payout}</span>
+                      <div style={{ fontSize: '0.9rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                         Payout: <span style={{ fontWeight: 800, color: 'var(--text-bright)' }}>{t.payout}</span>
                       </div>
                    </div>
                  </motion.div>

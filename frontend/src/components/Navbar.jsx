@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Menu, X, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import ThemeToggle from './ThemeToggle';
 import LanguageSelector from './LanguageSelector';
 
 const Navbar = () => {
+  const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -18,10 +20,10 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { name: 'Analytics', href: '/#analytics' },
-    { name: 'Community', href: '/#rider-showcase' },
-    { name: 'Plans', href: '/plans', isRoute: true },
-    { name: 'Security', href: '/#fraud' },
+    { name: t('landing_nav.analytics', 'Analytics'), href: '/#analytics' },
+    { name: t('landing_nav.community', 'Community'), href: '/#rider-showcase' },
+    { name: t('landing_nav.plans', 'Plans'), href: '/plans', isRoute: true },
+    { name: t('landing_nav.security', 'Security'), href: '/#fraud' },
   ];
 
   return (
@@ -123,7 +125,7 @@ const Navbar = () => {
 
             <div className="flex flex-col gap-6 mt-4 pt-6 border-t border-white/5">
               <div className="flex items-center justify-between px-2">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Preferences</span>
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">{t('landing_nav.preferences', 'Preferences')}</span>
                 <div className="flex items-center gap-3">
                   <LanguageSelector />
                   <ThemeToggle />

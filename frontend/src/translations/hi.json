@@ -11,6 +11,13 @@
     "settings": "सेटिंग्स",
     "signOut": "साइन आउट"
   },
+  "landing_nav": {
+    "analytics": "विश्लेषण",
+    "community": "समुदाय",
+    "plans": "योजनाएं",
+    "security": "सुरक्षा",
+    "preferences": "प्राथमिकताएं"
+  },
   "dashboard": {
     "greeting_morning": "सुप्रभात",
     "greeting_afternoon": "शुभ दोपहर",

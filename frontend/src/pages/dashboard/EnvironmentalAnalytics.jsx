@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { LineChart, BarChart, AreaChart, Line, Bar, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell } from 'recharts';
 import { Wind, CloudRain, Thermometer, Gauge, Download, Calendar, Activity, Loader2, RefreshCcw, AlertTriangle } from 'lucide-react';
@@ -81,6 +81,13 @@ const EnvironmentalAnalytics = () => {
     );
   }
 
+  const now = new Date().getTime();
+  const oneDayAgo = now - 24 * 60 * 60 * 1000;
+  const chartData = envData.map(d => ({
+    ...d,
+    timeMs: new Date(d.created_at).getTime()
+  }));
+
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.99 }}
@@ -154,9 +161,9 @@ const EnvironmentalAnalytics = () => {
           <div className="flex-1 w-full min-h-0 relative">
             {envData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={1}>
-                <BarChart data={envData}>
+                <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
-                  <XAxis dataKey="created_at" tickFormatter={(t) => new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="timeMs" type="number" scale="time" domain={[oneDayAgo, now]} tickFormatter={(t) => new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
                   <YAxis stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
                   <Tooltip 
                      contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', fontSize: '11px', color: 'var(--text-main)' }}
@@ -185,9 +192,9 @@ const EnvironmentalAnalytics = () => {
           <div className="flex-1 w-full min-h-0 relative">
             {envData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={1}>
-                <LineChart data={envData}>
+                <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
-                  <XAxis dataKey="created_at" tickFormatter={(t) => new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="timeMs" type="number" scale="time" domain={[oneDayAgo, now]} tickFormatter={(t) => new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
                   <YAxis stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
                   <Tooltip 
                      contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', fontSize: '11px', color: 'var(--text-main)' }}

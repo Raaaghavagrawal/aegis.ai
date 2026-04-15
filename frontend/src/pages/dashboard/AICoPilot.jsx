@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Zap, MapPin, TrendingUp, AlertTriangle, Clock, MessageSquare,
@@ -101,8 +101,8 @@ const AICoPilot = () => {
           </div>
           <div className="absolute -inset-2 rounded-3xl border border-indigo-500/20 animate-ping" />
         </div>
-        <p className="text-[11px] font-black uppercase tracking-[0.3em] animate-pulse" style={{ color: "var(--text-muted)" }}>
-          Synchronizing Neural Co-Pilot...
+        <p className="flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-[0.3em] animate-pulse" style={{ color: "var(--text-muted)" }}>
+          <Loader2 size={14} className="animate-spin text-indigo-400" /> Synchronizing Neural Co-Pilot...
         </p>
       </div>
     );
@@ -157,7 +157,9 @@ const AICoPilot = () => {
                 </div>
                 <div>
                   <h3 className="text-sm font-black uppercase tracking-wide" style={{ color: "var(--text-bright)" }}>Smart Moves</h3>
-                  <p className="text-[9px]" style={{ color: "var(--text-muted)" }}>AI-ranked by earnings potential</p>
+                  <p className="flex items-center gap-1 text-[9px]" style={{ color: "var(--text-muted)" }}>
+                    <Star size={10} className="text-amber-400" /> AI-ranked by earnings potential
+                  </p>
                 </div>
               </div>
 
@@ -183,24 +185,29 @@ const AICoPilot = () => {
                         <div>
                           <p className="text-sm font-black" style={{ color: "var(--text-bright)" }}>📍 {rec.loc}</p>
                           <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-[10px] font-black text-emerald-400">{rec.boost}</span>
+                            <span className="flex items-center text-[10px] font-black text-emerald-400">
+                              <ArrowUpRight size={12} className="mr-0.5" />{rec.boost}
+                            </span>
                             <span className="text-[9px]" style={{ color: "var(--text-dim)" }}>· {rec.duration} window</span>
                           </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-[10px] font-black" style={{ color: rec.conf >= 90 ? "#10b981" : rec.conf >= 75 ? "#f59e0b" : "var(--text-muted)" }}>
-                          {rec.conf}%
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <div className="text-[10px] font-black" style={{ color: rec.conf >= 90 ? "#10b981" : rec.conf >= 75 ? "#f59e0b" : "var(--text-muted)" }}>
+                            {rec.conf}%
+                          </div>
+                          <div className="mt-1 h-1 w-10 rounded-full overflow-hidden" style={{ background: "var(--bg-input)" }}>
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${rec.conf}%` }}
+                              transition={{ delay: i * 0.1 + 0.3, duration: 0.8 }}
+                              className="h-full rounded-full"
+                              style={{ background: rec.conf >= 90 ? "#10b981" : rec.conf >= 75 ? "#f59e0b" : "#6366f1" }}
+                            />
+                          </div>
                         </div>
-                        <div className="mt-1 h-1 w-10 rounded-full overflow-hidden" style={{ background: "var(--bg-input)" }}>
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${rec.conf}%` }}
-                            transition={{ delay: i * 0.1 + 0.3, duration: 0.8 }}
-                            className="h-full rounded-full"
-                            style={{ background: rec.conf >= 90 ? "#10b981" : rec.conf >= 75 ? "#f59e0b" : "#6366f1" }}
-                          />
-                        </div>
+                        <ChevronRight size={14} style={{ color: "var(--text-muted)" }} />
                       </div>
                     </div>
                   </motion.div>
@@ -246,6 +253,9 @@ const AICoPilot = () => {
                         <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                       </linearGradient>
                     </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(16,185,129,0.05)" vertical={false} />
+                    <XAxis dataKey="time" stroke="var(--text-muted)" fontSize={9} axisLine={false} tickLine={false} />
+                    <YAxis stroke="var(--text-muted)" fontSize={9} axisLine={false} tickLine={false} width={35} tickFormatter={(value) => `₹${value}`} />
                     <Tooltip content={<CustomTooltip />} />
                     <Area type="monotone" dataKey="earnings" stroke="#10b981" strokeWidth={2.5} fill="url(#earnGrad)" dot={false} />
                   </AreaChart>
@@ -273,8 +283,8 @@ const AICoPilot = () => {
                 {!planResult ? (
                   <motion.div key="input" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-5">
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest mb-3" style={{ color: "var(--text-muted)" }}>
-                        Hours available today
+                      <p className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest mb-3" style={{ color: "var(--text-muted)" }}>
+                        <Clock size={12} className="text-indigo-400" /> Hours available today
                       </p>
                       <div className="grid grid-cols-4 gap-2">
                         {["2","4","6","8"].map(h => (
@@ -296,10 +306,10 @@ const AICoPilot = () => {
                     </div>
                     <button
                       onClick={() => setPlanResult(true)}
-                      className="btn-primary w-full"
+                      className="btn-primary w-full flex items-center justify-center gap-2"
                       style={{ background: "linear-gradient(135deg, #6366f1 0%, #7c3aed 100%)" }}
                     >
-                      <Brain size={14} /> Generate AI Plan
+                      <Brain size={14} /> Generate AI Plan <Sparkles size={14} className="opacity-75" />
                     </button>
                   </motion.div>
                 ) : (
@@ -385,7 +395,9 @@ const AICoPilot = () => {
               </div>
               <div>
                 <h3 className="text-sm font-black uppercase tracking-wide" style={{ color: "var(--text-bright)" }}>Risk Intelligence</h3>
-                <p className="text-[9px]" style={{ color: "var(--text-muted)" }}>Live threat monitoring</p>
+                <p className="flex items-center gap-1 text-[9px]" style={{ color: "var(--text-muted)" }}>
+                  <Activity size={10} className="text-rose-400" /> Live threat monitoring
+                </p>
               </div>
             </div>
 

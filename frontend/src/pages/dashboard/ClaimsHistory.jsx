@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, Wind, CloudRain, Sun, Zap, ShieldCheck, Clock, ShieldAlert, RefreshCcw } from 'lucide-react';
 import { api } from '../../utils/api';
@@ -101,6 +101,9 @@ const ClaimsHistory = () => {
             />
           </div>
           <div className="flex gap-2">
+            <button className="hidden sm:flex items-center gap-2 p-2.5 bg-slate-800/50 border border-white/5 rounded-xl text-slate-400 hover:text-white transition-all text-[11px] font-bold uppercase tracking-widest">
+              <Filter size={16} /> Filter
+            </button>
             <button onClick={fetchData} className="p-2.5 bg-slate-800/50 border border-white/5 rounded-xl text-slate-400 hover:text-white transition-all">
               <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
             </button>
@@ -113,7 +116,11 @@ const ClaimsHistory = () => {
               <tr className="text-[11px] font-bold text-slate-500 uppercase tracking-widest border-b border-white/5 bg-slate-900/20">
                 <th className="px-8 py-5">Event Source</th>
                 <th className="px-8 py-5">Managed Node</th>
-                <th className="px-8 py-5">Settlement</th>
+                <th className="px-8 py-5">
+                  <div className="flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors">
+                    Settlement <ArrowUpDown size={12} className="opacity-50" />
+                  </div>
+                </th>
                 <th className="px-8 py-5">Temporal Node</th>
                 <th className="px-8 py-5 text-right">Verification</th>
               </tr>
@@ -136,7 +143,12 @@ const ClaimsHistory = () => {
                   <td className="px-8 py-6">
                     <span className="text-sm font-bold text-emerald-400 tabular-nums">+ ₹{Number(p.amount).toLocaleString()}</span>
                   </td>
-                  <td className="px-8 py-6 text-[11px] font-bold text-slate-500 uppercase tracking-widest">{new Date(p.event_date || p.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                  <td className="px-8 py-6 text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+                    <span className="flex items-center gap-1.5">
+                      <Clock size={12} className="text-slate-400" />
+                      {new Date(p.event_date || p.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                  </td>
                   <td className="px-8 py-6 text-right">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-emerald-500/5 text-emerald-400 border border-emerald-500/10">
                       <ShieldCheck size={12} /> Settled
@@ -156,6 +168,18 @@ const ClaimsHistory = () => {
               )}
             </tbody>
           </table>
+        </div>
+
+        <div className="p-4 border-t border-white/5 flex items-center justify-between text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-900/20">
+          <span>Showing {filteredPayouts.length} entries</span>
+          <div className="flex gap-1">
+            <button className="p-2 rounded-lg hover:bg-white/5 transition-colors group focus:outline-none">
+              <ChevronLeft size={16} className="group-hover:text-white transition-colors" />
+            </button>
+            <button className="p-2 rounded-lg hover:bg-white/5 transition-colors group focus:outline-none">
+              <ChevronRight size={16} className="group-hover:text-white transition-colors" />
+            </button>
+          </div>
         </div>
       </div>
     </motion.div>

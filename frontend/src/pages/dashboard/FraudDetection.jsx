@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { ShieldAlert, ShieldCheck, Zap, Activity, Search, RefreshCcw, Loader2, AlertCircle } from 'lucide-react';
 import { api } from '../../utils/api';

@@ -34,7 +34,7 @@ const Fraud = () => {
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
           <h2 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1rem' }}>AI Fraud <span className="gradient-text">Defense</span></h2>
-          <p style={{ color: '#94a3b8' }}>Multi-layered behavioral forensic system for 100% trust.</p>
+          <p style={{ color: 'var(--text-dim)' }}>Multi-layered behavioral forensic system for 100% trust.</p>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2rem' }}>
@@ -59,7 +59,7 @@ const Fraud = () => {
             </div>
 
             {/* Scanning Laser Animation */}
-            <div style={{ position: 'relative', background: 'rgba(0,0,0,0.2)', borderRadius: '16px', padding: '20px', border: '1px solid rgba(99,102,241,0.1)' }}>
+            <div style={{ position: 'relative', background: 'var(--bg-card)', borderRadius: '16px', padding: '20px', border: '1px solid var(--border)' }}>
               <motion.div 
                 style={{ 
                   position: 'absolute', 
@@ -78,10 +78,10 @@ const Fraud = () => {
                 {securityMetrics.map((m, i) => (
                   <div key={m.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', opacity: 0.8 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ background: 'rgba(255,255,255,0.03)', padding: '8px', borderRadius: '8px' }}>{m.icon}</div>
+                      <div style={{ background: 'var(--bg-glass)', padding: '8px', borderRadius: '8px' }}>{m.icon}</div>
                       <div>
-                        <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>{m.label}</div>
-                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{m.detail}</div>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-bright)' }}>{m.label}</div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>{m.detail}</div>
                       </div>
                     </div>
                     <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#10b981' }}>{m.status}</div>
@@ -90,7 +90,7 @@ const Fraud = () => {
               </div>
             </div>
 
-            <div style={{ marginTop: '24px', fontFamily: 'monospace', fontSize: '0.7rem', color: '#475569', background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '8px' }}>
+            <div style={{ marginTop: '24px', fontFamily: 'monospace', fontSize: '0.7rem', color: 'var(--text-dim)', background: 'var(--bg-glass)', padding: '12px', borderRadius: '8px' }}>
                {analysisLog.map((log, i) => (
                  <motion.div key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.5 }}>
                    {`> ${log}`}
@@ -115,7 +115,7 @@ const Fraud = () => {
               Built for <span className="text-indigo-400">Zero-Claim</span> <br/> Friction.
             </h3>
             
-            <p style={{ color: '#94a3b8', fontSize: '1rem', lineHeight: 1.7, marginBottom: '2rem' }}>
+            <p style={{ color: 'var(--text-dim)', fontSize: '1rem', lineHeight: 1.7, marginBottom: '2rem' }}>
               Our AI doesn't just check location. It analyzes 50+ device signals—from app session integrity to platform activity handshakes—to ensure payout reliability. This prevents fraud while eliminating the need for photos or paperwork.
             </p>
 
@@ -130,7 +130,7 @@ const Fraud = () => {
                </div>
             </div>
 
-            <button style={{ marginTop: '2.5rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '14px', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.3s' }} onMouseEnter={(e) => e.target.style.background = 'rgba(255,255,255,0.05)'} onMouseLeave={(e) => e.target.style.background = 'transparent'}>
+            <button style={{ marginTop: '2.5rem', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-bright)', padding: '14px', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.3s' }} onMouseEnter={(e) => e.target.style.background = 'var(--bg-glass)'} onMouseLeave={(e) => e.target.style.background = 'transparent'}>
                View Reliability whitepaper
             </button>
           </motion.div>

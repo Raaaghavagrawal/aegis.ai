@@ -11,8 +11,6 @@ export const ThemeProvider = ({ children }) => {
     const root = window.document.documentElement;
     const body = window.document.body;
     
-    console.log('[ThemeContext] Applying theme:', theme);
-    
     if (theme === 'dark') {
       root.classList.add('dark');
       body.classList.add('dark');
@@ -32,7 +30,7 @@ export const ThemeProvider = ({ children }) => {
   const toggleTheme = () => {
     setTheme((prev) => {
       const next = prev === 'light' ? 'dark' : 'light';
-      console.log('[ThemeContext] Toggling to:', next);
+
       return next;
     });
   };
