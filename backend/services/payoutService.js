@@ -1,5 +1,5 @@
-const { getLatestTriggeredEventByCity, createEvent } = require("../models/eventModel");
-const { getUsersByCityWithActivePolicy } = require("../models/userModel");
+const { getLatestTriggeredEventByCity, createEvent, getEventById } = require("../models/eventModel");
+const { getUsersByCityWithActivePolicy, getAllActiveUsersWithGeo } = require("../models/userModel");
 const { hasDuplicatePayout, createPayout } = require("../models/payoutModel");
 const { detectFraud } = require("./fraudService");
 const { addBalance } = require("./walletService");
@@ -11,6 +11,44 @@ async function processPayoutsForCity(city) {
   }
 
   const eligibleUsers = await getUsersByCityWithActivePolicy(city);
+  return await processEligibleUsers(eligibleUsers, event);
+}
+
+async function processPayoutsByGeo(eventId, radiusKm = 5) {
+  const event = await getEventById(eventId);
+  if (!event || !event.triggered) {
+    return { message: "Invalid or non-triggered event", total_users: 0, total_payout: 0 };
+  }
+
+  const allGeoUsers = await getAllActiveUsersWithGeo();
+  
+  // Calculate distance for each user and filter
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
+  const eligibleUsers = allGeoUsers.filter(u => {
+    const dist = calculateDistance(u.latitude, u.longitude, event.latitude, event.longitude);
+    return dist <= radiusKm;
+  }).map(u => ({
+    user_id: u.id,
+    weekly_income: u.weekly_income,
+    policy_id: u.policy_id,
+    coverage_percentage: u.coverage_percentage
+  }));
+
+  return await processEligibleUsers(eligibleUsers, event);
+}
+
+async function processEligibleUsers(eligibleUsers, event) {
   let totalPayout = 0;
   let processedCount = 0;
 
@@ -47,7 +85,7 @@ async function processPayoutsForCity(city) {
       await createNotification({ 
         userId: user.user_id, 
         type: 'payout', 
-        message: `✅ Payout Credited: ₹${payoutAmount.toFixed(2)} added to your wallet for the ${event.city} environmental event.` 
+        message: `✅ Hyper-Local Payout Credited: ₹${payoutAmount.toFixed(2)} added to your wallet for the node disruption at ${event.city}.` 
       }).catch(e => console.error("Notification failed:", e.message));
     } else {
       await createNotification({ 
@@ -63,7 +101,7 @@ async function processPayoutsForCity(city) {
   }
 
   const { addSystemLog } = require("../models/systemLogModel");
-  await addSystemLog("payout_process", `Disbursed ₹${totalPayout} to ${processedCount} users in ${city}`, "success");
+  await addSystemLog("payout_process", `Disbursed ₹${totalPayout} to ${processedCount} users for event ${event.id}`, "success");
 
   return {
     message: "Payouts processed",
@@ -95,5 +133,6 @@ async function simulateEventAndPayout(city, rainfall, aqi) {
 
 module.exports = {
   processPayoutsForCity,
+  processPayoutsByGeo,
   simulateEventAndPayout
 };

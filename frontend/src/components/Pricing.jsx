@@ -80,7 +80,7 @@ const Pricing = () => {
           >
             <ShieldCheck size={14} /> Intelligence-Driven Protection
           </motion.div>
-          <h2 style={{ fontSize: '3.5rem', fontWeight: 900, marginBottom: '1.5rem', color: 'white', letterSpacing: '-0.02em' }}>
+          <h2 style={{ fontSize: '3.5rem', fontWeight: 900, marginBottom: '1.5rem', color: 'var(--text-bright)', letterSpacing: '-0.02em' }}>
             Flexible <span className="gradient-text">Weekly</span> Plans
           </h2>
           <p style={{ color: '#94a3b8', maxWidth: '600px', margin: '0 auto', fontSize: '1.1rem', lineHeight: '1.6' }}>
@@ -111,7 +111,7 @@ const Pricing = () => {
               <div className="mb-10">
                 <h3 className="text-[12px] font-black uppercase tracking-[0.2em] text-slate-500 mb-6">{plan.name} Tier</h3>
                 <div className="flex items-baseline gap-2 mb-4">
-                  <span className="text-5xl font-black text-white">₹{plan.price}</span>
+                  <span className="text-5xl font-black text-[var(--text-bright)]">₹{plan.price}</span>
                   <span className="text-slate-500 font-bold">/weekly</span>
                 </div>
                 <p className="text-sm text-slate-400 font-medium leading-relaxed">{plan.desc}</p>
@@ -163,7 +163,7 @@ const Pricing = () => {
               <div className="mx-auto w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-blue-500 border border-white/5">
                 <stat.icon size={24} />
               </div>
-              <p className="text-2xl font-black text-white tabular-nums">{stat.value}</p>
+              <p className="text-2xl font-black text-[var(--text-bright)] tabular-nums">{stat.value}</p>
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{stat.label}</p>
             </div>
           ))}
@@ -173,7 +173,7 @@ const Pricing = () => {
       {/* FAQ Section */}
       <section className="max-w-[800px] mx-auto px-6 pb-40">
         <div className="text-center mb-16">
-          <h3 className="text-2xl font-black text-white mb-4 flex items-center justify-center gap-3">
+          <h3 className="text-2xl font-black text-[var(--text-bright)] mb-4 flex items-center justify-center gap-3">
             <HelpCircle className="text-indigo-400" /> Common Questions
           </h3>
           <p className="text-slate-500 text-sm">Everything you need to know about Aegis Protection.</p>
@@ -187,7 +187,7 @@ const Pricing = () => {
             { q: "How fast is the settlement?", a: "Payouts are usually processed within 60 seconds of a trigger event being validated by the Aegis Neural Network." }
           ].map((faq, i) => (
             <div key={i} className="p-8 bg-white/[0.02] border border-white/5 rounded-3xl hover:border-white/10 transition-colors group">
-              <h4 className="text-white font-bold mb-3 flex items-center gap-4">
+              <h4 className="text-[var(--text-bright)] font-bold mb-3 flex items-center gap-4">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                 {faq.q}
               </h4>

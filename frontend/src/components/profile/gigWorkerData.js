@@ -9,22 +9,22 @@ export function fmtMoney(n) {
 export const ORDER_STATUS_STYLES = {
   delivered: {
     label: "Delivered",
-    className: "border-emerald-500/30 bg-emerald-500/10 text-emerald-200",
+    className: "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-200",
     dot: "bg-emerald-400",
   },
   en_route: {
     label: "En route",
-    className: "border-cyan-500/30 bg-cyan-500/10 text-cyan-200",
+    className: "border-cyan-500/30 bg-cyan-500/10 text-cyan-600 dark:text-cyan-200",
     dot: "bg-cyan-400 animate-pulse",
   },
   picked_up: {
     label: "Picked up",
-    className: "border-amber-500/30 bg-amber-500/10 text-amber-200",
+    className: "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-200",
     dot: "bg-amber-400",
   },
   assigned: {
     label: "New",
-    className: "border-indigo-500/30 bg-indigo-500/10 text-indigo-200",
+    className: "border-indigo-500/30 bg-indigo-500/10 text-indigo-600 dark:text-indigo-200",
     dot: "bg-indigo-400",
   },
 };

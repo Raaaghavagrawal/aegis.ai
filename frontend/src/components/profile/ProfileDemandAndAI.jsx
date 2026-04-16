@@ -14,11 +14,11 @@ import { Brain, CloudRain, LineChart, Sparkles } from "lucide-react";
 import { buildAIInsightCopy } from "./gigWorkerData";
 
 const tooltipContentStyle = {
-  background: "rgba(15, 23, 42, 0.95)",
-  border: "1px solid rgba(99, 102, 241, 0.25)",
+  background: "var(--bg-card)",
+  border: "1px solid var(--border)",
   borderRadius: "12px",
   fontSize: "12px",
-  color: "#e2e8f0",
+  color: "var(--text-bright)",
 };
 
 export default function ProfileDemandAndAI({
@@ -80,7 +80,7 @@ export default function ProfileDemandAndAI({
     >
       <motion.div
         layout
-        className="relative flex flex-col overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-b from-slate-900/95 to-[#080f1f] p-1 shadow-xl lg:col-span-3"
+        className="relative flex flex-col overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--bg-card)] p-1 shadow-xl lg:col-span-3"
         whileHover={{ scale: 1.005 }}
         transition={{ type: "spring", stiffness: 300, damping: 28 }}
       >
@@ -95,15 +95,15 @@ export default function ProfileDemandAndAI({
                 <LineChart size={18} />
               </motion.div>
               <div>
-                <h3 className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">Demand radar</h3>
-                <p className="text-base font-bold text-white">Demand Forecast Cycle</p>
+                <h3 className="text-[11px] font-black uppercase tracking-[0.18em] text-[var(--text-muted)]">Demand radar</h3>
+                <p className="text-base font-bold text-[var(--text-bright)]">Demand Forecast Cycle</p>
               </div>
             </div>
             <span className="rounded-full border border-indigo-500/25 bg-indigo-500/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-indigo-200/90">
               Live Forecast
             </span>
           </div>
-          <p className="mt-2 text-sm text-slate-500 font-medium">Detailed rolling 24-hour intensity map — updated in real-time.</p>
+          <p className="mt-2 text-sm text-[var(--text-dim)] font-medium">Detailed rolling 24-hour intensity map — updated in real-time.</p>
           <div className="mt-6 h-[220px] w-full min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
               <ComposedChart data={hourlyDemand} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
@@ -172,7 +172,7 @@ export default function ProfileDemandAndAI({
                   : { scale: 1, boxShadow: "0 0 0 transparent" }
               }
               transition={{ type: "spring", stiffness: 380, damping: 26 }}
-              className={`relative overflow-hidden rounded-2xl border ${card.border} bg-slate-950/65 p-4 backdrop-blur-md sm:p-5 ${active ? `${card.neon} ring-1 ring-indigo-400/30` : ""}`}
+              className={`relative overflow-hidden rounded-2xl border ${card.border} bg-[var(--bg-card)]/65 p-4 backdrop-blur-md sm:p-5 ${active ? `${card.neon} ring-1 ring-indigo-400/30` : ""}`}
             >
               <AnimatePresence mode="wait">
                 {active && (
@@ -203,12 +203,12 @@ export default function ProfileDemandAndAI({
                 </motion.span>
                 <div className="min-w-0 flex-1 pr-14">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h4 className="text-sm font-bold text-white">{card.title}</h4>
+                    <h4 className="text-sm font-bold text-[var(--text-bright)]">{card.title}</h4>
                     <span className="rounded-md bg-white/5 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-indigo-300/90">
                       {card.metric}
                     </span>
                   </div>
-                  <p className="mt-2 text-xs leading-relaxed text-slate-400 sm:text-sm">{card.body}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-[var(--text-dim)] sm:text-sm">{card.body}</p>
                 </div>
               </motion.div>
             </motion.div>

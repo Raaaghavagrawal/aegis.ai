@@ -1,6 +1,6 @@
-const { createEvent, getLatestEventByCity, getRecentEventsByCity } = require("../models/eventModel");
-const { fetchWeatherByCity } = require("../services/weatherService");
-const { fetchAqiByCity } = require("../services/aqiService");
+const { createEvent, getLatestEventByCity, getRecentEventsByCity, getLatestTriggeredEventByGeo } = require("../models/eventModel");
+const { fetchWeatherByCity, fetchWeatherByCoords } = require("../services/weatherService");
+const { fetchAqiByCity, fetchAqiByCoords } = require("../services/aqiService");
 
 function computeTriggered(rainfall, aqi) {
   const isDemo = process.env.DEMO_MODE === "true";
@@ -8,17 +8,26 @@ function computeTriggered(rainfall, aqi) {
   return Number(rainfall) > 5 || Number(aqi) > 150;
 }
 
-async function ingestEnvironmentForCity(city) {
+function getZone(lat, lon) {
+  if (!lat || !lon) return null;
+  // Radius-based zone logic: group by approx 3km grid (0.027 deg ~ 3km)
+  const zoneLat = (Math.round(lat / 0.027) * 0.027).toFixed(4);
+  const zoneLon = (Math.round(lon / 0.027) * 0.027).toFixed(4);
+  return `z_${zoneLat}_${zoneLon}`;
+}
+
+async function ingestEnvironment({ city, lat, lon }) {
   const [weather, aqiData] = await Promise.all([
-    fetchWeatherByCity(city),
-    fetchAqiByCity(city),
+    lat && lon ? fetchWeatherByCoords(lat, lon) : fetchWeatherByCity(city),
+    lat && lon ? fetchAqiByCoords(lat, lon) : fetchAqiByCity(city),
   ]);
 
   const triggered = computeTriggered(weather.rainfall, aqiData.aqi);
   const eventDate = new Date().toISOString().slice(0, 10);
+  const zoneId = lat && lon ? getZone(lat, lon) : null;
 
   const eventId = await createEvent({
-    city,
+    city: weather.city || city || "Unknown",
     rainfall: weather.rainfall,
     temperature: weather.temperature,
     aqi: aqiData.aqi,
@@ -27,11 +36,17 @@ async function ingestEnvironmentForCity(city) {
     windSpeed: weather.windSpeed,
     eventDate,
     triggered,
+    latitude: lat ? Number(lat) : null,
+    longitude: lon ? Number(lon) : null,
+    zoneId
   });
 
   return {
     event_id: eventId,
-    city,
+    city: weather.city || city,
+    lat,
+    lon,
+    zone_id: zoneId,
     rainfall: weather.rainfall,
     temperature: weather.temperature,
     humidity: weather.humidity,
@@ -44,13 +59,31 @@ async function ingestEnvironmentForCity(city) {
   };
 }
 
+async function ingestEnvironmentForCity(city) {
+  return ingestEnvironment({ city });
+}
+
 async function getUnifiedEnvironmentData(req, res, next) {
   try {
-    const city = (req.params.city || "").trim();
-    if (!city) return res.status(400).json({ message: "city is required" });
-
-    const liveData = await ingestEnvironmentForCity(city);
+    const { lat, lon } = req.query;
+    const cityParam = (req.params.city || "").trim();
     
+    if (!cityParam && (!lat || !lon)) {
+      return res.status(400).json({ message: "city or lat/lon required" });
+    }
+
+    const liveData = await ingestEnvironment({ 
+      city: cityParam, 
+      lat: lat ? Number(lat) : null, 
+      lon: lon ? Number(lon) : null 
+    });
+    
+    // Optional: Hyper-local triggered event check
+    let nearbyAlert = null;
+    if (lat && lon) {
+      nearbyAlert = await getLatestTriggeredEventByGeo(Number(lat), Number(lon), 5); // 5km radius
+    }
+
     // AI Forecast Integration
     const hour = new Date().getHours();
     const isPeak = (hour >= 11 && hour <= 14) || (hour >= 18 && hour <= 21);
@@ -66,7 +99,7 @@ async function getUnifiedEnvironmentData(req, res, next) {
     };
 
     const aiPrediction = await require("../services/aiService").getIntegratedAIPredictions(userFeatures);
-    const events = await getRecentEventsByCity(city, 24);
+    const events = await getRecentEventsByCity(liveData.city, 24);
 
     const history = events.map((ev) => ({
       rainfall: Number(ev.rainfall),
@@ -90,6 +123,7 @@ async function getUnifiedEnvironmentData(req, res, next) {
         city: liveData.city
       },
       history: history,
+      nearby_alert: nearbyAlert,
       timestamp: liveData.event_date
     });
   } catch (error) {
@@ -188,6 +222,7 @@ async function getLatestEvent(req, res, next) {
 module.exports = {
   getUnifiedEnvironmentData,
   getHistoricalEnvironmentData,
+  ingestEnvironment,
   ingestEnvironmentForCity,
   simulateEvent,
   fetchAndStoreEnvironment,

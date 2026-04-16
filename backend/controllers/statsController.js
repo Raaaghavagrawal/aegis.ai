@@ -14,17 +14,16 @@ async function getStats(req, res, next) {
     const { ingestEnvironmentForCity } = require("../controllers/environmentController");
     ingestEnvironmentForCity(city).catch(e => console.error("[BG_INGEST_FAILED]", e.message));
 
-    // 2. Parallel Database Fetching
+    // 2. Parallel Database & AI Intelligence Fetching
     const [
       globalStats, 
       wallet, 
-      eventData, 
       [eventsToday], 
-      [policyRows]
+      [policyRows],
+      { eventData, aiResponse }
     ] = await Promise.all([
       getDashboardStats(),
       getWalletByUserId(userId),
-      getLatestEventByCity(city),
       pool.execute(
         `SELECT HOUR(created_at) as hour, AVG(aqi) as avg_aqi, AVG(rainfall) as avg_rainfall, AVG(temperature) as avg_temp 
          FROM events 
@@ -35,19 +34,21 @@ async function getStats(req, res, next) {
       pool.execute(
         "SELECT * FROM policies WHERE user_id = ? AND status = 'active' ORDER BY id DESC LIMIT 1",
         [userId]
-      )
+      ),
+      (async () => {
+        const eventData = await getLatestEventByCity(city);
+        const aiResponse = await getIntegratedAIPredictions({
+          city,
+          platform: req.user.platform,
+          avg_daily_deliveries: req.user.avg_daily_deliveries || 20,
+          earnings_per_delivery: req.user.earnings_per_delivery || 40,
+          rainfall: eventData?.rainfall || 0,
+          aqi: eventData?.aqi || 50,
+          temperature: eventData?.temperature || 25,
+        });
+        return { eventData, aiResponse };
+      })()
     ]);
-
-    // 3. AI Intelligence (depends on latest event data)
-    const aiResponse = await getIntegratedAIPredictions({
-      city,
-      platform: req.user.platform,
-      avg_daily_deliveries: req.user.avg_daily_deliveries || 20,
-      earnings_per_delivery: req.user.earnings_per_delivery || 40,
-      rainfall: eventData?.rainfall || 0,
-      aqi: eventData?.aqi || 50,
-      temperature: eventData?.temperature || 25,
-    });
 
     const currentHour = new Date().getHours();
     const history = [];

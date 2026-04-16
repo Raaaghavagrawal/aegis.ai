@@ -125,15 +125,30 @@ const AIRiskPredictor = () => {
           
           <div className="border border-gray-200 dark:border-white/5 rounded-2xl p-6 mb-8" style={{ backgroundColor: 'var(--bg-deep)' }}>
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-blue-500/10 border border-blue-500/10 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400">
-                <Lightbulb size={24} />
+              <div className={`w-12 h-12 ${data?.compound_risk === 'HIGH' ? 'bg-rose-500/10 text-rose-500' : 'bg-blue-500/10 text-blue-400'} border border-white/10 rounded-xl flex items-center justify-center`}>
+                {data?.compound_risk === 'HIGH' ? <AlertTriangle size={24} /> : <Lightbulb size={24} />}
               </div>
-              <div>
+              <div className="flex-1">
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">AI Recommendation</p>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white leading-relaxed">{data?.recommendation || 'Continuous monitoring active.'}</p>
+                <div className="flex flex-wrap items-center gap-2 mb-1">
+                   <p className="text-sm font-semibold text-gray-900 dark:text-white leading-relaxed">{data?.recommendation || 'Continuous monitoring active.'}</p>
+                   {data?.compound_risk === 'HIGH' && (
+                     <span className="px-2 py-0.5 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded text-[9px] font-black uppercase tracking-widest">Compound Risk Detected</span>
+                   )}
+                </div>
+                {data?.contributing_factors?.length > 0 && (
+                  <div className="flex gap-2 mt-2">
+                    {data.contributing_factors.map((f, i) => (
+                      <span key={i} className="px-2 py-1 bg-gray-100 dark:bg-slate-800 rounded text-[9px] font-bold text-slate-500 border border-gray-200 dark:border-white/5 uppercase tracking-tighter">
+                        + {f}
+                      </span>
+                    ))}
+                    {data?.compound_risk === 'HIGH' && <span className="text-[10px] font-black text-rose-500 ml-auto self-center">1.5x Multiplier Active</span>}
+                  </div>
+                )}
               </div>
             </div>
-            <p className="text-xs text-slate-400 leading-relaxed font-medium">Risk exposure based on {data?.risk?.risk_level || 'stable'} environmental indicators. Parametric triggers are calibrated to localized telemetry nodes.</p>
+            <p className="text-xs text-slate-400 leading-relaxed font-medium">Risk exposure based on {data?.risk?.risk_level || 'stable'} environmental indicators. {data?.compound_risk === 'HIGH' ? 'Multiple disruptions detected across node segments requiring immediate protective action.' : 'Parametric triggers are calibrated to localized telemetry nodes.'}</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">

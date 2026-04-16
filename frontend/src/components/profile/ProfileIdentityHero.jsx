@@ -20,7 +20,7 @@ function StarRow({ value }) {
           strokeWidth={i < full || (i === full && partial) ? 0 : 1.5}
         />
       ))}
-      <span className="ml-2 text-sm font-bold tabular-nums text-white">{value.toFixed(1)}</span>
+      <span className="ml-2 text-sm font-bold tabular-nums text-[var(--text-bright)]">{value.toFixed(1)}</span>
       <span className="text-xs text-slate-500">/ 5</span>
     </div>
   );
@@ -43,7 +43,7 @@ export default function ProfileIdentityHero({
       variants={fadeUpVariants}
       whileHover={{ scale: 1.006, boxShadow: "0 40px 90px -28px rgba(79, 70, 229, 0.25)" }}
       transition={{ type: "spring", stiffness: 260, damping: 22 }}
-      className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-br from-slate-900/95 via-indigo-950/40 to-[#0a0f1c] p-1 shadow-[0_32px_80px_-28px_rgba(0,0,0,0.9)]"
+      className="relative overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--bg-card)] p-1 shadow-[var(--shadow-premium)]"
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_20%_-20%,rgba(99,102,241,0.22),transparent)]" />
       <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 translate-x-1/3 -translate-y-1/4 rounded-full bg-fuchsia-600/15 blur-3xl" />
@@ -69,9 +69,9 @@ export default function ProfileIdentityHero({
 
             <div className="min-w-0 flex-1 text-center sm:text-left">
               <p className="text-sm font-medium text-indigo-300/90">{greeting}</p>
-              <h2 className="mt-1 text-2xl font-black tracking-tight text-white sm:text-4xl">{user.name || "Gig worker"}</h2>
+              <h2 className="mt-1 text-2xl font-black tracking-tight text-[var(--text-bright)] sm:text-4xl">{user.name || "Gig worker"}</h2>
               <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-black/30 px-3 py-1 text-xs font-bold text-slate-300">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--bg-glass)] px-3 py-1 text-xs font-bold text-[var(--text-dim)]">
                   <Briefcase size={12} className="text-indigo-400" />
                   {user.platform || "Partner"}
                 </span>
@@ -82,7 +82,7 @@ export default function ProfileIdentityHero({
                 )}
               </div>
               {user.email ? (
-                <p className="mt-4 inline-flex max-w-full items-center gap-2 rounded-xl border border-white/[0.07] bg-black/25 px-3 py-2 text-sm text-slate-300">
+                <p className="mt-4 inline-flex max-w-full items-center gap-2 rounded-xl border border-white/[0.07] bg-[var(--bg-glass)] px-3 py-2 text-sm text-[var(--text-dim)]">
                   <Mail size={15} className="shrink-0 text-indigo-400" />
                   <span className="truncate">{user.email}</span>
                 </p>
@@ -90,7 +90,7 @@ export default function ProfileIdentityHero({
 
               <div className="mt-5 flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:gap-8">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-wider text-slate-500">Customer rating</p>
+                  <p className="text-[10px] font-black uppercase tracking-wider text-[var(--text-muted)]">Customer rating</p>
                   <div className="mt-1">
                     <StarRow value={rating} />
                   </div>
@@ -123,12 +123,12 @@ export default function ProfileIdentityHero({
                         </linearGradient>
                       </defs>
                     </svg>
-                    <span className="relative text-sm font-black tabular-nums text-white">{trustScore}</span>
+                    <span className="relative text-sm font-black tabular-nums text-[var(--text-bright)]">{trustScore}</span>
                   </div>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-wider text-slate-500">Trust score</p>
+                    <p className="text-[10px] font-black uppercase tracking-wider text-[var(--text-muted)]">Trust score</p>
                     <p className="text-sm font-bold text-emerald-300/95">Excellent band</p>
-                    <p className="text-xs text-slate-500">On-time &amp; completion</p>
+                    <p className="text-xs text-[var(--text-muted)]">On-time &amp; completion</p>
                   </div>
                 </div>
               </div>
@@ -140,13 +140,13 @@ export default function ProfileIdentityHero({
               type="button"
               onClick={onSync}
               disabled={userLoading}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.05] px-5 py-3 text-xs font-black uppercase tracking-wider text-white transition hover:border-indigo-400/40 hover:bg-indigo-500/15 disabled:opacity-45"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[var(--border)] bg-white/[0.05] px-5 py-3 text-xs font-black uppercase tracking-wider text-white transition hover:border-indigo-400/40 hover:bg-indigo-500/15 disabled:opacity-45"
             >
               <RefreshCw size={15} className={userLoading ? "animate-spin" : ""} />
               Sync profile
             </button>
-            <div className="rounded-2xl border border-white/[0.06] bg-black/20 px-4 py-3 text-center lg:text-left">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Status</p>
+            <div className="rounded-2xl border border-white/[0.06] bg-[var(--bg-glass)] px-4 py-3 text-center lg:text-left">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Status</p>
               <p className="mt-1 flex items-center justify-center gap-2 text-sm font-bold text-emerald-300 lg:justify-start">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/50 opacity-75" />

@@ -162,26 +162,26 @@ export default function OrdersPage({ isDashboard = false }) {
       <OrderToastStack enabled soundEnabled={soundOn} onPulse={onToastPulse} />
 
       {!isDashboard && (
-        <header className="sticky top-0 z-30 border-b border-white/[0.06] bg-[#020617]/80 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-[#020617]/65">
+        <header className="sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--bg-main)]/80 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-[var(--bg-main)]/65">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3.5 sm:px-8">
             <div className="flex min-w-0 items-center gap-3 sm:gap-4">
               <Link
                 to="/profile"
-                className="group flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-transparent text-slate-300 shadow-lg transition hover:border-indigo-500/40 hover:text-white"
+                className="group flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[var(--bg-glass)] to-transparent text-[var(--text-dim)] shadow-lg transition hover:border-indigo-500/40 hover:text-[var(--text-bright)]"
                 aria-label="Back to profile"
               >
                 <ArrowLeft size={18} className="transition group-hover:-translate-x-0.5" />
               </Link>
               <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-400/95">Aegis Logistics</p>
-                <h1 className="truncate text-lg font-extrabold tracking-tight text-white sm:text-xl">Live orders hub</h1>
+                <h1 className="truncate text-lg font-extrabold tracking-tight text-[var(--text-bright)] sm:text-xl">Live orders hub</h1>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2">
               <button
                 type="button"
                 onClick={toggleSound}
-                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-950/50 text-slate-300 transition hover:border-violet-400/35 hover:text-white"
+                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--bg-glass)] text-[var(--text-dim)] transition hover:border-violet-400/35 hover:text-[var(--text-bright)]"
                 aria-label={soundOn ? "Mute dispatch sounds" : "Enable dispatch sounds"}
               >
                 {soundOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
@@ -189,7 +189,7 @@ export default function OrdersPage({ isDashboard = false }) {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-slate-950/50 px-3.5 py-2.5 text-xs font-bold text-slate-200 transition hover:border-rose-500/35 hover:bg-rose-500/[0.12] hover:text-rose-100"
+                className="inline-flex items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--bg-glass)] px-3.5 py-2.5 text-xs font-bold text-[var(--text-main)] transition hover:border-rose-500/35 hover:bg-rose-500/[0.12] hover:text-rose-100"
               >
                 <LogOut size={14} /> <span className="hidden sm:inline">Sign out</span>
               </button>
@@ -203,7 +203,7 @@ export default function OrdersPage({ isDashboard = false }) {
             <motion.div
               custom={0}
               variants={fadeUp}
-              className="flex flex-col gap-4 rounded-3xl border border-violet-500/20 bg-gradient-to-br from-violet-950/40 via-slate-900/80 to-[#080f1c] p-5 shadow-[0_24px_60px_-24px_rgba(139,92,246,0.25)] sm:flex-row sm:items-center sm:justify-between sm:p-6"
+              className="flex flex-col gap-4 rounded-3xl border border-violet-500/20 bg-gradient-to-br from-[var(--bg-card)] via-[var(--bg-dashboard)]/80 to-[var(--bg-main)] p-5 shadow-[0_24px_60px_-24px_rgba(139,92,246,0.25)] sm:flex-row sm:items-center sm:justify-between sm:p-6"
             >
               <div className="flex items-start gap-3">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-500/20 text-violet-200 ring-1 ring-violet-400/30">
@@ -211,15 +211,15 @@ export default function OrdersPage({ isDashboard = false }) {
                 </div>
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider text-violet-300/90">Real-time stream</p>
-                  <p className="mt-1 text-lg font-bold text-white sm:text-xl">Synthetic + live-style feed</p>
-                  <p className="mt-1 max-w-xl text-sm text-slate-400">
+                  <p className="mt-1 text-lg font-bold text-[var(--text-bright)] sm:text-xl">Synthetic + live-style feed</p>
+                  <p className="mt-1 max-w-xl text-sm text-[var(--text-dim)]">
                     New rows append on a timer; statuses age automatically. Swap intervals for WebSocket payloads.
                   </p>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1.5 text-[11px] font-bold text-emerald-200">
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+                <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-200">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500 dark:bg-emerald-400" />
                   Auto-refresh on
                 </span>
               </div>
@@ -232,7 +232,7 @@ export default function OrdersPage({ isDashboard = false }) {
                   value: orders.length.toLocaleString("en-IN"),
                   sub: `${summary.live} active · ${summary.completed} done`,
                   icon: Package,
-                  accent: "text-violet-300",
+                  accent: "text-violet-600 dark:text-violet-300",
                   ring: "ring-violet-500/25",
                   bg: "bg-violet-500/10",
                 },
@@ -241,7 +241,7 @@ export default function OrdersPage({ isDashboard = false }) {
                   value: fmtMoney(sessionGross),
                   sub: "Fees + tips (demo)",
                   icon: IndianRupee,
-                  accent: "text-emerald-300",
+                  accent: "text-emerald-600 dark:text-emerald-300",
                   ring: "ring-emerald-500/25",
                   bg: "bg-emerald-500/10",
                 },
@@ -250,7 +250,7 @@ export default function OrdersPage({ isDashboard = false }) {
                   value: `${successRateLive.toFixed(1)}%`,
                   sub: "Delivered / total rows",
                   icon: Target,
-                  accent: "text-cyan-300",
+                  accent: "text-cyan-600 dark:text-cyan-300",
                   ring: "ring-cyan-500/25",
                   bg: "bg-cyan-500/10",
                 },
@@ -259,14 +259,14 @@ export default function OrdersPage({ isDashboard = false }) {
                   key={card.label}
                   whileHover={{ scale: 1.03, y: -3 }}
                   transition={{ type: "spring", stiffness: 400, damping: 22 }}
-                  className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-slate-950/55 p-4 shadow-lg backdrop-blur-md sm:p-5"
+                  className="group relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--bg-card)] p-4 shadow-lg backdrop-blur-md sm:p-5"
                 >
                   <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-indigo-500/10 blur-2xl transition-opacity group-hover:opacity-100" />
                   <div className="relative flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500">{card.label}</p>
-                      <p className="mt-2 text-2xl font-black tabular-nums text-white sm:text-3xl">{card.value}</p>
-                      <p className="mt-1 text-xs text-slate-500">{card.sub}</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.15em] text-[var(--text-muted)]">{card.label}</p>
+                      <p className="mt-2 text-2xl font-black tabular-nums text-[var(--text-bright)] sm:text-3xl">{card.value}</p>
+                      <p className="mt-1 text-xs text-[var(--text-muted)]">{card.sub}</p>
                     </div>
                     <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ring-1 ${card.ring} ${card.bg} ${card.accent}`}>
                       <card.icon size={20} strokeWidth={1.75} />
@@ -300,7 +300,7 @@ export default function OrdersPage({ isDashboard = false }) {
                 <motion.div
                   key={c.key}
                   whileHover={{ scale: 1.01 }}
-                  className={`relative overflow-hidden rounded-2xl border ${c.border} bg-slate-950/60 p-5 backdrop-blur-md`}
+                  className={`relative overflow-hidden rounded-2xl border ${c.border} bg-[var(--bg-card)]/60 p-5 backdrop-blur-md`}
                 >
                   <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${c.glow} to-transparent`} />
                   <div className="relative flex gap-3">
@@ -309,12 +309,12 @@ export default function OrdersPage({ isDashboard = false }) {
                     </span>
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-sm font-bold text-white">AI · {c.title}</h3>
+                        <h3 className="text-sm font-bold text-[var(--text-bright)]">AI · {c.title}</h3>
                         <span className="rounded-md bg-violet-500/15 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-violet-200">
                           {c.metric}
                         </span>
                       </div>
-                      <p className="mt-2 text-sm leading-relaxed text-slate-400">{c.body}</p>
+                      <p className="mt-2 text-sm leading-relaxed text-[var(--text-dim)]">{c.body}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -334,13 +334,13 @@ export default function OrdersPage({ isDashboard = false }) {
             <motion.footer
               custom={4}
               variants={fadeUp}
-              className="flex flex-col items-center gap-3 rounded-2xl border border-white/[0.06] bg-slate-950/50 px-4 py-5 text-center sm:flex-row sm:justify-between sm:text-left"
+              className="flex flex-col items-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--bg-card)]/50 px-4 py-5 text-center sm:flex-row sm:justify-between sm:text-left"
             >
-              <p className="max-w-xl text-xs leading-relaxed text-slate-500">
-                <span className="font-semibold text-slate-400">Demo:</span> Order stream and toasts are simulated. Wire{" "}
-                <code className="text-slate-400">/api/orders</code> or websockets for production.
+              <p className="max-w-xl text-xs leading-relaxed text-[var(--text-muted)]">
+                <span className="font-semibold text-[var(--text-dim)]">Demo:</span> Order stream and toasts are simulated. Wire{" "}
+                <code className="text-[var(--text-dim)]">/api/orders</code> or websockets for production.
               </p>
-              <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+              <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
                 <Shield size={14} className="text-violet-500/60" /> Secure session
               </div>
             </motion.footer>
@@ -352,7 +352,7 @@ export default function OrdersPage({ isDashboard = false }) {
   if (isDashboard) return content;
 
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-100 font-sans selection:bg-indigo-500/30 relative overflow-x-hidden">
+    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] font-sans selection:bg-indigo-500/30 relative overflow-x-hidden">
       <LiveBackground />
       <ProfileAmbientLayer />
       {content}

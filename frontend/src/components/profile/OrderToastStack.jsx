@@ -68,8 +68,8 @@ export default function OrderToastStack({ enabled, soundEnabled, onPulse }) {
             <div
               className={`relative overflow-hidden rounded-2xl border backdrop-blur-xl ${
                 t.priority
-                  ? "border-amber-400/50 bg-gradient-to-br from-amber-500/20 via-slate-950/90 to-slate-950/95 shadow-[0_0_40px_-8px_rgba(251,191,36,0.45)]"
-                  : "border-white/10 bg-slate-950/90 shadow-xl shadow-black/40"
+                  ? "border-amber-400/50 bg-gradient-to-br from-amber-500/20 via-[var(--bg-dashboard)]/90 to-[var(--bg-main)] shadow-[0_0_40px_-8px_rgba(251,191,36,0.45)]"
+                  : "border-[var(--border)] bg-[var(--bg-card)]/95 shadow-xl shadow-black/10"
               }`}
             >
               {t.priority && (
@@ -91,18 +91,18 @@ export default function OrderToastStack({ enabled, soundEnabled, onPulse }) {
                 </span>
                 <div className="min-w-0 flex-1 pt-0.5">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-xs font-black uppercase tracking-wider text-slate-400">Live dispatch</p>
+                    <p className="text-xs font-black uppercase tracking-wider text-[var(--text-muted)]">Live dispatch</p>
                     <button
                       type="button"
                       onClick={() => dismiss(t.id)}
-                      className="rounded-lg p-1 text-slate-500 transition hover:bg-white/10 hover:text-white"
+                      className="rounded-lg p-1 text-[var(--text-muted)] transition hover:bg-[var(--bg-glass)] hover:text-[var(--text-bright)]"
                       aria-label="Dismiss"
                     >
                       <X size={14} />
                     </button>
                   </div>
-                  <p className="mt-1 text-sm font-bold text-white">{t.title}</p>
-                  <p className="mt-0.5 text-xs text-slate-400">{t.sub}</p>
+                  <p className="mt-1 text-sm font-bold text-[var(--text-bright)]">{t.title}</p>
+                  <p className="mt-0.5 text-xs text-[var(--text-dim)]">{t.sub}</p>
                   {t.priority && (
                     <span className="mt-2 inline-flex rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-200">
                       Priority

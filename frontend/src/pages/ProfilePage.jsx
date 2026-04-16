@@ -295,19 +295,19 @@ export default function ProfilePage({ isDashboard = false }) {
   const content = (
     <div className={`relative z-10 flex flex-col ${isDashboard ? 'w-full' : 'min-h-screen'}`}>
       {!isDashboard && (
-        <header className="sticky top-0 z-30 border-b border-white/[0.06] bg-[#020617]/80 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-[#020617]/65">
+        <header className="sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--bg-main)]/80 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-[var(--bg-main)]/65">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3.5 sm:px-8">
             <div className="flex min-w-0 items-center gap-3 sm:gap-4">
               <Link
                 to="/dashboard"
-                className="group flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-transparent text-slate-300 shadow-lg shadow-black/20 transition hover:border-indigo-500/40 hover:text-white"
+                className="group flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[var(--bg-glass)] to-transparent text-[var(--text-dim)] shadow-lg shadow-black/5 transition hover:border-indigo-500/40 hover:text-[var(--text-bright)]"
                 aria-label="Back to dashboard"
               >
                 <ArrowLeft size={18} className="transition group-hover:-translate-x-0.5" />
               </Link>
               <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400/95">Aegis Logistics</p>
-                <h1 className="truncate text-lg font-extrabold tracking-tight text-white sm:text-xl">Worker command center</h1>
+                <h1 className="truncate text-lg font-extrabold tracking-tight text-[var(--text-bright)] sm:text-xl">Worker command center</h1>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2">
@@ -322,7 +322,7 @@ export default function ProfilePage({ isDashboard = false }) {
               <button
                 type="button"
                 onClick={toggleSound}
-                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-950/50 text-slate-300 transition hover:border-indigo-400/35 hover:text-white"
+                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--bg-glass)]/50 text-[var(--text-dim)] transition hover:border-indigo-400/35 hover:text-[var(--text-bright)]"
                 aria-label={soundOn ? "Mute dispatch sounds" : "Enable dispatch sounds"}
                 title={soundOn ? "Sound on" : "Sound off"}
               >
@@ -331,7 +331,7 @@ export default function ProfilePage({ isDashboard = false }) {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-slate-950/50 px-3.5 py-2.5 text-xs font-bold text-slate-200 shadow-lg transition hover:border-rose-500/35 hover:bg-rose-500/[0.12] hover:text-rose-100"
+                className="inline-flex items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--bg-glass)]/50 px-3.5 py-2.5 text-xs font-bold text-[var(--text-main)] shadow-lg transition hover:border-rose-500/35 hover:bg-rose-500/[0.12] hover:text-rose-100"
               >
                 <LogOut size={14} /> <span className="hidden sm:inline">Sign out</span>
               </button>
@@ -417,13 +417,13 @@ export default function ProfilePage({ isDashboard = false }) {
           <motion.footer
             custom={6}
             variants={fadeUp}
-            className="flex flex-col items-center gap-3 rounded-2xl border border-white/[0.06] bg-slate-950/50 px-4 py-5 text-center sm:flex-row sm:justify-between sm:text-left"
+            className="flex flex-col items-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--bg-card)]/50 px-4 py-5 text-center sm:flex-row sm:justify-between sm:text-left"
           >
-            <p className="max-w-xl text-xs leading-relaxed text-slate-500">
-              <span className="font-semibold text-slate-400">Privacy:</span> GPS is in-browser. KPI pulses and AI rotation are{" "}
-              <span className="text-slate-400">simulated</span> for a live-ops feel — swap with real streams when ready.
+            <p className="max-w-xl text-xs leading-relaxed text-[var(--text-muted)]">
+              <span className="font-semibold text-[var(--text-dim)]">Privacy:</span> GPS is in-browser. KPI pulses and AI rotation are{" "}
+              <span className="text-[var(--text-muted)]">simulated</span> for a live-ops feel — swap with real streams when ready.
             </p>
-            <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+            <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
               <Shield size={14} className="text-indigo-500/60" /> Secure session
             </div>
           </motion.footer>
@@ -435,7 +435,7 @@ export default function ProfilePage({ isDashboard = false }) {
   if (isDashboard) return content;
 
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-100 font-sans selection:bg-indigo-500/30 relative overflow-x-hidden">
+    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] font-sans selection:bg-indigo-500/30 relative overflow-x-hidden">
       <LiveBackground />
       <ProfileAmbientLayer />
       {content}

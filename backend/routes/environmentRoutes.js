@@ -12,6 +12,7 @@ const router = express.Router();
 
 router.get("/:city/history", protect, getHistoricalEnvironmentData);
 router.get("/fetch-environment/:city", protect, fetchAndStoreEnvironment);
+router.get("/", protect, getUnifiedEnvironmentData); // Generic route for ?lat=&lon=
 router.get("/:city", protect, getUnifiedEnvironmentData);
 router.get("/latest/:city", protect, getLatestEvent);
 router.post("/simulate", protect, simulateEvent);

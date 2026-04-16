@@ -24,7 +24,7 @@ export default function ProfileKpiGrid({
       value: animDeliveries.toLocaleString("en-IN"),
       sub: "All-time completed drops",
       icon: Package,
-      accent: "text-violet-300",
+      accent: "text-violet-600 dark:text-violet-300",
       bg: "bg-violet-500/15 ring-violet-500/25",
       glow: "group-hover:shadow-[0_0_36px_-8px_rgba(167,139,250,0.45)]",
     },
@@ -33,7 +33,7 @@ export default function ProfileKpiGrid({
       value: fmtMoney(animWeek),
       sub: "Live ticker + account model",
       icon: IndianRupee,
-      accent: "text-emerald-300",
+      accent: "text-emerald-600 dark:text-emerald-300",
       bg: "bg-emerald-500/15 ring-emerald-500/25",
       glow: "group-hover:shadow-[0_0_36px_-8px_rgba(52,211,153,0.4)]",
     },
@@ -42,7 +42,7 @@ export default function ProfileKpiGrid({
       value: `${animRate.toFixed(1)}%`,
       sub: "On-time completion",
       icon: Target,
-      accent: "text-cyan-300",
+      accent: "text-cyan-600 dark:text-cyan-300",
       bg: "bg-cyan-500/15 ring-cyan-500/25",
       glow: "group-hover:shadow-[0_0_36px_-8px_rgba(34,211,238,0.35)]",
     },
@@ -51,7 +51,7 @@ export default function ProfileKpiGrid({
       value: walletNum != null ? fmtMoney(Math.round(animWallet)) : "—",
       sub: liveOrderCount > 0 ? `${liveOrderCount} live in queue` : "Open Orders hub for live queue",
       icon: Wallet,
-      accent: "text-indigo-300",
+      accent: "text-indigo-600 dark:text-indigo-300",
       bg: "bg-indigo-500/15 ring-indigo-500/25",
       glow: "group-hover:shadow-[0_0_36px_-8px_rgba(129,140,248,0.45)]",
     },
@@ -65,7 +65,7 @@ export default function ProfileKpiGrid({
           whileHover={{ scale: 1.03, y: -4 }}
           whileTap={{ scale: 0.99 }}
           transition={{ type: "spring", stiffness: 400, damping: 22 }}
-          className={`group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-slate-950/55 p-4 shadow-lg shadow-black/30 backdrop-blur-md transition-colors duration-300 hover:border-indigo-400/30 sm:p-5 ${item.glow}`}
+          className={`group relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--bg-card)] p-4 shadow-lg shadow-black/10 backdrop-blur-md transition-colors duration-300 hover:border-indigo-400/30 sm:p-5 ${item.glow}`}
         >
           <div
             className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-indigo-500/15 blur-2xl transition-opacity group-hover:opacity-100 opacity-50"
@@ -74,9 +74,9 @@ export default function ProfileKpiGrid({
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/[0.04] to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
           <div className="relative flex items-start justify-between gap-3">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-slate-500">{item.label}</p>
-              <p className="mt-2 text-2xl font-black tabular-nums tracking-tight text-white sm:text-3xl">{item.value}</p>
-              <p className="mt-1.5 flex items-center gap-1 text-xs text-slate-500">
+              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--text-muted)]">{item.label}</p>
+              <p className="mt-2 text-2xl font-black tabular-nums tracking-tight text-[var(--text-bright)] sm:text-3xl">{item.value}</p>
+              <p className="mt-1.5 flex items-center gap-1 text-xs text-[var(--text-muted)]">
                 <TrendingUp size={12} className="text-emerald-500/80" />
                 {item.sub}
               </p>

@@ -31,10 +31,22 @@ async function getIntegratedAIPredictions(rawFeatures) {
     const response = await axios.post(`${AI_SERVICE_URL}/predict`, features);
     const aiData = response.data;
 
-    // 4. Continuous Learning: Log prediction to DB
+    // 4. Post-process for Compound Risk
+    const contributing_factors = [];
+    if (features.rainfall > 50) contributing_factors.push("Rainfall");
+    if (features.aqi > 300) contributing_factors.push("Air Quality");
+    if (features.temperature > 40) contributing_factors.push("Extreme Heat");
+
+    const compound_risk = (contributing_factors.length >= 2) ? "HIGH" : "NORMAL";
+
+    // 5. Continuous Learning: Log prediction to DB
     await logModelPrediction(city, "integrated_risk_loss", features, aiData);
 
-    return aiData;
+    return {
+      ...aiData,
+      compound_risk,
+      contributing_factors
+    };
   } catch (err) {
     console.error("API ERROR:", err.message);
     // Safe Fallback logic
@@ -45,6 +57,8 @@ async function getIntegratedAIPredictions(rawFeatures) {
       loss_percentage: 15,
       estimated_loss: 300,
       anomaly: false,
+      compound_risk: "NORMAL",
+      contributing_factors: [],
       explanation: "AI service connection failed. Using fallback vectors."
     };
   }

@@ -43,4 +43,18 @@ router.post("/update-profile", protect, async (req, res) => {
   }
 });
 
+router.post("/location", protect, async (req, res) => {
+  try {
+    const { latitude, longitude } = req.body;
+    if (latitude === undefined || longitude === undefined) {
+      return res.status(400).json({ message: "Latitude and longitude are required" });
+    }
+    const { updateUserLocation } = require("../models/userModel");
+    const result = await updateUserLocation(req.user.id, latitude, longitude);
+    res.json({ message: "Location updated successfully", ...result });
+  } catch (error) {
+    res.status(500).json({ message: "Location update failed", error: error.message });
+  }
+});
+
 module.exports = { router, protect };

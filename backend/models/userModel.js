@@ -49,6 +49,8 @@ async function syncUserTableSchema() {
   await ensureColumn("users", "notify_payout", "BOOLEAN DEFAULT TRUE");
   await ensureColumn("users", "notify_audit", "BOOLEAN DEFAULT TRUE");
   await ensureColumn("users", "notify_weekly", "BOOLEAN DEFAULT FALSE");
+  await ensureColumn("users", "latitude", "FLOAT DEFAULT NULL");
+  await ensureColumn("users", "longitude", "FLOAT DEFAULT NULL");
 }
 
 async function createUser({
@@ -60,12 +62,14 @@ async function createUser({
   weeklyIncome,
   avgDailyDeliveries = 20,
   earningsPerDelivery = 40,
+  latitude = null,
+  longitude = null,
 }) {
   await syncUserTableSchema();
   const [result] = await pool.execute(
-    `INSERT INTO users (name, email, password, city, platform, weekly_income, last_active_at, avg_daily_deliveries, earnings_per_delivery)
-     VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?)`,
-    [name, email, passwordHash, city, platform, weeklyIncome, avgDailyDeliveries, earningsPerDelivery]
+    `INSERT INTO users (name, email, password, city, platform, weekly_income, last_active_at, avg_daily_deliveries, earnings_per_delivery, latitude, longitude)
+     VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?)`,
+    [name, email, passwordHash, city, platform, weeklyIncome, avgDailyDeliveries, earningsPerDelivery, latitude, longitude]
   );
   return result.insertId;
 }
@@ -79,7 +83,7 @@ async function getUserByEmail(email) {
 
 async function getUserById(id) {
   const [rows] = await pool.execute(
-    "SELECT id, name, email, city, platform, weekly_income, avg_daily_deliveries, earnings_per_delivery, notify_risk, notify_payout, notify_audit, notify_weekly FROM users WHERE id = ?",
+    "SELECT id, name, email, city, platform, weekly_income, avg_daily_deliveries, earnings_per_delivery, notify_risk, notify_payout, notify_audit, notify_weekly, latitude, longitude FROM users WHERE id = ?",
     [id]
   );
   return rows[0] || null;
@@ -88,7 +92,7 @@ async function getUserById(id) {
 async function getUserInternal(id) {
   await syncUserTableSchema();
   const [rows] = await pool.execute(
-    "SELECT id, name, email, city, platform, weekly_income, last_active_at, avg_daily_deliveries, earnings_per_delivery, notify_risk, notify_payout, notify_audit, notify_weekly FROM users WHERE id = ?",
+    "SELECT id, name, email, city, platform, weekly_income, last_active_at, avg_daily_deliveries, earnings_per_delivery, notify_risk, notify_payout, notify_audit, notify_weekly, latitude, longitude FROM users WHERE id = ?",
     [id]
   );
   return rows[0] || null;
@@ -107,6 +111,8 @@ async function getUsersByCityWithActivePolicy(city) {
        u.id AS user_id,
        u.name,
        u.city,
+       u.latitude,
+       u.longitude,
        u.weekly_income,
        p.id AS policy_id,
        p.coverage_percentage
@@ -119,16 +125,36 @@ async function getUsersByCityWithActivePolicy(city) {
   return rows;
 }
 
-async function updateUserProfile(id, { name, email, city, platform, weekly_income, notify_risk, notify_payout, notify_audit, notify_weekly }) {
+async function updateUserProfile(id, { name, email, city, platform, weekly_income, notify_risk, notify_payout, notify_audit, notify_weekly, latitude, longitude }) {
   await syncUserTableSchema();
   await pool.execute(
     `UPDATE users 
      SET name = ?, email = ?, city = ?, platform = ?, weekly_income = ?, 
-         notify_risk = ?, notify_payout = ?, notify_audit = ?, notify_weekly = ?
+         notify_risk = ?, notify_payout = ?, notify_audit = ?, notify_weekly = ?,
+         latitude = ?, longitude = ?
      WHERE id = ?`,
-    [name, email, city, platform, weekly_income, notify_risk, notify_payout, notify_audit, notify_weekly, id]
+    [name, email, city, platform, weekly_income, notify_risk, notify_payout, notify_audit, notify_weekly, latitude, longitude, id]
   );
   return getUserById(id);
+}
+
+async function updateUserLocation(id, latitude, longitude) {
+  await syncUserTableSchema();
+  await pool.execute(
+    `UPDATE users SET latitude = ?, longitude = ? WHERE id = ?`,
+    [latitude, longitude, id]
+  );
+  return { success: true, latitude, longitude };
+}
+
+async function getAllActiveUsersWithGeo() {
+  const [rows] = await pool.execute(
+    `SELECT u.id, u.latitude, u.longitude, u.weekly_income, p.id AS policy_id, p.coverage_percentage
+     FROM users u
+     INNER JOIN policies p ON p.user_id = u.id
+     WHERE p.status = 'active' AND u.latitude IS NOT NULL AND u.longitude IS NOT NULL`
+  );
+  return rows;
 }
 
 module.exports = {
@@ -140,4 +166,6 @@ module.exports = {
   touchUserActivity,
   getUsersByCityWithActivePolicy,
   updateUserProfile,
+  updateUserLocation,
+  getAllActiveUsersWithGeo,
 };

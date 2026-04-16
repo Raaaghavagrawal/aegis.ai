@@ -72,10 +72,17 @@ async function fetchFallbackFromDb(city) {
 }
 
 async function fetchWeatherByCity(city) {
+  // Keeping for backward compatibility
+  return fetchWeatherByCoords(null, null, city);
+}
+
+async function fetchWeatherByCoords(lat, lon, city = null) {
+  const cacheKey = lat && lon ? `${lat.toFixed(2)}_${lon.toFixed(2)}` : city;
+  
   // 1. Return fresh cache if available
-  if (isCacheFresh(city)) {
-    console.log(`[WEATHER] Serving from cache for ${city}`);
-    return { ...weatherCache[city].data, source: "cache" };
+  if (isCacheFresh(cacheKey)) {
+    console.log(`[WEATHER] Serving from cache for ${cacheKey}`);
+    return { ...weatherCache[cacheKey].data, source: "cache" };
   }
 
   const apiKey = process.env.OPENWEATHER_API_KEY;
@@ -86,10 +93,14 @@ async function fetchWeatherByCity(city) {
   const url = "https://api.openweathermap.org/data/2.5/weather";
 
   try {
+    const params = lat && lon 
+      ? { lat, lon, appid: apiKey, units: "metric" }
+      : { q: city, appid: apiKey, units: "metric" };
+
     const response = await withRetry(
       () =>
         axios.get(url, {
-          params: { q: city, appid: apiKey, units: "metric" },
+          params,
           timeout: 10000,
         }),
       3,
@@ -107,42 +118,31 @@ async function fetchWeatherByCity(city) {
       payload?.weather?.[0]?.main
     );
 
-    const result = { rainfall, temperature, humidity, windSpeed, weatherCondition, source: "api" };
+    const result = { rainfall, temperature, humidity, windSpeed, weatherCondition, source: "api", city: payload.name };
 
     // Update in-memory cache
-    weatherCache[city] = { data: result, cachedAt: Date.now() };
+    weatherCache[cacheKey] = { data: result, cachedAt: Date.now() };
 
     const { addSystemLog } = require("../models/systemLogModel");
     await addSystemLog(
       "weather_fetch",
-      `Weather OK for ${city}: ${rainfall}mm, ${temperature}°C`,
+      `Weather OK for ${cacheKey}: ${rainfall}mm`,
       "success"
     );
 
     return result;
   } catch (err) {
-    console.error(`[WEATHER] All retries failed for ${city}: ${err.message}`);
+    console.error(`[WEATHER] All retries failed for ${cacheKey}: ${err.message}`);
 
-    // 2. Stale cache fallback (prefer real-but-old over nothing)
-    if (weatherCache[city]) {
-      console.warn(`[WEATHER] Using stale cache for ${city}`);
-      return { ...weatherCache[city].data, source: "stale_cache" };
+    if (weatherCache[cacheKey]) {
+      return { ...weatherCache[cacheKey].data, source: "stale_cache" };
     }
 
-    // 3. DB fallback – last known good value
-    const dbFallback = await fetchFallbackFromDb(city);
-    if (dbFallback) return dbFallback;
-
-    // 4. Hard default (logged clearly, never silently faked)
-    console.error(`[WEATHER] No fallback available for ${city}. Using safe defaults.`);
     const { addSystemLog } = require("../models/systemLogModel");
-    await addSystemLog(
-      "weather_fetch",
-      `Weather fetch FAILED for ${city}. Safe defaults used.`,
-      "error"
-    );
+    await addSystemLog("weather_fetch", `Weather fetch FAILED for ${cacheKey}`, "error");
+    
     return { rainfall: 0, temperature: 25, weatherCondition: "Unknown", source: "default" };
   }
 }
 
-module.exports = { fetchWeatherByCity };
+module.exports = { fetchWeatherByCity, fetchWeatherByCoords };

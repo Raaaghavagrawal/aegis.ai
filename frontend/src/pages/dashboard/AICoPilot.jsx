@@ -9,8 +9,8 @@ import {
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts';
+import { api, getAuthHeaders } from '../../utils/api';
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 const genEarnings = () =>
   Array.from({ length: 12 }, (_, i) => ({
     time:     `${i * 10}m`,
@@ -33,7 +33,6 @@ const fadeUp  = {
   animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
 };
 
-// ─── AICoPilot ───────────────────────────────────────────────────────────────
 const AICoPilot = () => {
   const [loading, setLoading]             = useState(true);
   const [predData, setPredData]           = useState(genEarnings());
@@ -45,38 +44,56 @@ const AICoPilot = () => {
   const [activeRec, setActiveRec]         = useState(0);
 
   const user = JSON.parse(localStorage.getItem('aegis_user') || '{}');
+  const [envData, setEnvData] = useState(null);
 
   useEffect(() => {
-    const t = setTimeout(() => {
-      setLoading(false);
-      setMessages([{
-        role: 'ai',
-        text: `Hello ${user.name || 'Partner'} 👋 I'm your GigShield AI Co-Pilot. I'm tracking demand, weather, and safety in real-time. How can I help maximize your earnings today?`,
-      }]);
-    }, 1200);
+    const fetchData = async () => {
+      try {
+        const res = await api.get('/api/environment', { 
+          headers: getAuthHeaders() 
+        });
+        setEnvData(res.data);
+        setLoading(false);
+        setMessages([{
+          role: 'ai',
+          text: `Hello ${user.name || 'Partner'} 👋 I'm your GigShield AI Co-Pilot. Synchronized with ${res.data.current?.city || user.city || 'your city'}. Environmental risk is ${res.data.current?.risk_level || 'Low'}. How can I help maximize your earnings today?`,
+        }]);
+      } catch (err) {
+        console.error("Co-Pilot sync error:", err);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
     const interval = setInterval(() => {
       setPredData(genEarnings());
       setLastSync(new Date());
     }, 8000);
-    return () => { clearTimeout(t); clearInterval(interval); };
+    return () => clearInterval(interval);
   }, []);
 
+  const currentCity = envData?.current?.city || user.city || "Mathura";
+  
   const recommendations = [
-    { loc: "Cyber City Hub", boost: "+₹180", demand: "Peak", duration: "20 mins", conf: 94, icon: <Zap size={16} />, iconColor: "text-amber-400", bgColor: "bg-amber-500/10" },
-    { loc: "Sector 62",      boost: "+₹120", demand: "High", duration: "45 mins", conf: 87, icon: <MapPin size={16} />, iconColor: "text-indigo-400", bgColor: "bg-indigo-500/10" },
-    { loc: "Indirapuram",    boost: "+₹90",  demand: "Medium",duration: "60 mins", conf: 72, icon: <Target size={16} />, iconColor: "text-emerald-400", bgColor: "bg-emerald-500/10" },
+    { loc: `${currentCity} Central`, boost: "+₹180", demand: "Peak", duration: "20 mins", conf: 94, icon: <Zap size={16} />, iconColor: "text-amber-400", bgColor: "bg-amber-500/10" },
+    { loc: `${currentCity} Market`,  boost: "+₹120", demand: "High", duration: "45 mins", conf: 87, icon: <MapPin size={16} />, iconColor: "text-indigo-400", bgColor: "bg-indigo-500/10" },
+    { loc: `${currentCity} Plaza`,   boost: "+₹90",  demand: "Medium",duration: "60 mins", conf: 72, icon: <Target size={16} />, iconColor: "text-emerald-400", bgColor: "bg-emerald-500/10" },
   ];
 
-  const riskAlerts = [
-    { level: "warning", msg: "Moderate Risk Zone", sub: "Avoid Sector 15 alleys after 8PM", color: "text-amber-400", bg: "bg-amber-500/8", border: "border-amber-500/20", icon: <AlertTriangle size={15} /> },
-    { level: "info",    msg: "Rain in 20 Minutes",  sub: "Carry gear · Slow traffic expected",  color: "text-blue-400",  bg: "bg-blue-500/8",  border: "border-blue-500/20",  icon: <CloudRain size={15} /> },
-    { level: "danger",  msg: "Night Safety Alert",   sub: "Stick to main roads after 9PM",       color: "text-rose-400",  bg: "bg-rose-500/8",  border: "border-rose-500/20",  icon: <Moon size={15} /> },
+  const riskAlerts = envData?.nearby_alert ? [
+    { level: "danger",  msg: "Active Trigger Zone", sub: envData.nearby_alert.message, color: "text-rose-400",  bg: "bg-rose-500/8",  border: "border-rose-500/20",  icon: <AlertTriangle size={15} /> },
+    { level: "info",    msg: `${envData.current?.condition} Detected`, sub: `Temp: ${envData.current?.temp_c}°C · AQI: ${envData.current?.air_quality}`,  color: "text-blue-400",  bg: "bg-blue-500/8",  border: "border-blue-500/20",  icon: <CloudRain size={15} /> },
+    { level: "warning", msg: "Risk Forecast",      sub: envData.current?.ai_insight || "Stable condition in area",    color: "text-amber-400", bg: "bg-amber-500/8", border: "border-amber-500/20", icon: <Shield size={15} /> },
+  ] : [
+    { level: "warning", msg: "Moderate Risk Zone", sub: `Increased congestion near ${currentCity}`, color: "text-amber-400", bg: "bg-amber-500/8", border: "border-amber-500/20", icon: <AlertTriangle size={15} /> },
+    { level: "info",    msg: "Normal Conditions",  sub: `AQI is ${envData?.current?.air_quality || 50} in ${currentCity}`,  color: "text-blue-400",  bg: "bg-blue-500/8",  border: "border-blue-500/20",  icon: <CloudRain size={15} /> },
+    { level: "info",    msg: "Shield Protection",   sub: "Parametric monitoring active",       color: "text-indigo-400",  bg: "bg-indigo-500/8",  border: "border-indigo-500/20",  icon: <Shield size={15} /> },
   ];
 
   const demandZones = [
-    { zone: "Sector 18", heat: 12, label: "Extreme", color: "#f43f5e" },
-    { zone: "Cyber City", heat: 9, label: "High",    color: "#f59e0b" },
-    { zone: "Indirapuram", heat: 5, label: "Medium", color: "#6366f1" },
+    { zone: `${currentCity} Hub`,  heat: 12, label: "Extreme", color: "#f43f5e" },
+    { zone: `${currentCity} North`, heat: 9, label: "High",    color: "#f59e0b" },
+    { zone: `${currentCity} West`,  heat: 5, label: "Medium", color: "#6366f1" },
   ];
 
   const handleSendMessage = () => {
@@ -84,7 +101,7 @@ const AICoPilot = () => {
     const userMsg = { role: 'user', text: chatInput };
     const aiReply = {
       role: 'ai',
-      text: `Based on current demand near ${user.city || 'your city'}, I recommend heading to Cyber City Hub. You could earn an extra ₹180 in the next 20 minutes. Safety score is 92/100. 🚀`,
+      text: `Based on current demand near ${currentCity}, I recommend heading to ${currentCity} Central. You could earn an extra ₹180 in the next 20 minutes. Safety score is ${envData?.current?.risk_score ? (100 - envData.current.risk_score) : 92}/100. 🚀`,
     };
     setMessages(prev => [...prev, userMsg, aiReply]);
     setChatInput('');
@@ -132,7 +149,7 @@ const AICoPilot = () => {
           <div className="flex items-center gap-3">
             <div className="text-center px-4 py-2 rounded-xl" style={{ background: "var(--bg-glass)", border: "1px solid var(--border)" }}>
               <p className="text-[9px] font-black uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Safety Score</p>
-              <p className="text-2xl font-black gradient-text">92</p>
+              <p className="text-2xl font-black gradient-text">{envData?.current?.risk_score ? (100 - envData.current.risk_score) : 92}</p>
             </div>
             <div className="text-center px-4 py-2 rounded-xl" style={{ background: "var(--bg-glass)", border: "1px solid var(--border)" }}>
               <p className="text-[9px] font-black uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Synced</p>
@@ -142,12 +159,8 @@ const AICoPilot = () => {
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-        {/* Left Column */}
-        <div className="xl:col-span-8 space-y-6">
-
-          {/* Row 1: Smart Recs + Earnings */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-min">
+        {/* Smart Recommendations */}
 
             {/* Smart Recommendations */}
             <motion.div variants={fadeUp} className="premium-card p-6">
@@ -262,10 +275,7 @@ const AICoPilot = () => {
                 </ResponsiveContainer>
               </div>
             </motion.div>
-          </div>
 
-          {/* Row 2: Shift Planner + Demand Heatmap */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             {/* Shift Planner */}
             <motion.div variants={fadeUp} className="premium-card p-6">
@@ -317,7 +327,7 @@ const AICoPilot = () => {
                     <div className="p-4 rounded-2xl space-y-3" style={{ background: "var(--bg-glass)", border: "1px solid var(--border)" }}>
                       {[
                         { label: "Optimal Window", value: "6:00 PM – 10:00 PM" },
-                        { label: "Prime Zone",     value: "📍 Sector 18 Hub", highlight: true },
+                        { label: "Prime Zone",     value: `📍 ${currentCity} Hub`, highlight: true },
                         { label: "Projected Yield", value: "₹940+", green: true },
                       ].map((row, i) => (
                         <div key={i} className="flex items-center justify-between">
@@ -381,11 +391,7 @@ const AICoPilot = () => {
                 ))}
               </div>
             </motion.div>
-          </div>
-        </div>
 
-        {/* Right Column */}
-        <div className="xl:col-span-4 space-y-6">
 
           {/* Risk Intelligence */}
           <motion.div variants={fadeUp} className="premium-card p-6">
@@ -424,7 +430,7 @@ const AICoPilot = () => {
             <div className="p-4 rounded-2xl text-center" style={{ background: "var(--bg-glass)", border: "1px solid var(--border)" }}>
               <p className="text-[9px] font-black uppercase tracking-widest mb-2" style={{ color: "var(--text-muted)" }}>AI Safety Score</p>
               <div className="flex items-center justify-center gap-4">
-                <p className="text-4xl font-black gradient-text">92</p>
+                <p className="text-4xl font-black gradient-text">{envData?.current?.risk_score ? (100 - envData.current.risk_score) : 92}</p>
                 <div className="text-left">
                   <p className="text-[10px] font-black text-emerald-400">OPTIMAL</p>
                   <p className="text-[9px]" style={{ color: "var(--text-dim)" }}>Updated {lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
@@ -503,7 +509,6 @@ const AICoPilot = () => {
               </button>
             </div>
           </motion.div>
-        </div>
       </div>
     </motion.div>
   );

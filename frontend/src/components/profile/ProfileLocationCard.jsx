@@ -12,7 +12,7 @@ import {
 import LiveTacticalMap from "./LiveTacticalMap";
 
 const statTile =
-  "rounded-2xl border border-white/[0.07] bg-slate-950/40 px-4 py-3 shadow-inner shadow-black/20 backdrop-blur-md transition hover:border-cyan-400/20";
+  "rounded-2xl border border-[var(--border)] bg-[var(--bg-card)] px-4 py-3 shadow-inner shadow-black/5 backdrop-blur-md transition hover:border-cyan-400/20";
 
 export default function ProfileLocationCard({
   motionCustom,
@@ -39,9 +39,9 @@ export default function ProfileLocationCard({
       variants={fadeUpVariants}
       whileHover={{ y: -2 }}
       transition={{ type: "spring", stiffness: 320, damping: 24 }}
-      className="relative flex flex-col overflow-hidden rounded-3xl border border-cyan-500/20 bg-gradient-to-b from-slate-900/95 via-[#0a1628]/95 to-[#020617] p-1 shadow-[0_24px_60px_-20px_rgba(6,182,212,0.18)]"
+      className="relative flex flex-col overflow-hidden rounded-3xl border border-cyan-500/20 bg-gradient-to-b from-[var(--bg-card)] via-[var(--bg-dashboard)]/95 to-[var(--bg-main)] p-1 shadow-[0_24px_60px_-20px_rgba(6,182,212,0.18)]"
     >
-      <div className="relative rounded-[1.35rem] bg-slate-950/30 p-5 sm:p-7">
+      <div className="relative rounded-[1.35rem] bg-[var(--bg-glass)]/30 p-5 sm:p-7">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-cyan-500/15 text-cyan-300 ring-1 ring-cyan-400/25">
@@ -49,8 +49,8 @@ export default function ProfileLocationCard({
             </div>
             <div>
               <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-cyan-500/80">Live map</h2>
-              <p className="mt-1 text-lg font-bold text-white">Real-time device location</p>
-              <p className="mt-1 max-w-md text-sm leading-relaxed text-slate-500">
+              <p className="mt-1 text-lg font-bold text-[var(--text-bright)]">Real-time device location</p>
+              <p className="mt-1 max-w-md text-sm leading-relaxed text-[var(--text-muted)]">
                 GPS fix from your browser. Updates when you refresh — ideal for dispatch-style map preview.
               </p>
             </div>
@@ -76,7 +76,7 @@ export default function ProfileLocationCard({
                 <span className="absolute h-[70%] w-[70%] animate-pulse rounded-full border border-cyan-400/20" />
                 <Loader2 className="relative h-11 w-11 animate-spin text-cyan-400" />
               </div>
-              <p className="text-base font-semibold text-slate-200">Acquiring satellite lock…</p>
+              <p className="text-base font-semibold text-[var(--text-main)]">Acquiring satellite lock…</p>
               <p className="mt-2 max-w-xs text-center text-sm text-slate-500">Allow location access when your browser asks.</p>
             </div>
           )}
@@ -148,13 +148,13 @@ export default function ProfileLocationCard({
                 </div>
                 <div className={statTile}>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Accuracy</p>
-                  <p className="mt-2 text-sm font-bold tabular-nums text-white">{accuracyM != null ? `± ${accuracyM} m` : "—"}</p>
+                  <p className="mt-2 text-sm font-bold tabular-nums text-[var(--text-bright)]">{accuracyM != null ? `± ${accuracyM} m` : "—"}</p>
                 </div>
                 <div className={statTile}>
                   <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
                     <Clock size={11} /> Updated
                   </p>
-                  <p className="mt-2 text-sm font-bold text-white">{locatedAt ? locatedAt.toLocaleTimeString() : "—"}</p>
+                  <p className="mt-2 text-sm font-bold text-[var(--text-bright)]">{locatedAt ? locatedAt.toLocaleTimeString() : "—"}</p>
                 </div>
               </div>
 
@@ -165,7 +165,7 @@ export default function ProfileLocationCard({
                     <Loader2 size={15} className="animate-spin text-cyan-400/80" /> Resolving address…
                   </p>
                 ) : address ? (
-                  <p className="mt-3 text-sm leading-relaxed text-slate-200">{address}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-[var(--text-dim)]">{address}</p>
                 ) : (
                   <p className="mt-3 text-sm text-slate-500">No label returned — coordinates remain valid.</p>
                 )}
@@ -176,7 +176,7 @@ export default function ProfileLocationCard({
                   href={mapsHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-white/[0.1] to-white/[0.03] py-3.5 text-sm font-black text-white ring-1 ring-white/10 transition hover:from-indigo-500/25 hover:to-violet-500/15 hover:ring-indigo-400/30"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[var(--bg-glass)]/20 to-[var(--bg-glass)]/5 py-3.5 text-sm font-black text-[var(--text-bright)] ring-1 ring-[var(--border)] transition hover:from-indigo-500/25 hover:to-violet-500/15 hover:ring-indigo-400/30"
                 >
                   <ExternalLink size={17} />
                   Open in Google Maps

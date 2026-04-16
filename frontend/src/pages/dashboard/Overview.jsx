@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ComposedChart, Line, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from 'recharts';
-import { Zap, TrendingUp, Activity, Loader2, AlertCircle, BadgeCheck, ArrowUpRight, ArrowDownRight, Shield, RefreshCcw, Wind, Droplets } from 'lucide-react';
+import { Zap, TrendingUp, Activity, Loader2, AlertCircle, BadgeCheck, ArrowUpRight, ArrowDownRight, Shield, RefreshCcw, Wind, Droplets, MapPin } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../utils/api';
 
@@ -197,6 +197,9 @@ const Overview = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-2 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-[10px] font-black uppercase tracking-widest shadow-[0_0_20px_rgba(59,130,246,0.1)]">
+            <MapPin size={12} className="animate-bounce" /> Hyper-Local Geo-Protection Active
+          </div>
           <div className="badge-live">
             <div className="pulse-dot pulse-dot-green" />
             Live Data
@@ -276,7 +279,7 @@ const Overview = () => {
               <div className="mt-8 flex flex-wrap justify-center items-center gap-12 text-sm">
                 <div className="flex flex-col items-center">
                   <span className="text-slate-500 text-[11px] uppercase tracking-wider font-bold mb-1">Weekly Income</span>
-                  <span className="text-white text-lg font-semibold tabular-nums">₹{Number(ai.weekly_income || 0).toLocaleString()}</span>
+                  <span className="text-[var(--text-bright)] text-lg font-semibold tabular-nums">₹{Number(ai.weekly_income || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <span className="text-slate-500 text-[11px] uppercase tracking-wider font-bold mb-1">Potential Offset</span>
@@ -373,7 +376,7 @@ const Overview = () => {
                 <div key={i} className="space-y-2">
                    <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-slate-500">
                       <span>{item.label}</span>
-                      <span className="text-white">{item.value}</span>
+                      <span className="text-[var(--text-bright)]">{item.value}</span>
                    </div>
                    <div className="h-1 bg-slate-900 rounded-full overflow-hidden border border-white/5">
                       <motion.div initial={{ width: 0 }} animate={{ width: item.value.includes('%') ? item.value : 0 }} className={`h-full ${item.color}`} />

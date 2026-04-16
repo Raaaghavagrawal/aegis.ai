@@ -17,7 +17,16 @@ const EnvironmentalAnalytics = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await api.get(`/api/environment/${city}/history`);
+      
+      const lat = localStorage.getItem("aegis_lat");
+      const lon = localStorage.getItem("aegis_lon");
+      
+      let url = `/api/environment/${city}/history`;
+      if (lat && lon) {
+        url = `/api/environment?lat=${lat}&lon=${lon}`;
+      }
+      
+      const res = await api.get(url);
       
       console.log("ENV API RESPONSE:", res);
       console.log("RESPONSE DATA:", res.data);

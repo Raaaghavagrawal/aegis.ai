@@ -63,9 +63,15 @@ async function fetchFallbackFromDb(city) {
 }
 
 async function fetchAqiByCity(city) {
-  if (isCacheFresh(city)) {
-    console.log(`[AQI] Serving from cache for ${city}`);
-    return { ...aqiCache[city].data, source: "cache" };
+  return fetchAqiByCoords(null, null, city);
+}
+
+async function fetchAqiByCoords(lat, lon, city = null) {
+  const cacheKey = lat && lon ? `${lat.toFixed(2)}_${lon.toFixed(2)}` : city;
+
+  if (isCacheFresh(cacheKey)) {
+    console.log(`[AQI] Serving from cache for ${cacheKey}`);
+    return { ...aqiCache[cacheKey].data, source: "cache" };
   }
 
   const apiKey = process.env.AQICN_API_KEY;
@@ -73,7 +79,10 @@ async function fetchAqiByCity(city) {
     throw new Error("AQICN_API_KEY is missing");
   }
 
-  const url = `https://api.waqi.info/feed/${encodeURIComponent(city)}/`;
+  // WAQI supports geo feed: geo:lat;lon
+  const url = lat && lon 
+    ? `https://api.waqi.info/feed/geo:${lat};${lon}/`
+    : `https://api.waqi.info/feed/${encodeURIComponent(city)}/`;
 
   try {
     const response = await withRetry(
@@ -94,41 +103,34 @@ async function fetchAqiByCity(city) {
     const aqi = Number(payload?.data?.aqi || 0);
     const pollutionLevel = mapPollutionLevel(aqi);
 
-    const result = { aqi, pollutionLevel, source: "api" };
+    const result = { aqi, pollutionLevel, source: "api", city: payload?.data?.city?.name };
 
     // Update Cache
-    aqiCache[city] = { data: result, cachedAt: Date.now() };
+    aqiCache[cacheKey] = { data: result, cachedAt: Date.now() };
 
     const { addSystemLog } = require("../models/systemLogModel");
     await addSystemLog(
       "aqi_fetch",
-      `AQI OK for ${city}: ${aqi} (${pollutionLevel})`,
+      `AQI OK for ${cacheKey}: ${aqi}`,
       "success"
     );
 
     return result;
   } catch (err) {
-    console.error(`[AQI] All retries failed for ${city}: ${err.message}`);
+    console.error(`[AQI] All retries failed for ${cacheKey}: ${err.message}`);
 
-    if (aqiCache[city]) {
-      console.warn(`[AQI] Using stale cache for ${city}`);
-      return { ...aqiCache[city].data, source: "stale_cache" };
+    if (aqiCache[cacheKey]) {
+      return { ...aqiCache[cacheKey].data, source: "stale_cache" };
     }
 
-    const dbFallback = await fetchFallbackFromDb(city);
-    if (dbFallback) return dbFallback;
-
-    console.error(`[AQI] No fallback available for ${city}. Using safe defaults.`);
     const { addSystemLog } = require("../models/systemLogModel");
-    await addSystemLog(
-      "aqi_fetch",
-      `AQI fetch FAILED for ${city}. Safe defaults used.`,
-      "error"
-    );
+    await addSystemLog("aqi_fetch", `AQI fetch FAILED for ${cacheKey}`, "error");
+    
     return { aqi: 50, pollutionLevel: "Good", source: "default" };
   }
 }
 
 module.exports = {
   fetchAqiByCity,
+  fetchAqiByCoords,
 };

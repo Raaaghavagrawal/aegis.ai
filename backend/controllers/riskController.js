@@ -66,12 +66,27 @@ async function predictRisk(req, res, next) {
     const weeklyIncome = Number(req.user.weekly_income || 5000);
     const lossEstimation = Number(((riskScore / 100) * weeklyIncome * 0.3).toFixed(2));
 
+    // Mobility-Aware Trigger Logic
+    const { getLatestTriggeredEventByGeo } = require("../models/eventModel");
+    let activeDisruption = null;
+    if (req.user.latitude && req.user.longitude) {
+       activeDisruption = await getLatestTriggeredEventByGeo(req.user.latitude, req.user.longitude, 10);
+    }
+
+    const contributing_factors = [];
+    if (rainfall > 50) contributing_factors.push("Heavy Rain");
+    if (aqi > 300) contributing_factors.push("High Pollution");
+    if (temp > 40) contributing_factors.push("Extreme Heat");
+
+    const compound_risk = contributing_factors.length >= 2 ? "HIGH" : "NORMAL";
+    const payout_multiplier = compound_risk === "HIGH" ? 1.5 : 1.0;
+
     if (riskScore > 50) {
       const { createNotification } = require("../models/notificationModel");
       await createNotification({
         userId: req.user.id,
         type: 'risk_alert',
-        message: `🚨 HIGH RISK: Disruption probability at ${disruptionProbability.toFixed(0)}% in ${city}. Predicted loss: ₹${lossEstimation}.`
+        message: `⚠️ ${compound_risk === "HIGH" ? "COMPOUND RISK" : "HIGH RISK"} detected in your mobility zone. Factors: ${contributing_factors.join(" + ")}. Predicted loss: ₹${lossEstimation}.`
       }).catch(e => console.error("Notification failed:", e.message));
     }
 
@@ -79,14 +94,16 @@ async function predictRisk(req, res, next) {
       riskScore,
       disruptionProbability,
       lossEstimation,
+      compound_risk,
+      contributing_factors,
+      payout_multiplier,
       confidence: Math.round(90 + (riskScore / 10)),
-      recommendation: riskScore > 60 ? "🚨 RISK ELEVATED" : riskScore > 30 ? "⚠️ MONITORING" : "✅ OPTIMAL",
+      recommendation: compound_risk === "HIGH" ? "🚨 EVACUATE ZONE / PROTECT INCOME" : riskScore > 60 ? "🚨 RISK ELEVATED" : "✅ OPTIMAL",
       metrics: { aqi, rainfall, temperature: temp, humidity },
       risk: {
         risk_score: riskScore,
-        risk_level: riskScore > 60 ? "HIGH" : riskScore > 30 ? "MEDIUM" : "LOW",
-        confidence: Math.round(90 + (riskScore / 10)),
-        estimated_loss: lossEstimation
+        risk_level: compound_risk === "HIGH" ? "CRITICAL" : riskScore > 60 ? "HIGH" : "LOW",
+        factors: contributing_factors
       }
     });
   } catch (error) {
@@ -153,8 +170,23 @@ async function getFraudOverview(req, res, next) {
     const high = fraudData.filter(f => f.severity === 'high').length;
     const medium = fraudData.filter(f => f.severity === 'medium').length;
     const low = fraudData.filter(f => f.severity === 'low').length;
+    
+    // Peer Comparison Logic
+    const peerAnomaly = fraudData.find(f => f.type === 'peer_anomaly');
+    const anomalyScore = peerAnomaly ? Number(peerAnomaly.anomaly_score) : 1.0;
+    const peerStatus = anomalyScore > 3 ? "Suspicious" : anomalyScore > 1.5 ? "Divergent" : "Normal";
+    
     const riskScore = Math.min(100, (high * 40) + (medium * 20) + (low * 10));
-    return res.json({ riskScore, alerts: logs, suspiciousCount: logs.length });
+    return res.json({ 
+      riskScore, 
+      alerts: logs, 
+      suspiciousCount: logs.length,
+      peerComparison: {
+        status: peerStatus,
+        score: anomalyScore,
+        label: anomalyScore <= 1.5 ? "Behavior vs Peers: Optimal" : "Behavior vs Peers: Under Review"
+      }
+    });
   } catch (error) {
     return next(error);
   }

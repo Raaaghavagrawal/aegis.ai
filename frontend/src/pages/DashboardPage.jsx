@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -47,6 +47,30 @@ function DashboardPage() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("aegis_user") || "{}");
   const [activeTab, setActiveTab] = useState("overview");
+
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const { latitude, longitude } = position.coords;
+        localStorage.setItem("aegis_lat", latitude);
+        localStorage.setItem("aegis_lon", longitude);
+        try {
+          const token = localStorage.getItem("aegis_token");
+          await fetch("http://localhost:5001/api/users/location", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ latitude, longitude })
+          });
+          console.log("[GEO] Registered hyper-local coordinate node:", { latitude, longitude });
+        } catch (err) {
+          console.warn("[GEO] Registry failed:", err.message);
+        }
+      });
+    }
+  }, []);
 
   const navGroups = [
     {
@@ -98,7 +122,7 @@ function DashboardPage() {
               <Shield size={22} className="text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight text-white leading-none">Aegis.ai</h1>
+              <h1 className="text-xl font-bold tracking-tight text-[var(--text-bright)] leading-none">Aegis.ai</h1>
               <p className="text-[10px] text-blue-400 font-semibold uppercase tracking-wider mt-1">Parametric Net</p>
             </div>
           </div>
@@ -135,7 +159,7 @@ function DashboardPage() {
                   {user.name?.[0] || 'G'}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold truncate text-white">{user.name || "Gig Worker"}</p>
+                  <p className="text-sm font-semibold truncate text-[var(--text-bright)]">{user.name || "Gig Worker"}</p>
                   <p className="text-[11px] text-slate-500 truncate mt-0.5">{user.platform || "Active Node"}</p>
                 </div>
               </div>
@@ -216,7 +240,7 @@ function DashboardPage() {
               {activeTab === "notifications" && <NotificationsCenter />}
               { activeTab === "profile" && <ProfilePage isDashboard={true} /> }
               { activeTab === "settings" && <Settings /> }
-              { activeTab === "orders" && <OrdersPage /> }
+              { activeTab === "orders" && <OrdersPage isDashboard={true} /> }
             </motion.div>
           </AnimatePresence>
         </main>

@@ -8,14 +8,19 @@ const PolicyCenter = () => {
   const [loading, setLoading] = useState(true);
   const [scaling, setScaling] = useState(false);
   const [error, setError] = useState(null);
+  const [fraudData, setFraudData] = useState(null);
 
   const fetchPolicies = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await api.get('/api/policies/me', { headers: getAuthHeaders() });
-      console.log("Policy API Response:", res.data);
-      setPolicies(res.data.policies || []);
+      const [pRes, fRes] = await Promise.all([
+        api.get('/api/policies/me', { headers: getAuthHeaders() }),
+        api.get('/api/risk/fraud/overview', { headers: getAuthHeaders() }).catch(() => ({ data: null }))
+      ]);
+      console.log("Policy API Response:", pRes.data);
+      setPolicies(pRes.data.policies || []);
+      setFraudData(fRes.data);
     } catch (err) {
       console.error("Failed to fetch policies:", err);
       setError("Unable to load policy data. Please check your network connection.");
@@ -255,13 +260,25 @@ const PolicyCenter = () => {
         </div>
 
         <div className="premium-card p-8 flex flex-col">
-          <h4 className="text-[10px] font-black uppercase tracking-wider mb-8" style={{ color: "var(--text-muted)" }}>Node Coverage Matrix</h4>
+          <h4 className="text-[10px] font-black uppercase tracking-wider mb-8" style={{ color: "var(--text-muted)" }}>Behavioral Peer Analysis</h4>
           <div className="space-y-6 flex-1">
+            <div className="p-4 rounded-2xl bg-slate-500/5 border border-slate-500/10 mb-6">
+              <div className="flex items-center gap-3 mb-3">
+                <div className={`w-2 h-2 rounded-full ${fraudData?.peerComparison?.status === 'Normal' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+                <span className="text-[11px] font-black uppercase tracking-wider" style={{ color: 'var(--text-bright)' }}>
+                  {fraudData?.peerComparison?.status || 'Active'}
+                </span>
+              </div>
+              <p className="text-[10px] leading-relaxed" style={{ color: 'var(--text-dim)' }}>
+                {fraudData?.peerComparison?.label || "Calibrating behavioral vectors against regional claim aggregates."}
+              </p>
+            </div>
+
             {[
-              { label: 'Atmos Sensitivity', pct: 100, color: '#6366f1' },
-              { label: 'Hydro Gradient',    pct: 100, color: '#10b981' },
-              { label: 'Thermal Resilience',pct: 75,  color: '#818cf8' },
-              { label: 'Systemic Health',   pct: 100, color: '#06b6d4' },
+              { label: 'Claim Regularity', pct: fraudData?.peerComparison?.score ? Math.max(0, 100 - (fraudData.peerComparison.score * 10)) : 100, color: '#6366f1' },
+              { label: 'Zone Synchronization', pct: 92, color: '#10b981' },
+              { label: 'Platform Consistency', pct: 88,  color: '#818cf8' },
+              { label: 'Integrity Rating',    pct: 95, color: '#06b6d4' },
             ].map((item, i) => (
               <div key={i} className="space-y-2.5">
                 <div className="flex justify-between items-center">
@@ -281,7 +298,7 @@ const PolicyCenter = () => {
             ))}
           </div>
           <button className="mt-10 flex items-center justify-between p-4 rounded-xl transition-all group" style={{ background: "var(--bg-glass)", border: "1px solid var(--border)" }}>
-            <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Matrix Calibration</span>
+            <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Drill Down Logs</span>
             <ChevronRight size={14} style={{ color: "var(--text-dim)" }} className="group-hover:translate-x-1 transition-transform" />
           </button>
         </div>

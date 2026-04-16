@@ -45,6 +45,9 @@ async function syncEventTableSchema() {
   await ensureColumn("events", "pollution_level", "VARCHAR(50) NULL");
   await ensureColumn("events", "humidity", "DECIMAL(8,2) NOT NULL DEFAULT 0");
   await ensureColumn("events", "wind_speed", "DECIMAL(8,2) NOT NULL DEFAULT 0");
+  await ensureColumn("events", "latitude", "FLOAT DEFAULT NULL");
+  await ensureColumn("events", "longitude", "FLOAT DEFAULT NULL");
+  await ensureColumn("events", "zone_id", "VARCHAR(50) DEFAULT NULL");
 }
 
 async function createEvent({
@@ -57,11 +60,14 @@ async function createEvent({
   windSpeed = 0,
   eventDate,
   triggered,
+  latitude = null,
+  longitude = null,
+  zoneId = null,
 }) {
   const [result] = await pool.execute(
-    `INSERT INTO events (city, rainfall, temperature, aqi, pollution_level, humidity, wind_speed, event_date, triggered)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [city, rainfall, temperature, aqi, pollutionLevel, humidity, windSpeed, eventDate, triggered]
+    `INSERT INTO events (city, rainfall, temperature, aqi, pollution_level, humidity, wind_speed, event_date, triggered, latitude, longitude, zone_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [city, rainfall, temperature, aqi, pollutionLevel, humidity, windSpeed, eventDate, triggered, latitude, longitude, zoneId]
   );
   return result.insertId;
 }
@@ -109,11 +115,28 @@ async function getLatestTriggeredEventByCity(city) {
   return rows[0] || null;
 }
 
+async function getLatestTriggeredEventByGeo(latitude, longitude, radiusKm = 5) {
+  // Simple square bounding box for initial filtering, can be refined with Haversine if needed
+  const [rows] = await pool.execute(
+    `SELECT *, 
+     (6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) AS distance
+     FROM events
+     WHERE triggered = TRUE
+     HAVING distance < ?
+     ORDER BY event_date DESC, distance ASC
+     LIMIT 1`,
+    [latitude, longitude, latitude, radiusKm]
+  );
+  return rows[0] || null;
+}
+
 module.exports = {
   syncEventTableSchema,
   createEvent,
   getLatestEventByCity,
   getRecentEventsByCity,
   getLatestTriggeredEventByCity,
+  getLatestTriggeredEventByGeo,
   getEventById,
+  ensureColumn,
 };

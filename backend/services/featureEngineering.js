@@ -60,6 +60,18 @@ function buildFeatureVector(preprocessed, userContext = {}) {
   // Weighted rainfall considering platform sensitivity
   const rainfall_weighted = preprocessed.rainfall * rain_weight;
 
+  // New: Compound Risk Modeling
+  // 1. Heat Index (simplified feels-like)
+  const T = preprocessed.temperature;
+  const heat_index = T + (preprocessed.humidity > 60 ? 2 : 0);
+
+  // 2. Combined Score ( rainfall, aqi, temperature )
+  // Rainfall weight: 0.5, AQI weight: 0.3, Temp weight: 0.2
+  const combined_score = 
+    (Math.min(100, preprocessed.rainfall) * 0.5) +
+    (Math.min(500, preprocessed.aqi) / 5 * 0.3) +
+    (preprocessed.temperature > 38 ? 20 : 0);
+
   return {
     // Core environmental
     rainfall: preprocessed.rainfall,
@@ -69,6 +81,8 @@ function buildFeatureVector(preprocessed, userContext = {}) {
     aqi_avg_3d: preprocessed.aqi_avg_3d,
     aqi_trend: preprocessed.aqi_trend,         // positive = worsening
     temperature: preprocessed.temperature,
+    heat_index,
+    combined_score,
 
     // Temporal
     is_peak_hour: peak ? 1 : 0,
