@@ -34,11 +34,11 @@ const LiveBackground = () => {
         height: '200%', 
         top: '-50%', 
         left: '-50%',
-        backgroundImage: `linear-gradient(rgba(148, 163, 184, ${theme === 'dark' ? '0.05' : '0.1'}) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, ${theme === 'dark' ? '0.05' : '0.1'}) 1px, transparent 1px)`,
+        backgroundImage: `linear-gradient(rgba(99, 102, 241, ${theme === 'dark' ? '0.05' : '0.12'}) 1px, transparent 1px), linear-gradient(90deg, rgba(99, 102, 241, ${theme === 'dark' ? '0.05' : '0.12'}) 1px, transparent 1px)`,
         backgroundSize: '80px 80px',
         transform: 'perspective(1000px) rotateX(60deg)',
         zIndex: 0,
-        opacity: theme === 'dark' ? 1 : 0.5
+        opacity: theme === 'dark' ? 1 : 1
       }}></div>
 
       {/* Floating Network Nodes */}
